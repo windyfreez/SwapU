@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.campus_second_hand.mapper.ChatMapper">
+
+    <insert id="insertMessage" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chat_message (from_user_id, to_user_id, product_id, message_type, message, is_read, create_time)
+        VALUES (#{fromUserId}, #{toUserId}, #{productId}, #{messageType}, #{message}, #{isRead}, #{createTime})
+    </insert>
+
+    <select id="getChatHistory" resultType="com.itsean.campus_second_hand.vo.ChatMessageVO">
+        SELECT
+        cm.id AS messageId,
+        cm.from_user_id AS fromUserId,
+        u.username AS fromUserName,
+        u.avatar AS fromUserAvatar,
+        cm.to_user_id AS toUserId,
+        cm.message_type AS messageType,
+        cm.message AS content,
+        cm.is_read AS isRead,
+        cm.create_time AS createTime
+        FROM chat_message cm
+        LEFT JOIN user u ON cm.from_user_id = u.id
+        WHERE ((cm.from_user_id = #{currentUserId} AND cm.to_user_id = #{toUserId})
+        OR (cm.from_user_id = #{toUserId} AND cm.to_user_id = #{currentUserId}))
+        <if test="productId != null">
+            AND cm.product_id = #{productId}
+        </if>
+        ORDER BY cm.create_time DESC
+    </select>
+
+    <select id="getChatSessions" resultType="com.itsean.campus_second_hand.vo.ChatSessionVO">
+        SELECT
+            CASE
+                WHEN cm.from_user_id = #{currentUserId} THEN cm.to_user_id
+                ELSE cm.from_user_id
+                END AS userId,
+            MAX(u.username) AS username,
+            MAX(u.avatar) AS avatar,
+            cm.product_id AS productId,
+            MAX(p.title) AS productTitle,
+            MAX(p.images) AS productImage,
+            SUBSTRING_INDEX(GROUP_CONCAT(cm.message ORDER BY cm.create_time DESC SEPARATOR '|||'), '|||', 1) AS lastMessage,
+            MAX(cm.create_time) AS lastMessageTime,
+            SUM(CASE
+                    WHEN cm.to_user_id = #{currentUserId} AND cm.is_read = 0 THEN 1
+                    ELSE 0
+                END) AS unreadCount
+        FROM chat_message cm
+                 INNER JOIN user u ON (CASE
+                                           WHEN cm.from_user_id = #{currentUserId} THEN cm.to_user_id
+                                           ELSE cm.from_user_id
+            END) = u.id
+                 LEFT JOIN product p ON cm.product_id = p.id
+        WHERE cm.from_user_id = #{currentUserId} OR cm.to_user_id = #{currentUserId}
+        GROUP BY userId, cm.product_id
+        ORDER BY lastMessageTime DESC
+    </select>
+
+
+    <update id="markMessagesAsRead">
+        UPDATE chat_message
+        SET is_read = 1
+        WHERE from_user_id = #{fromUserId}
+          AND to_user_id = #{currentUserId}
+          AND is_read = 0
+    </update>
+
+    <select id="getUnreadCount" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM chat_message
+        WHERE from_user_id = #{fromUserId}
+          AND to_user_id = #{currentUserId}
+          AND is_read = 0
+    </select>
+
+</mapper>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.campus_second_hand.mapper.ProductMapper">
+
+    <resultMap id="ProductResultMap" type="com.itsean.campus_second_hand.entity.Product">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="title" column="title"/>
+        <result property="description" column="description"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="price" column="price"/>
+        <result property="originalPrice" column="original_price"/>
+        <result property="images" column="images" typeHandler="com.itsean.campus_second_hand.handler.JsonStringListTypeHandler"/>
+        <result property="productCondition" column="product_condition"/>
+        <result property="status" column="status"/>
+        <result property="viewCount" column="view_count"/>
+        <result property="quantity" column="quantity"/>
+        <result property="isTop" column="is_top"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="addProduct" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO product (
+            user_id, title, description, category_id, price, original_price,
+            images, product_condition, status, view_count, is_top, create_time, update_time,quantity
+        ) VALUES (
+                     #{userId}, #{title}, #{description}, #{categoryId}, #{price}, #{originalPrice},
+                     #{images, typeHandler=com.itsean.campus_second_hand.handler.JsonStringListTypeHandler}, #{productCondition}, #{status}, #{viewCount}, #{isTop}, #{createTime}, #{updateTime},#{quantity}
+                 )
+    </insert>
+
+    <update id="update">
+        UPDATE product
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="originalPrice != null">original_price = #{originalPrice},</if>
+            <if test="images != null">images = #{images, typeHandler=com.itsean.campus_second_hand.handler.JsonStringListTypeHandler},</if>
+            <if test="productCondition != null">product_condition = #{productCondition},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="viewCount != null">view_count = #{viewCount},</if>
+            <if test="isTop != null">is_top = #{isTop},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+
+    <update id="batchUpdateViewCount">
+        UPDATE product
+        SET view_count = view_count +
+        <foreach collection="list" item="item" open="CASE id" close="END" separator=" ">
+            WHEN #{item.productId} THEN #{item.count}
+        </foreach>
+        WHERE id IN
+        <foreach collection="list" item="item" open="(" separator="," close=")">
+            #{item.productId}
+        </foreach>
+    </update>
+
+
+    <select id="pageQuery" resultMap="ProductResultMap">
+        SELECT * FROM product
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            <if test="categoryId != null">
+                AND category_id = #{categoryId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND title LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="minPrice != null">
+                AND price &gt;= #{minPrice}
+            </if>
+            <if test="maxPrice != null">
+                AND price &lt;= #{maxPrice}
+            </if>
+            <if test="productCondition != null">
+                AND product_condition = #{productCondition}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        <choose>
+            <when test="sort == 'price_asc'">
+                ORDER BY price ASC
+            </when>
+            <when test="sort == 'price_desc'">
+                ORDER BY price DESC
+            </when>
+            <when test="sort == 'time_desc'">
+                ORDER BY create_time DESC
+            </when>
+            <when test="sort == 'view_desc'">
+                ORDER BY view_count DESC
+            </when>
+            <otherwise>
+                ORDER BY create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="allPageQuery" resultMap="ProductResultMap">
+        SELECT * FROM product
+        WHERE status = 1
+        <if test="userId != null">
+            AND user_id != #{userId}
+        </if>
+        <if test="categoryId != null">
+            AND category_id = #{categoryId}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND title LIKE CONCAT('%', #{keyword}, '%')
+        </if>
+        <if test="minPrice != null">
+            AND price &gt;= #{minPrice}
+        </if>
+        <if test="maxPrice != null">
+            AND price &lt;= #{maxPrice}
+        </if>
+        <if test="productCondition != null">
+            AND product_condition = #{productCondition}
+        </if>
+        <choose>
+            <when test="sort == 'price_asc'">
+                ORDER BY price ASC
+            </when>
+            <when test="sort == 'price_desc'">
+                ORDER BY price DESC
+            </when>
+            <when test="sort == 'time_desc'">
+                ORDER BY create_time DESC
+            </when>
+            <when test="sort == 'view_desc'">
+                ORDER BY view_count DESC
+            </when>
+            <otherwise>
+                ORDER BY create_time DESC
+            </otherwise>
+        </choose>
+    </select>
+
+
+
+    <select id="selectHotProducts" resultMap="ProductResultMap">
+        SELECT id, title, price, images, view_count,
+               user_id, description, category_id, original_price,
+               product_condition, status, is_top, create_time, update_time
+        FROM product WHERE status = 1
+        ORDER BY view_count DESC
+            LIMIT #{limit}
+    </select>
+
+</mapper>
