@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.campus_second_hand.mapper.OrderMapper">
+
+
+    <update id="update">
+        update orders
+        <set>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productTitle != null">product_title = #{productTitle},</if>
+            <if test="productImage != null">product_image = #{productImage},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="buyerId != null">buyer_id = #{buyerId},</if>
+            <if test="sellerId != null">seller_id = #{sellerId},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="freight != null">freight = #{freight},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="expireTime != null">expire_time = #{expireTime},</if>
+            <if test="buyerMessage != null">buyer_message = #{buyerMessage},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="payType != null">pay_type = #{payType},</if>
+            <if test="payTime != null">pay_time = #{payTime},</if>
+            <if test="cancelReason != null">cancel_reason = #{cancelReason},</if>
+            <if test="cancelTime != null">cancel_time = #{cancelTime},</if>
+            <if test="logisticsCompany != null">logistics_company = #{logisticsCompany},</if>
+            <if test="logisticsNo != null">logistics_no = #{logisticsNo},</if>
+            <if test="deliverTime != null">deliver_time = #{deliverTime},</if>
+            <if test="confirmTime != null">confirm_time = #{confirmTime},</if>
+            <if test="receiveTime != null">receive_time = #{receiveTime},</if>
+        </set>
+        where order_no = #{orderNo}
+    </update>
+
+
+    <select id="pageQuery" resultType="com.itsean.campus_second_hand.entity.Order">
+        select * from orders
+        <where>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="role != null and role == 'seller'.toString()">
+                and seller_id = #{currentId}
+            </if>
+            <if test="role != null and role == 'buyer'.toString()">
+                and buyer_id = #{currentId}
+            </if>
+            <if test="startTime != null">
+                and create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                and create_time &lt;= #{endTime}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+
+
+
+</mapper>

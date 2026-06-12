@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.campus_second_hand.mapper.CategoryMapper">
+
+    <select id="list" resultType="com.itsean.campus_second_hand.entity.Category">
+        select * from category
+        where status = 1
+        order by sort asc,create_time desc
+    </select>
+
+
+</mapper>
