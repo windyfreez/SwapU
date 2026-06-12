@@ -3,6 +3,10 @@
 
 **SwapU 云市集**是一款专为校园场景设计的二手交易平台。项目旨在解决传统校园二手交易中存在的**信息碎片化、流程不透明、交易不便捷**等核心痛点，打造一个规范、高效、诚信的校园闲置生态圈。
 
+<div align="center">
+  <img src="https://github.com/windyfreez/SwapU/raw/main/notemd/logo.png" width="200" alt="SwapU Logo">
+</div>
+
 ---
 
 ## 一、 技术栈与架构体系
