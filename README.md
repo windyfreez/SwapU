@@ -40,79 +40,117 @@
 ## 🧩 二、 核心业务架构模块
 我们将业务逻辑拆解为五个核心协作模块：
 
-### 1. 用户身份与资产管理
-打造基于校园身份的信任基石。
-* **账户体系**：支持用户注册、登录，提供密码修改与基础信息更新接口。
-* **个人画像与查询**：方便在交易过程中进行实名认证与信用展示。
-* **收藏夹服务**：提供“心愿清单”功能，支持快捷添加或移除心仪闲置。
+本系统采用模块化设计思想，将业务功能划分为用户管理、商品管理、订单管理、即时通讯以及辅助服务五个核心模块，各模块相互协作，共同完成校园二手交易平台的业务闭环。
 
-### 2. 商品全生命周期管理
-解决交易信息不集中、发布不规范的问题。
-* **精准分类与浏览**：通过分类列表进行筛选，并提供热门商品推荐及多维度分页查询。
-* **商品标准化维护**：支持商品发布、详情编辑、下架及删除操作。
-* **透明检索**：大幅提升闲置商品的查找效率。
+### （1）用户管理模块
 
-### 3. 订单交易闭环
-将非正式的“私下交易”转化为标准化的“平台订单”。
+用户管理模块负责系统用户的身份认证与基础信息维护，是平台运行的基础模块。系统支持用户注册、登录、密码修改以及个人信息更新等功能，并通过 JWT 实现用户身份认证与权限校验。同时，用户可查看个人资料以及管理自己的收藏商品，为后续商品浏览和交易活动提供支持。
 
-* **交易流程**：线上创建订单、支付及取消订单，确保交易意向明确。
-* **闭环物流与执行**：提供商家确认接单、订单发货，以及买家确认收货的闭环链路。
-* **统计分析**：提供订单详情查询及系统级统计信息。
+### （2）商品管理模块
 
-### 4. 实时通讯 (IM) 模块
-解决买卖双方沟通不及时、社交隐私泄露问题。
-* **会话与历史管理**：支持获取聊天会话列表及历史消息记录。
-* **实时交互**：基于 WebSocket 实现即时消息推送，具备“消息已读”状态同步功能。
+商品管理模块负责闲置商品信息的发布、维护与展示。系统提供商品分类查询、商品发布、商品编辑、商品下架、商品删除以及商品详情查看等功能，并支持分页查询和热门商品推荐。通过规范化管理商品信息，提高了商品展示效果和用户检索效率，为买卖双方提供便捷的交易环境。
 
-### 5. 辅助服务
-* **统一资源服务**：提供标准化的文件上传接口，确保展示图的标准化存储与加载。
+### （3）订单管理模块
+
+订单管理模块用于实现交易流程的标准化管理。买家可在线创建订单、支付订单或取消订单；卖家可对订单进行确认接单和发货操作；买家在收到商品后可确认收货，从而完成整个交易流程。系统还支持订单详情查询、订单分页查询以及订单统计分析等功能，实现交易全过程的可追溯管理。
+
+### （4）即时通讯模块
+
+即时通讯模块基于 WebSocket 技术实现买卖双方的实时消息交互。系统支持会话列表查询、历史消息查询、消息发送以及消息已读状态同步等功能。聊天消息在数据库中进行持久化存储，确保用户能够随时查看历史沟通记录，提高交易沟通效率和用户体验。
+
+### （5）辅助服务模块
+
+辅助服务模块为系统其他业务模块提供公共支撑能力。系统集成对象存储服务（OSS）实现商品图片上传与访问；利用 Redis 实现热点数据缓存、用户状态缓存以及热门商品缓存，提高系统访问性能；通过定时任务机制完成热门商品统计、浏览量同步以及订单状态维护等后台任务，保障系统稳定运行。
 
 springboot分层架构：
 ```
-com.xxx.market
+com.itsean.campus_second_hand
 │
-├── controller
+├── config                     # 配置层
+│   ├── RedisConfiguration
+│   ├── WebMvcConfiguration
+│   ├── WebSocketConfiguration
+│   └── OssConfiguration
+│
+├── controller                 # 接口控制层
 │   ├── UserController
 │   ├── ProductController
 │   ├── OrderController
+│   ├── FavoriteController
+│   ├── CategoryController
 │   ├── ChatController
+│   └── AddressBookController
+│
+├── dto                        # 数据传输对象
+│   ├── UserLoginDTO
+│   ├── ProductDTO
+│   ├── OrderDTO
+│   ├── ChatMessageDTO
 │   └── ...
 │
-├── service
+├── service                    # 业务接口层
 │   ├── UserService
 │   ├── ProductService
 │   ├── OrderService
+│   ├── ChatService
 │   └── ...
 │
-├── mapper
+├── service.impl               # 业务实现层
+│   ├── UserServiceImpl
+│   ├── ProductServiceImpl
+│   ├── OrderServiceImpl
+│   ├── ChatServiceImpl
+│   └── ...
+│
+├── mapper                     # 数据访问层
 │   ├── UserMapper
 │   ├── ProductMapper
 │   ├── OrderMapper
+│   ├── FavoriteMapper
+│   ├── ChatMapper
 │   └── ...
 │
-├── entity
+├── entity                     # 实体类
 │   ├── User
 │   ├── Product
-│   ├── Category
-│   ├── Favorite
 │   ├── Order
+│   ├── Favorite
+│   ├── Category
 │   └── ChatMessage
 │
-├── dto
-├── vo
-├── config
-│   ├── RedisConfig
-│   ├── WebSocketConfig
-│   └── SecurityConfig
+├── vo                         # 视图对象
+│   ├── ProductVO
+│   ├── OrderVO
+│   ├── ChatResponseVO
+│   └── ...
 │
-├── common
-│   ├── Result
-│   ├── PageResult
-│   └── Constant
+├── interceptor                # 拦截器
+│   └── JwtTokenUserInterceptor
 │
-├── exception
-├── interceptor
-└── utils
+├── handler                    # 处理器
+│   ├── GlobalExceptionHandler
+│   └── ChatWebSocketHandler
+│
+├── task                       # 定时任务
+│   ├── HotProductTask
+│   ├── ViewCountSyncTask
+│   └── OrderStatusTask
+│
+├── utils                      # 工具类
+│   ├── JwtUtil
+│   ├── AliOssUtil
+│   └── SimpleRandomSortUtil
+│
+├── constant                   # 常量定义
+│
+├── exception                  # 自定义异常
+│
+├── properties                 # 配置属性绑定
+│
+├── context                    # 上下文管理
+│   └── BaseContext
+│
+└── CampusSecondHandApplication
 ```
 
 ---
