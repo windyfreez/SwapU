@@ -68,6 +68,7 @@
 * **统一资源服务**：提供标准化的文件上传接口，确保展示图的标准化存储与加载。
 
 springboot分层架构：
+```
 com.xxx.market
 │
 ├── controller
@@ -112,6 +113,8 @@ com.xxx.market
 ├── exception
 ├── interceptor
 └── utils
+```
+
 ---
 
 ## ⚡ 三、 系统性能优化与架构设计
