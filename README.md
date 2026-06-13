@@ -30,37 +30,8 @@
 为提高系统性能，引入 Redis 作为缓存中间件，实现用户登录 Token、热门商品以及库存信息缓存。系统聊天模块采用 WebSocket 技术实现实时通信，支持买卖双方即时消息交互。同时提供文件上传服务用于商品图片存储。整体架构具有良好的扩展性、可维护性和高并发处理能力。
 
 系统架构图：
-graph LR
+<img width="2660" height="1131" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/65fd9db0-7eea-4c3a-afba-eed67cf3989f" />
 
-    U[用户]
-
-    U --> P[前端系统 Vue3]
-
-    P --> C[Controller层]
-
-    C --> S[Service业务层]
-
-    S --> M[Mapper持久层]
-
-    M --> DB[(MySQL数据库)]
-
-    S --> R[(Redis缓存)]
-
-    S --> WS[WebSocket服务]
-
-    S --> OSS[文件存储]
-
-    WS --> P
-
-    DB --> T1[用户数据]
-    DB --> T2[商品数据]
-    DB --> T3[订单数据]
-    DB --> T4[收藏数据]
-    DB --> T5[聊天数据]
-
-    R --> R1[Token缓存]
-    R --> R2[热门商品缓存]
-    R --> R3[库存缓存]
 
 ---
 
