@@ -31,6 +31,8 @@
 
 系统架构图：
 <img width="2660" height="1131" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/65fd9db0-7eea-4c3a-afba-eed67cf3989f" />
+数据库ER图：
+<img width="2207" height="2374" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/842dbf9e-8c1a-4740-a1e0-c803f263510e" />
 
 
 ---
@@ -65,6 +67,51 @@
 ### 5. 辅助服务
 * **统一资源服务**：提供标准化的文件上传接口，确保展示图的标准化存储与加载。
 
+springboot分层架构：
+com.xxx.market
+│
+├── controller
+│   ├── UserController
+│   ├── ProductController
+│   ├── OrderController
+│   ├── ChatController
+│   └── ...
+│
+├── service
+│   ├── UserService
+│   ├── ProductService
+│   ├── OrderService
+│   └── ...
+│
+├── mapper
+│   ├── UserMapper
+│   ├── ProductMapper
+│   ├── OrderMapper
+│   └── ...
+│
+├── entity
+│   ├── User
+│   ├── Product
+│   ├── Category
+│   ├── Favorite
+│   ├── Order
+│   └── ChatMessage
+│
+├── dto
+├── vo
+├── config
+│   ├── RedisConfig
+│   ├── WebSocketConfig
+│   └── SecurityConfig
+│
+├── common
+│   ├── Result
+│   ├── PageResult
+│   └── Constant
+│
+├── exception
+├── interceptor
+└── utils
 ---
 
 ## ⚡ 三、 系统性能优化与架构设计
