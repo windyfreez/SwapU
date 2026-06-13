@@ -209,4 +209,4 @@ com.itsean.campus_second_hand
 
 - [接口文档](notemd/swapu_interface_doc.md)
 - [性能优化指南](notemd/optimization.md)
-- [数据库表设计](notemd/database.md)
+- [数据库表设计](notemd/swapu_database.md)
