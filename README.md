@@ -205,10 +205,8 @@ com.itsean.campus_second_hand
 
 ---
 
-## 💡 四、 开发与协作指南
+## 💡 四、 项目文档如下
 
-> 🛡️ **安全校验**：核心接口 Header 需携带身份 Token。  
-> 🚀 **缓存优先**：热门查询严禁绕过 Redis 直接检索数据库。  
-> 💬 **实时通讯**：前端通过 WebSocket 与后端保持长连接。
-
----
+- [接口文档](notemd/swapu_interface_doc.md)
+- [性能优化指南](notemd/optimization.md)
+- [数据库表设计](notemd/database.md)
