@@ -30,7 +30,7 @@ public class FavoriteController {
     private Result add(@RequestBody FavoriteDTO favoriteDTO){
         log.info("添加收藏：{}",favoriteDTO);
         favoriteService.add(favoriteDTO);
-        return Result.success();
+        return Result.success("收藏成功");
     }
 
     /**
