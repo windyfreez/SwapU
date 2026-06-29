@@ -30,4 +30,10 @@ public interface AddressBookService{
      * @param id
      */
     void delete(Long id);
+
+    /**
+     * 设置默认地址
+     * @param addressBook
+     */
+    void setDefault(AddressBook addressBook);
 }

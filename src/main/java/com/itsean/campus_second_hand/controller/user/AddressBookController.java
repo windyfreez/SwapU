@@ -70,5 +70,17 @@ public class AddressBookController {
         return Result.success("删除成功");
     }
 
+    /**
+     * 设置默认地址
+     * @param addressBook
+     * @return
+     */
+    @ApiOperation("设置默认地址")
+    @PutMapping("/default")
+    public Result setDefault(@RequestBody AddressBook addressBook){
+        addressBookService.setDefault(addressBook);
+        return Result.success("设置成功");
+    }
+
 
 }

@@ -1,10 +1,7 @@
 package com.itsean.campus_second_hand.mapper;
 
 import com.itsean.campus_second_hand.entity.AddressBook;
-import org.apache.ibatis.annotations.Delete;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface AddressBookMapper {
@@ -38,4 +35,11 @@ public interface AddressBookMapper {
      */
     @Delete("delete from address_book where id = #{id}")
     void delete(Long id);
+
+    /**
+     * 修改用户默认地址
+     * @param addressBook
+     */
+    @Update("update address_book set is_default = 0 where user_id = #{userId}")
+    void updateIsDefaultByUserId(AddressBook addressBook);
 }

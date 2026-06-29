@@ -1,10 +1,12 @@
 package com.itsean.campus_second_hand.service.Impl;
 
+import com.itsean.campus_second_hand.context.BaseContext;
 import com.itsean.campus_second_hand.entity.AddressBook;
 import com.itsean.campus_second_hand.mapper.AddressBookMapper;
 import com.itsean.campus_second_hand.service.AddressBookService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AddressBookServiceImpl implements AddressBookService {
@@ -48,5 +50,22 @@ public class AddressBookServiceImpl implements AddressBookService {
     @Override
     public void delete(Long id) {
         addressBookMapper.delete(id);
+    }
+
+    /**
+     * 设置默认地址
+     * @param addressBook
+     */
+    @Override
+    @Transactional
+    public void setDefault(AddressBook addressBook) {
+        //将当前用户的其他地址设为非默认
+        addressBook.setIsDefault(0);
+        addressBook.setUserId(BaseContext.getCurrentId());
+        addressBookMapper.updateIsDefaultByUserId(addressBook);
+
+        //将当前地址设为默认
+        addressBook.setIsDefault(1);
+        addressBookMapper.update(addressBook);
     }
 }
