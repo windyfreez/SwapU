@@ -11,6 +11,11 @@ import MyProducts from '../views/MyProducts.vue'
 import ProductDetail from '../views/ProductDetail.vue'
 import EditProduct from '../views/EditProduct.vue'
 import MyFavorites from '../views/MyFavorites.vue'
+import MyOrders from '../views/MyOrders.vue'
+import OrderDetail from '../views/OrderDetail.vue'
+import CreateOrder from '../views/CreateOrder.vue'
+import MyWallet from '../views/MyWallet.vue'
+import Settings from '../views/Settings.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -21,6 +26,11 @@ const routes = [
   { path: '/profile/edit', component: EditProfile },
   { path: '/my-products', component: MyProducts },
   { path: '/my-favorites', component: MyFavorites },
+  { path: '/my-orders', component: MyOrders },
+  { path: '/order-detail/:orderNo', component: OrderDetail },
+  { path: '/order/create/:productId', component: CreateOrder },
+  { path: '/my-wallet', component: MyWallet },
+  { path: '/settings', component: Settings },
   { path: '/product/edit/:id', component: EditProduct },
   { path: '/login', component: Login },
   { path: '/register', component: Register },

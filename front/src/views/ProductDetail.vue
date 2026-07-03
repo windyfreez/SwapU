@@ -97,6 +97,13 @@
       </div>
       <div class="footer-right">
         <button class="btn-secondary" @click="contactSeller">联系卖家</button>
+        <button 
+          class="btn-primary" 
+          :class="{ disabled: product.status === 2 }"
+          @click="buyProduct"
+        >
+          {{ product.status === 2 ? '已售出' : '立即购买' }}
+        </button>
       </div>
     </footer>
 
@@ -322,6 +329,24 @@ const contactSeller = () => {
     path: '/messages/chat',
     query: { userId: product.value.sellerInfo.id }
   })
+}
+
+const buyProduct = () => {
+  if (!product.value) return
+  
+  if (product.value.status === 2) {
+    alert('该商品已售出')
+    return
+  }
+  
+  const token = localStorage.getItem('token')
+  if (!token) {
+    alert('请先登录')
+    router.push('/login')
+    return
+  }
+  
+  router.push(`/order/create/${product.value.id}`)
 }
 
 onMounted(() => {
