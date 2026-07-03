@@ -34,10 +34,11 @@ public class SimpleRandomSortUtil {
             Collections.shuffle(restProducts, new Random());
         }
 
-        List<Product> result = new ArrayList<>();
-        result.addAll(topProducts);
-        result.addAll(restProducts);
+        //封装products并返回打乱结果
+        products.clear();
+        products.addAll(topProducts);
+        products.addAll(restProducts);
 
-        return result;
+        return products;
     }
 }

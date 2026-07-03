@@ -96,7 +96,7 @@ public class   UserController {
     public Result update(@RequestBody UserDTO userDTO){
         log.info("修改用户信息：{}",userDTO);
         userService.update(userDTO);
-        return Result.success();
+        return Result.success("用户信息修改成功");
     }
 
     /**
@@ -109,7 +109,7 @@ public class   UserController {
     public Result updatePassword(@RequestBody PasswordDTO passwordDTO){
         log.info("修改密码：{}",passwordDTO);
         userService.updatePassword(passwordDTO);
-        return Result.success();
+        return Result.success("密码修改成功");
     }
 
     /**
