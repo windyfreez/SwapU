@@ -147,6 +147,43 @@
       </div>
     </div>
 
+    <div v-if="showPayModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <span class="modal-title">选择支付方式</span>
+          <button class="modal-close" @click="closeModal">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="pay-methods">
+            <div 
+              v-for="method in payMethods" 
+              :key="method.value"
+              class="pay-method"
+              :class="{ active: selectedPayType === method.value }"
+              @click="selectedPayType = method.value"
+            >
+              <span class="pay-icon">{{ method.icon }}</span>
+              <span class="pay-label">{{ method.label }}</span>
+              <span v-if="selectedPayType === method.value" class="pay-check">✓</span>
+            </div>
+          </div>
+          <div v-if="selectedPayType === 3" class="pay-password-section">
+            <label class="modal-label">支付密码</label>
+            <input 
+              v-model="payPassword" 
+              type="password" 
+              class="modal-input" 
+              placeholder="请输入支付密码"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closeModal">取消</button>
+          <button class="btn-primary" @click="confirmPay">确认支付</button>
+        </div>
+      </div>
+    </div>
+
     <div class="pagination">
       <button 
         class="page-btn" 
@@ -187,6 +224,15 @@ const cancelReason = ref('')
 const logisticsCompany = ref('')
 const logisticsNo = ref('')
 const freight = ref('')
+const showPayModal = ref(false)
+const selectedPayType = ref(3)
+const payPassword = ref('')
+
+const payMethods = [
+  { value: 1, label: '支付宝', icon: '💳' },
+  { value: 2, label: '微信支付', icon: '💚' },
+  { value: 3, label: '余额支付', icon: '💰' }
+]
 
 const orderStatistics = reactive({
   buyCompleted: 0,
@@ -264,7 +310,8 @@ const fetchOrders = async () => {
     })
 
     const data = await response.json()
-    if (data.code === 200) {
+    console.log('订单列表响应:', data)
+    if (data.code === 200 || data.code === 0) {
       orders.value = data.data.records || []
       total.value = data.data.total || 0
     } else {
@@ -344,15 +391,29 @@ const goToOrderDetail = (orderNo) => {
   router.push(`/order-detail/${orderNo}`)
 }
 
-const handlePay = async (order) => {
+const handlePay = (order) => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    router.push('/login')
+    return
+  }
+  selectedOrder.value = order
+  selectedPayType.value = 3
+  payPassword.value = ''
+  showPayModal.value = true
+}
+
+const confirmPay = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     router.push('/login')
     return
   }
 
-  const payPassword = prompt('请输入支付密码')
-  if (!payPassword) {
+  if (!selectedOrder.value) return
+
+  if (selectedPayType.value === 3 && !payPassword.value) {
+    alert('请输入支付密码')
     return
   }
 
@@ -364,16 +425,18 @@ const handlePay = async (order) => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        orderNo: order.orderNo,
-        payPassword: payPassword,
-        payType: 1
+        orderNo: selectedOrder.value.orderNo,
+        payPassword: payPassword.value,
+        payType: selectedPayType.value
       })
     })
 
     const data = await response.json()
-    if (data.code === 200) {
+    if (data.code === 200 || data.code === 0) {
       alert('支付成功')
+      showPayModal.value = false
       fetchOrders()
+      fetchOrderStatistics()
     } else {
       alert(data.msg || '支付失败')
     }
@@ -949,5 +1012,54 @@ onMounted(() => {
   border-radius: 8px;
   font-size: 14px;
   color: white;
+}
+
+.pay-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.pay-method {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #e8ecf0;
+  border-radius: 10px;
+  background: white;
+  transition: all 0.3s;
+}
+
+.pay-method.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.pay-icon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.pay-label {
+  flex: 1;
+  font-size: 15px;
+  color: #1a1a1a;
+}
+
+.pay-check {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.pay-password-section {
+  margin-top: 10px;
 }
 </style>

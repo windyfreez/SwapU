@@ -7,6 +7,37 @@
     </header>
 
     <div v-if="product" class="order-content">
+      <div class="section-card">
+        <div class="section-title">收货地址</div>
+        <div v-if="addresses.length > 0" class="address-list">
+          <div 
+            v-for="address in addresses" 
+            :key="address.id" 
+            class="address-item"
+            :class="{ active: selectedAddressId === address.id }"
+            @click="selectedAddressId = address.id"
+          >
+            <div class="address-radio">
+              <span v-if="selectedAddressId === address.id" class="radio-check">✓</span>
+            </div>
+            <div class="address-info">
+              <div class="address-header">
+                <span class="consignee">{{ address.consignee }}</span>
+                <span class="phone">{{ address.phone }}</span>
+                <span v-if="address.isDefault === 1" class="default-tag">默认</span>
+              </div>
+              <div class="address-detail">
+                {{ address.provinceName }}{{ address.cityName }}{{ address.districtName }}{{ address.detail }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="no-address">
+          <p>暂无收货地址，请先添加</p>
+          <button class="add-address-btn" @click="goToAddAddress">添加收货地址</button>
+        </div>
+      </div>
+
       <div class="product-card">
         <img :src="getFirstImage(product.images)" class="product-image" />
         <div class="product-info">
@@ -88,6 +119,8 @@ const product = ref(null)
 const quantity = ref(1)
 const buyerMessage = ref('')
 const loading = ref(false)
+const addresses = ref([])
+const selectedAddressId = ref(null)
 
 const totalAmount = computed(() => {
   if (!product.value) return 0
@@ -125,7 +158,7 @@ const fetchProduct = async () => {
     })
 
     const data = await response.json()
-    if (data.code === 200) {
+    if (data.code === 200 || data.code === 0) {
       product.value = data.data
     } else {
       alert(data.msg || '获取商品信息失败')
@@ -134,6 +167,35 @@ const fetchProduct = async () => {
     console.error('获取商品信息失败:', error)
     alert('获取商品信息失败')
   }
+}
+
+const fetchAddresses = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  try {
+    const response = await fetch('/address/list', {
+      headers: {
+        'token': token,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const data = await response.json()
+    if (data.code === 200 || data.code === 0) {
+      addresses.value = data.data || []
+      if (addresses.value.length > 0) {
+        const defaultAddress = addresses.value.find(a => a.isDefault === 1)
+        selectedAddressId.value = defaultAddress ? defaultAddress.id : addresses.value[0].id
+      }
+    }
+  } catch (error) {
+    console.error('获取地址列表失败:', error)
+  }
+}
+
+const goToAddAddress = () => {
+  router.push('/my-address')
 }
 
 const increaseQuantity = () => {
@@ -159,6 +221,11 @@ const submitOrder = async () => {
     return
   }
 
+  if (!selectedAddressId.value) {
+    alert('请选择收货地址')
+    return
+  }
+
   loading.value = true
 
   try {
@@ -171,7 +238,8 @@ const submitOrder = async () => {
       body: JSON.stringify({
         productId: product.value.id,
         quantity: quantity.value,
-        buyerMessage: buyerMessage.value
+        buyerMessage: buyerMessage.value,
+        addressId: selectedAddressId.value
       })
     })
 
@@ -196,6 +264,7 @@ const goBack = () => {
 
 onMounted(() => {
   fetchProduct()
+  fetchAddresses()
 })
 </script>
 
@@ -301,6 +370,106 @@ onMounted(() => {
   padding: 15px;
   margin-bottom: 15px;
   border: 1px solid #f0f0f0;
+}
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.address-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e8ecf0;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.address-item.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.address-radio {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #e8ecf0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.address-item.active .address-radio {
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.radio-check {
+  color: white;
+  font-size: 12px;
+}
+
+.address-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.consignee {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.phone {
+  font-size: 13px;
+  color: #666;
+}
+
+.default-tag {
+  font-size: 11px;
+  color: #ef4444;
+  background: #fef2f2;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.address-detail {
+  font-size: 13px;
+  color: #666;
+  line-height: 1.5;
+}
+
+.no-address {
+  text-align: center;
+  padding: 30px 0;
+}
+
+.no-address p {
+  font-size: 14px;
+  color: #999;
+  margin-bottom: 15px;
+}
+
+.add-address-btn {
+  padding: 10px 25px;
+  background: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
 .section-title {

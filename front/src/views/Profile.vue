@@ -80,7 +80,7 @@
         <span class="menu-text">我的钱包</span>
         <span class="menu-arrow">›</span>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="goToMyAddress">
         <span class="menu-icon">📍</span>
         <span class="menu-text">收货地址</span>
         <span class="menu-arrow">›</span>
@@ -146,6 +146,10 @@ const goToMyOrders = () => {
 
 const goToMyWallet = () => {
   router.push('/my-wallet')
+}
+
+const goToMyAddress = () => {
+  router.push('/my-address')
 }
 
 const goToSettings = () => {

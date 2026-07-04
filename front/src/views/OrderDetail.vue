@@ -35,11 +35,12 @@
         <div class="info-list">
           <div class="info-item">
             <span class="info-label">买家昵称</span>
-            <span class="info-value">{{ order.buyerName }}</span>
+            <span class="info-value">{{ buyerInfo?.nickname || buyerInfo?.username || order.buyerName }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">买家电话</span>
-            <span class="info-value">{{ order.buyerPhone }}</span>
+            <span class="info-label">头像</span>
+            <img v-if="buyerInfo?.avatar" :src="buyerInfo.avatar" class="info-avatar" />
+            <span v-else class="info-value">👤</span>
           </div>
         </div>
       </div>
@@ -49,12 +50,37 @@
         <div class="info-list">
           <div class="info-item">
             <span class="info-label">卖家昵称</span>
-            <span class="info-value">{{ order.sellerName }}</span>
+            <span class="info-value">{{ sellerInfo?.nickname || sellerInfo?.username || order.sellerName }}</span>
           </div>
           <div class="info-item">
-            <span class="info-label">卖家电话</span>
-            <span class="info-value">{{ order.sellerPhone }}</span>
+            <span class="info-label">头像</span>
+            <img v-if="sellerInfo?.avatar" :src="sellerInfo.avatar" class="info-avatar" />
+            <span v-else class="info-value">👤</span>
           </div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-title">收货地址</div>
+        <div v-if="addressInfo" class="address-info">
+          <div class="address-icon">📍</div>
+          <div class="address-content">
+            <div class="address-header">
+              <span class="consignee">{{ addressInfo.consignee }}</span>
+              <span class="phone">{{ addressInfo.phone }}</span>
+              <span v-if="addressInfo.isDefault === 1" class="default-tag">默认</span>
+            </div>
+            <div class="address-text">{{ addressInfo.provinceName }}{{ addressInfo.cityName }}{{ addressInfo.districtName }}{{ addressInfo.detail }}</div>
+          </div>
+        </div>
+        <div v-else-if="order.address" class="address-info">
+          <div class="address-icon">📍</div>
+          <div class="address-content">
+            <div class="address-text">{{ order.address }}</div>
+          </div>
+        </div>
+        <div v-else class="address-empty">
+          <span class="empty-text">暂无收货地址</span>
         </div>
       </div>
 
@@ -199,6 +225,43 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showPayModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <span class="modal-title">选择支付方式</span>
+          <button class="modal-close" @click="closeModal">×</button>
+        </div>
+        <div class="modal-body">
+          <div class="pay-methods">
+            <div 
+              v-for="method in payMethods" 
+              :key="method.value"
+              class="pay-method"
+              :class="{ active: selectedPayType === method.value }"
+              @click="selectedPayType = method.value"
+            >
+              <span class="pay-icon">{{ method.icon }}</span>
+              <span class="pay-label">{{ method.label }}</span>
+              <span v-if="selectedPayType === method.value" class="pay-check">✓</span>
+            </div>
+          </div>
+          <div v-if="selectedPayType === 3" class="pay-password-section">
+            <label class="modal-label">支付密码</label>
+            <input 
+              v-model="payPassword" 
+              type="password" 
+              class="modal-input" 
+              placeholder="请输入支付密码"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closeModal">取消</button>
+          <button class="btn-primary" @click="confirmPay">确认支付</button>
+        </div>
+      </div>
+    </div>
     <div v-if="order" class="bottom-actions">
       <button v-if="isSeller && order.status === 1" class="action-btn primary" @click="handleConfirm">确认接单</button>
       <button v-if="isBuyer && order.status === 2" class="action-btn primary" @click="handlePay">去支付</button>
@@ -220,10 +283,23 @@ const order = ref(null)
 const showCancelModal = ref(false)
 const showDeliverModal = ref(false)
 const showConfirmModal = ref(false)
+const showPayModal = ref(false)
 const cancelReason = ref('')
 const logisticsCompany = ref('')
 const logisticsNo = ref('')
 const freight = ref('')
+const selectedPayType = ref(3)
+const payPassword = ref('')
+
+const buyerInfo = ref(null)
+const sellerInfo = ref(null)
+const addressInfo = ref(null)
+
+const payMethods = [
+  { value: 1, label: '支付宝', icon: '💳' },
+  { value: 2, label: '微信支付', icon: '💚' },
+  { value: 3, label: '余额支付', icon: '💰' }
+]
 
 const currentUserId = ref(null)
 
@@ -277,6 +353,52 @@ const formatTime = (time) => {
   })
 }
 
+const fetchUserInfo = async (userId) => {
+  const token = localStorage.getItem('token')
+  if (!token || !userId) return null
+
+  try {
+    const response = await fetch(`/user/${userId}`, {
+      headers: {
+        'token': token,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const data = await response.json()
+    if (data.code === 200 || data.code === 0) {
+      return data.data
+    }
+    return null
+  } catch (error) {
+    console.error('获取用户信息失败:', error)
+    return null
+  }
+}
+
+const fetchAddressInfo = async (addressId) => {
+  const token = localStorage.getItem('token')
+  if (!token || !addressId) return null
+
+  try {
+    const response = await fetch(`/address/${addressId}`, {
+      headers: {
+        'token': token,
+        'Content-Type': 'application/json'
+      }
+    })
+
+    const data = await response.json()
+    if (data.code === 200 || data.code === 0) {
+      return data.data
+    }
+    return null
+  } catch (error) {
+    console.error('获取地址信息失败:', error)
+    return null
+  }
+}
+
 const fetchOrderDetail = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
@@ -288,7 +410,7 @@ const fetchOrderDetail = async () => {
   if (!orderNo) return
 
   try {
-    const response = await fetch(`/order/${orderNo}`, {
+    const response = await fetch(`/order/detail/${orderNo}`, {
       headers: {
         'token': token,
         'Content-Type': 'application/json'
@@ -296,8 +418,18 @@ const fetchOrderDetail = async () => {
     })
 
     const data = await response.json()
-    if (data.code === 200) {
+    if (data.code === 200 || data.code === 0) {
       order.value = data.data
+      
+      if (order.value.buyerId) {
+        buyerInfo.value = await fetchUserInfo(order.value.buyerId)
+      }
+      if (order.value.sellerId) {
+        sellerInfo.value = await fetchUserInfo(order.value.sellerId)
+      }
+      if (order.value.addressId) {
+        addressInfo.value = await fetchAddressInfo(order.value.addressId)
+      }
     } else {
       alert(data.msg || '获取订单详情失败')
     }
@@ -311,15 +443,26 @@ const goBack = () => {
   router.back()
 }
 
-const handlePay = async () => {
+const handlePay = () => {
+  const token = localStorage.getItem('token')
+  if (!token) {
+    router.push('/login')
+    return
+  }
+  selectedPayType.value = 3
+  payPassword.value = ''
+  showPayModal.value = true
+}
+
+const confirmPay = async () => {
   const token = localStorage.getItem('token')
   if (!token) {
     router.push('/login')
     return
   }
 
-  const payPassword = prompt('请输入支付密码')
-  if (!payPassword) {
+  if (selectedPayType.value === 3 && !payPassword.value) {
+    alert('请输入支付密码')
     return
   }
 
@@ -332,14 +475,15 @@ const handlePay = async () => {
       },
       body: JSON.stringify({
         orderNo: order.value.orderNo,
-        payPassword: payPassword,
-        payType: 1
+        payPassword: payPassword.value,
+        payType: selectedPayType.value
       })
     })
 
     const data = await response.json()
-    if (data.code === 200) {
+    if (data.code === 200 || data.code === 0) {
       alert('支付成功')
+      showPayModal.value = false
       fetchOrderDetail()
     } else {
       alert(data.msg || '支付失败')
@@ -728,6 +872,73 @@ onMounted(() => {
   color: #1a1a1a;
 }
 
+.info-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.address-info {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.address-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.address-content {
+  flex: 1;
+}
+
+.address-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.consignee {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.phone {
+  font-size: 13px;
+  color: #666;
+}
+
+.default-tag {
+  font-size: 11px;
+  color: #ef4444;
+  background: #fef2f2;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.address-text {
+  font-size: 14px;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+.address-empty {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.empty-text {
+  font-size: 14px;
+  color: #999;
+}
+
 .logistics-info {
   display: flex;
   flex-direction: column;
@@ -887,5 +1098,148 @@ onMounted(() => {
   background: #2563eb;
   color: white;
   border-color: #2563eb;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.modal-close {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  font-size: 24px;
+  color: #999;
+}
+
+.modal-body {
+  padding: 20px;
+}
+
+.modal-label {
+  display: block;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.modal-input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e8ecf0;
+  border-radius: 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+  color: #1a1a1a;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 15px 20px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.btn-secondary {
+  flex: 1;
+  padding: 12px;
+  background: #f5f7fa;
+  border: 1px solid #e8ecf0;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #666;
+}
+
+.btn-primary {
+  flex: 1;
+  padding: 12px;
+  background: #2563eb;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  color: white;
+}
+
+.pay-methods {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.pay-method {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border: 1px solid #e8ecf0;
+  border-radius: 10px;
+  background: white;
+  transition: all 0.3s;
+}
+
+.pay-method.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.pay-icon {
+  font-size: 20px;
+  margin-right: 12px;
+}
+
+.pay-label {
+  flex: 1;
+  font-size: 15px;
+  color: #1a1a1a;
+}
+
+.pay-check {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2563eb;
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+}
+
+.pay-password-section {
+  margin-top: 10px;
 }
 </style>

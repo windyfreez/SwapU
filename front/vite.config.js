@@ -33,6 +33,14 @@ export default defineConfig({
       '/order': {
         target: 'http://localhost:8080',
         changeOrigin: true
+      },
+      '/user': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
+      '/address': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
       }
     }
   }
