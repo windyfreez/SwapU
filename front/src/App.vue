@@ -1,16 +1,11 @@
 <template>
   <div class="app-container">
-    <template v-if="isFullPage">
+    <div class="page-wrapper">
       <router-view />
-    </template>
-    <template v-else>
-      <div class="content-wrapper">
-        <router-view />
-        <div class="tab-bar-wrapper">
-          <TabBar />
-        </div>
-      </div>
-    </template>
+    </div>
+    <div v-if="showTabBar" class="tab-bar-wrapper">
+      <TabBar />
+    </div>
   </div>
 </template>
 
@@ -21,10 +16,16 @@ import TabBar from './components/TabBar.vue'
 
 const router = useRouter()
 
-const isFullPage = computed(() => {
-  const fullPageRoutes = ['/login', '/register', '/profile/edit', '/product/:id']
+const showTabBar = computed(() => {
+  const noTabBarRoutes = ['/login', '/register', '/profile/edit', '/product/:id', '/product/edit/:id', '/order/create/:productId', '/order-detail/:orderNo', '/my-wallet', '/settings']
   const currentPath = router.currentRoute.value.path
-  return fullPageRoutes.includes(currentPath) || currentPath.startsWith('/product/')
+  return !noTabBarRoutes.some(route => {
+    if (route.includes(':')) {
+      const routePrefix = route.split('/:')[0]
+      return currentPath.startsWith(routePrefix + '/')
+    }
+    return currentPath === route
+  })
 })
 </script>
 
@@ -42,14 +43,15 @@ body {
 
 .app-container {
   min-height: 100vh;
+  background-color: #f5f5f5;
 }
 
-.content-wrapper {
+.page-wrapper {
   max-width: 480px;
   margin: 0 auto;
-  position: relative;
   min-height: 100vh;
-  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  background-color: #f5f5f5;
+  position: relative;
 }
 
 .tab-bar-wrapper {

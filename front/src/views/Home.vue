@@ -495,8 +495,7 @@ const loadMore = () => {
 
 .search-content {
   background: white;
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
   border-radius: 12px;
   padding: 20px;
 }

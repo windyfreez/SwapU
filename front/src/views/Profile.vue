@@ -53,10 +53,6 @@
             <span class="credit-value">{{ userInfo.creditScore || 100 }}</span>
           </div>
         </div>
-        <div class="balance-info">
-          <span class="balance-label">账户余额</span>
-          <span class="balance-value">¥{{ userInfo.balance || '0.00' }}</span>
-        </div>
       </div>
     </template>
 
@@ -71,31 +67,20 @@
         <span class="menu-text">我的收藏</span>
         <span class="menu-arrow">›</span>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="goToMyOrders">
         <span class="menu-icon">🛒</span>
         <span class="menu-text">我的订单</span>
-        <span class="menu-arrow">›</span>
-      </div>
-      <div class="menu-item">
-        <span class="menu-icon">⭐</span>
-        <span class="menu-text">我的评价</span>
         <span class="menu-arrow">›</span>
       </div>
     </div>
 
     <div class="menu-section">
-      <div class="menu-item">
-        <span class="menu-icon">🎫</span>
-        <span class="menu-text">优惠券</span>
-        <span class="menu-badge">3张可用</span>
-        <span class="menu-arrow">›</span>
-      </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="goToMyWallet">
         <span class="menu-icon">💰</span>
         <span class="menu-text">我的钱包</span>
         <span class="menu-arrow">›</span>
       </div>
-      <div class="menu-item">
+      <div class="menu-item" @click="goToMyAddress">
         <span class="menu-icon">📍</span>
         <span class="menu-text">收货地址</span>
         <span class="menu-arrow">›</span>
@@ -103,25 +88,11 @@
     </div>
 
     <div class="menu-section">
-      <div class="menu-item">
+      <div class="menu-item" @click="goToSettings">
         <span class="menu-icon">⚙️</span>
         <span class="menu-text">设置</span>
         <span class="menu-arrow">›</span>
       </div>
-      <div class="menu-item">
-        <span class="menu-icon">❓</span>
-        <span class="menu-text">帮助中心</span>
-        <span class="menu-arrow">›</span>
-      </div>
-      <div class="menu-item">
-        <span class="menu-icon">👤</span>
-        <span class="menu-text">关于我们</span>
-        <span class="menu-arrow">›</span>
-      </div>
-    </div>
-
-    <div v-if="isLoggedIn" class="sign-out-btn" @click="handleLogout">
-      退出登录
     </div>
   </div>
 </template>
@@ -148,6 +119,7 @@ const userInfo = reactive({
   createTime: ''
 })
 
+
 const goToLogin = () => {
   router.push('/login')
 }
@@ -168,16 +140,20 @@ const goToMyFavorites = () => {
   router.push('/my-favorites')
 }
 
-const handleLogout = () => {
-  if (confirm('确定要退出登录吗？')) {
-    localStorage.removeItem('token')
-    localStorage.removeItem('userInfo')
-    isLoggedIn.value = false
-    Object.keys(userInfo).forEach(key => {
-      userInfo[key] = ''
-    })
-    alert('已退出登录')
-  }
+const goToMyOrders = () => {
+  router.push('/my-orders')
+}
+
+const goToMyWallet = () => {
+  router.push('/my-wallet')
+}
+
+const goToMyAddress = () => {
+  router.push('/my-address')
+}
+
+const goToSettings = () => {
+  router.push('/settings')
 }
 
 const loadUserInfo = async () => {
