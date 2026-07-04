@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class AddressBookServiceImpl implements AddressBookService {
 
@@ -20,6 +22,7 @@ public class AddressBookServiceImpl implements AddressBookService {
      */
     @Override
     public void add(AddressBook addressBook) {
+        addressBook.setUserId(BaseContext.getCurrentId());
         addressBookMapper.insert(addressBook);
     }
 
@@ -67,5 +70,16 @@ public class AddressBookServiceImpl implements AddressBookService {
         //将当前地址设为默认
         addressBook.setIsDefault(1);
         addressBookMapper.update(addressBook);
+    }
+
+    /**
+     * 根据用户id查询地址
+     * @param currentId
+     * @return
+     */
+    @Override
+    public List<AddressBook> listByUserId(Long currentId) {
+        List<AddressBook> list = addressBookMapper.listByUserId(currentId);
+        return list;
     }
 }

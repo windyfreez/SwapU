@@ -3,6 +3,8 @@ package com.itsean.campus_second_hand.service;
 import com.itsean.campus_second_hand.entity.AddressBook;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public interface AddressBookService{
 
@@ -36,4 +38,11 @@ public interface AddressBookService{
      * @param addressBook
      */
     void setDefault(AddressBook addressBook);
+
+    /**
+     * 根据用户id查询地址
+     * @param currentId
+     * @return
+     */
+    List<AddressBook> listByUserId(Long currentId);
 }

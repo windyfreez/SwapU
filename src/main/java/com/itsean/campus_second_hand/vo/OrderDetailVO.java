@@ -39,6 +39,8 @@ public class OrderDetailVO {
 
     private Integer status;
 
+    private Long addressId;
+
     private String statusDesc;
 
     private Long buyerId;

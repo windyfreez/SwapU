@@ -86,6 +86,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //补全其他属性
+        order.setAddressId(orderDTO.getAddressId());
         order.setStatus(Order.ORDER_STATUS_WAIT_ACCEPT);
         order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
         order.setExpireTime(LocalDateTime.now().plusMinutes(30));
@@ -312,6 +313,7 @@ public class OrderServiceImpl implements OrderService {
 
         BeanUtils.copyProperties(order,orderDetailVO);
         orderDetailVO.setProductImage(product.getImages());
+        orderDetailVO.setAddressId(order.getAddressId());
         orderDetailVO.setProductTitle(product.getTitle());
         orderDetailVO.setProductDescription(product.getDescription());
         orderDetailVO.setSellerName(seller.getUsername());

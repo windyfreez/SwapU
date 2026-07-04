@@ -17,8 +17,8 @@ public interface OrderMapper {
      * 添加订单
      * @param order
      */
-    @Insert("INSERT INTO orders (order_no, product_id, product_title, product_image, quantity, buyer_id, seller_id, unit_price, amount, freight, total_amount, status, expire_time, buyer_message, create_time, pay_type, pay_time, cancel_reason, cancel_time, logistics_company, logistics_no, deliver_time, confirm_time, receive_time, address, delivery_method) " +
-            "VALUES (#{orderNo}, #{productId}, #{productTitle}, #{productImage}, #{quantity}, #{buyerId}, #{sellerId}, #{unitPrice}, #{amount}, #{freight}, #{totalAmount}, #{status}, #{expireTime}, #{buyerMessage}, #{createTime}, #{payType}, #{payTime}, #{cancelReason}, #{cancelTime}, #{logisticsCompany}, #{logisticsNo}, #{deliverTime}, #{confirmTime}, #{receiveTime}, #{address}, #{deliveryMethod})")
+    @Insert("INSERT INTO orders (order_no, product_id, product_title, product_image, quantity, buyer_id, seller_id, unit_price, amount, freight, total_amount, status, expire_time, buyer_message, create_time, pay_type, pay_time, cancel_reason, cancel_time, logistics_company, logistics_no, deliver_time, confirm_time, receive_time, address_id, delivery_method) " +
+            "VALUES (#{orderNo}, #{productId}, #{productTitle}, #{productImage}, #{quantity}, #{buyerId}, #{sellerId}, #{unitPrice}, #{amount}, #{freight}, #{totalAmount}, #{status}, #{expireTime}, #{buyerMessage}, #{createTime}, #{payType}, #{payTime}, #{cancelReason}, #{cancelTime}, #{logisticsCompany}, #{logisticsNo}, #{deliverTime}, #{confirmTime}, #{receiveTime}, #{addressId}, #{deliveryMethod})")
     void add(Order order);
 
     /**

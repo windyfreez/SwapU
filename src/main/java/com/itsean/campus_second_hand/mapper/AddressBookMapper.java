@@ -3,6 +3,8 @@ package com.itsean.campus_second_hand.mapper;
 import com.itsean.campus_second_hand.entity.AddressBook;
 import org.apache.ibatis.annotations.*;
 
+import java.util.List;
+
 @Mapper
 public interface AddressBookMapper {
 
@@ -42,4 +44,12 @@ public interface AddressBookMapper {
      */
     @Update("update address_book set is_default = 0 where user_id = #{userId}")
     void updateIsDefaultByUserId(AddressBook addressBook);
+
+    /**
+     * 根据用户id查询地址
+     * @param currentId
+     * @return
+     */
+    @Select("select * from address_book where user_id = #{currentId}")
+    List<AddressBook> listByUserId(Long currentId);
 }

@@ -55,7 +55,7 @@ public class Order {
 
     private Integer deliveryMethod;//配送方式 1.快递 2.外卖跑腿 3.自提
 
-    private String address;//地址
+    private Long addressId;//地址
 
     private String logisticsCompany;//物流公司/同城跑腿平台
 

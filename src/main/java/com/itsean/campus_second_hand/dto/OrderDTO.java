@@ -7,7 +7,7 @@ public class OrderDTO {
 
     private Long productId;
 
-    private String address;
+    private Long addressId;
 
     private Integer deliveryMethod;
 

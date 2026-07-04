@@ -1,5 +1,6 @@
 package com.itsean.campus_second_hand.controller.user;
 
+import com.itsean.campus_second_hand.context.BaseContext;
 import com.itsean.campus_second_hand.entity.AddressBook;
 import com.itsean.campus_second_hand.entity.result.Result;
 import com.itsean.campus_second_hand.service.AddressBookService;
@@ -8,6 +9,8 @@ import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/address")
@@ -29,6 +32,18 @@ public class AddressBookController {
         log.info("新增地址：{}", addressBook);
         addressBookService.add(addressBook);
         return Result.success("添加成功");
+    }
+
+    /**
+     * 查询当前用户地址列表
+     * @return
+     */
+    @ApiOperation("查询当前用户地址列表")
+    @GetMapping("/list")
+    public Result<List<AddressBook>> list(){
+        log.info("查询当前用户地址列表");
+        List<AddressBook> addressBookList = addressBookService.listByUserId(BaseContext.getCurrentId());
+        return Result.success(addressBookList);
     }
 
     /**
