@@ -167,7 +167,7 @@ const loadUserInfo = async () => {
   console.log('Token length:', token ? token.length : 0)
 
   try {
-    const response = await fetch('/api/user/info', {
+    const response = await fetch('/user/info', {
       headers: {
         'token': token,
         'Content-Type': 'application/json'

@@ -186,13 +186,26 @@ const mockMessages = [
 const fetchHistory = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`/api/ws/chat/history?toUserId=${targetUser.value.userId}`, {
+    const response = await fetch(`/ws/chat/history?toUserId=${targetUser.value.userId}`, {
       headers: {
         'token': token || ''
       }
     })
     if (!response.ok) {
-      console.warn('接口未就绪，使用mock数据')
+      const text = await response.text()
+      console.warn('接口返回错误状态:', response.status, response.statusText)
+      console.warn('响应内容:', text)
+      messages.value = mockMessages
+      nextTick(() => {
+        scrollToBottom()
+      })
+      return
+    }
+    const contentType = response.headers.get('content-type')
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text()
+      console.warn('响应不是JSON格式:', contentType)
+      console.warn('响应内容:', text)
       messages.value = mockMessages
       nextTick(() => {
         scrollToBottom()
@@ -232,7 +245,7 @@ const sendMessage = async () => {
 
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('/api/ws/chat/send', {
+    const response = await fetch('/ws/chat/send', {
       method: 'POST',
       headers: {
         'token': token || '',
@@ -300,7 +313,7 @@ const goBack = () => {
 const showOtherUserInfo = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`/api/user/${targetUser.value.userId}`, {
+    const response = await fetch(`/user/${targetUser.value.userId}`, {
       headers: {
         'token': token || ''
       }
@@ -352,7 +365,7 @@ const showOtherUserInfo = async () => {
 const showMyInfo = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('/api/user/info', {
+    const response = await fetch('/user/info', {
       headers: {
         'token': token || ''
       }
@@ -480,7 +493,7 @@ const closeModal = () => {
 const markAsRead = async (fromUserId) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('/api/ws/chat/read', {
+    const response = await fetch('/ws/chat/read', {
       method: 'POST',
       headers: {
         'token': token || '',
@@ -540,7 +553,7 @@ onMounted(async () => {
 const fetchUserInfoById = async (userId) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`/api/user/${userId}`, {
+    const response = await fetch(`/user/${userId}`, {
       headers: {
         'token': token || ''
       }
