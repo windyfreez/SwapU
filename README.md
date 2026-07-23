@@ -286,7 +286,7 @@ com.itsean.swapu
 
 |     工具      | 版本号 |                             下载                             |
 | :-----------: | :----: | :----------------------------------------------------------: |
-|      JDK      |  17   | https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html |
+|      JDK      |  17   | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
 |     Maven     | 3.3.0+ |                   http://maven.apache.org/                   |
 |     MySQL     |  5.6   |                    https://www.mysql.com/                    |
 |   RabbitMQ    | 3.7.4  |            http://www.rabbitmq.com/download.html             |
