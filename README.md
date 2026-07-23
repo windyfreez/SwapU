@@ -1,4 +1,3 @@
-[README.md](https://github.com/user-attachments/files/30312185/README.md)
 <div align="center">
   <img src="https://github.com/windyfreez/SwapU/raw/main/notemd/logo.png" width="400" alt="SwapU Logo">
   
@@ -343,7 +342,7 @@ npm run dev
 | :--- | :--- |
 | 前端 | http://localhost:5173 |
 | 后端API | http://localhost:8080 |
-| Swagger文档 | http://localhost:8080/swagger-ui.html |
+| Swagger文档 | http://localhost:8080/doc.html |
 | Redis | localhost:6379 |
 
 ### 部署说明
