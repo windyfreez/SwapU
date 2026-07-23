@@ -177,22 +177,6 @@ com.itsean.swapu
 ### 数据库ER图：
 <img width="2207" height="2374" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/842dbf9e-8c1a-4740-a1e0-c803f263510e" />
 
-## 📸 项目截图
-
-### 首页展示
-![首页展示](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/home.png)
-
-### 商品详情
-![商品详情](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/product.png)
-
-### 交易订单
-![交易订单](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/order.png)
-
-### 实时聊天
-![实时聊天](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/chat.png)
-
----
-
 ## 业务架构
 我们将业务逻辑拆解为五个核心协作模块：
 
