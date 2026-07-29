@@ -139,7 +139,7 @@ const handleFileUpload = async (event) => {
  const formData = new FormData();
  formData.append('file', file);
  const token = localStorage.getItem('token');
- const response = await fetch('/api/user/common/upload', {
+ const response = await fetch('/user/common/upload', {
  method: 'POST',
  headers: {
  'token': token || ''
@@ -174,7 +174,7 @@ const handleSave = async () => {
  isLoading.value = true;
  try {
  const token = localStorage.getItem('token');
- const response = await fetch('/api/user', {
+ const response = await fetch('/user', {
  method: 'PUT',
  headers: {
  'token': token,
@@ -230,7 +230,7 @@ const loadUserInfo = async () => {
  const token = localStorage.getItem('token');
  if (token) {
  try {
- const response = await fetch('/api/user/info', {
+ const response = await fetch('/user/info', {
  headers: {
  'token': token,
  'Content-Type': 'application/json'

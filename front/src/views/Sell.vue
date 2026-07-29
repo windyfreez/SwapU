@@ -176,7 +176,7 @@ const form = reactive({
 const fetchCategories = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('/api/category/list', {
+    const response = await fetch('/category/list', {
       headers: {
         'token': token || ''
       }
@@ -295,7 +295,7 @@ const submitForm = async () => {
     for (const img of images.value) {
       const formData = new FormData()
       formData.append('file', img.file)
-      const uploadResponse = await fetch('/api/user/common/upload', {
+      const uploadResponse = await fetch('/user/common/upload', {
         method: 'POST',
         headers: {
           'token': token || ''
@@ -389,6 +389,7 @@ onMounted(() => {
 
 .sell-form {
   padding: 15px;
+  padding-bottom: 80px;
 }
 
 .form-section {

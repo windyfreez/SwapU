@@ -87,7 +87,7 @@ const loadUserInfo = async () => {
   if (!token) return
 
   try {
-    const response = await fetch('/api/user/info', {
+    const response = await fetch('/user/info', {
       headers: {
         'token': token,
         'Content-Type': 'application/json'

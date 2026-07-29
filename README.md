@@ -176,22 +176,6 @@ com.itsean.swapu
 ### 数据库ER图：
 <img width="2207" height="2374" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/842dbf9e-8c1a-4740-a1e0-c803f263510e" />
 
-## 📸 项目截图
-
-### 首页展示
-![首页展示](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/home.png)
-
-### 商品详情
-![商品详情](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/product.png)
-
-### 交易订单
-![交易订单](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/order.png)
-
-### 实时聊天
-![实时聊天](https://github.com/windyfreez/SwapU/raw/main/notemd/screenshots/chat.png)
-
----
-
 ## 业务架构
 我们将业务逻辑拆解为五个核心协作模块：
 
@@ -301,7 +285,7 @@ com.itsean.swapu
 
 |     工具      | 版本号 |                             下载                             |
 | :-----------: | :----: | :----------------------------------------------------------: |
-|      JDK      |  17   | https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html |
+|      JDK      |  17   | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
 |     Maven     | 3.3.0+ |                   http://maven.apache.org/                   |
 |     MySQL     |  5.6   |                    https://www.mysql.com/                    |
 |   RabbitMQ    | 3.7.4  |            http://www.rabbitmq.com/download.html             |
@@ -358,7 +342,7 @@ npm run dev
 | :--- | :--- |
 | 前端 | http://localhost:5173 |
 | 后端API | http://localhost:8080 |
-| Swagger文档 | http://localhost:8080/swagger-ui.html |
+| Swagger文档 | http://localhost:8080/doc.html |
 | Redis | localhost:6379 |
 
 ### 部署说明
@@ -382,6 +366,3 @@ npm run build
 3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开 Pull Request
-
-
-

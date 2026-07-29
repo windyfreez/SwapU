@@ -179,7 +179,7 @@ const handleFileUpload = async (event) => {
     formData.append('file', file)
     
     try {
-      const response = await fetch('/api/user/common/upload', {
+      const response = await fetch('/user/common/upload', {
         method: 'POST',
         headers: {
           'token': token || ''

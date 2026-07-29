@@ -152,7 +152,7 @@ const deduplicateSessions = (sessionList) => {
 const fetchUserInfo = async (userId) => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch(`/api/user/${userId}`, {
+    const response = await fetch(`/user/${userId}`, {
       headers: {
         'token': token || ''
       }
@@ -175,7 +175,7 @@ const fetchUserInfo = async (userId) => {
 const fetchSessions = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('/api/ws/chat/sessions', {
+    const response = await fetch('/ws/chat/sessions', {
       headers: {
         'token': token || ''
       }

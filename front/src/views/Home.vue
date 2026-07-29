@@ -229,7 +229,7 @@ const getCategoryIcon = (name) => {
 const fetchCategories = async () => {
   try {
     const token = localStorage.getItem('token')
-    const response = await fetch('/api/category/list', {
+    const response = await fetch('/category/list', {
       headers: {
         'token': token || ''
       }

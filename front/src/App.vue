@@ -17,7 +17,7 @@ import TabBar from './components/TabBar.vue'
 const router = useRouter()
 
 const showTabBar = computed(() => {
-  const noTabBarRoutes = ['/login', '/register', '/profile/edit', '/product/:id', '/product/edit/:id', '/order/create/:productId', '/order-detail/:orderNo', '/my-wallet', '/settings']
+  const noTabBarRoutes = ['/login', '/register', '/profile/edit', '/product/:id', '/product/edit/:id', '/order/create/:productId', '/order-detail/:orderNo', '/my-wallet', '/settings', '/messages/chat']
   const currentPath = router.currentRoute.value.path
   return !noTabBarRoutes.some(route => {
     if (route.includes(':')) {
