@@ -11,12 +11,16 @@ import com.itsean.campus_second_hand.vo.ProductVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import nonapi.io.github.classgraph.json.JSONUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+
+import static com.itsean.campus_second_hand.constant.NumberConstant.HOT_PRODUCTS_REDIS_KEY;
 
 @RestController
 @RequestMapping("/product")
@@ -26,8 +30,6 @@ public class ProductController {
 
     @Autowired
     private ProductService productService;
-    @Resource
-    private RedisTemplate<String, Object> redisTemplate;
 
     /**
      * 添加商品
@@ -134,15 +136,14 @@ public class ProductController {
     }
 
     /**
-     * 获取热门商品并存入Redis
+     * 获取top20热门商品
      * @return
      */
     @ApiOperation("获取热门商品")
     @GetMapping("/hot")
     public Result hotProducts() {
-        log.info("获取热门商品并存入Redis");
-        List<Object> list = redisTemplate.opsForList().range("hot:products", 0, 19);
-        return Result.success(list);
+        log.info("获取top20热门商品");
+        return productService.top20List();
     }
 
 

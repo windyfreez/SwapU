@@ -1,9 +1,10 @@
-package com.itsean.campus_second_hand.task;// ... existing code ...
+package com.itsean.campus_second_hand.task;
+import cn.hutool.json.JSONUtil;
 import com.itsean.campus_second_hand.constant.NumberConstant;
 import com.itsean.campus_second_hand.entity.Product;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -15,13 +16,14 @@ import java.util.List;
 @Component
 public class HotProductTask {
 
+    //@Resource
+    //private RedisTemplate<String, Object> redisTemplate;
     @Resource
-    private RedisTemplate<String, Object> redisTemplate;
-
+    private StringRedisTemplate stringRedisTemplate;
     @Resource
     private ProductMapper productMapper;
 
-    @Scheduled(cron = "0 0/10 * * * ?")
+    @Scheduled(cron = "0 0/1 * * * ?")
     public void refreshHotProducts() {
         log.info("开始刷新热门商品到 Redis,{}", LocalDateTime.now());
 
@@ -32,12 +34,14 @@ public class HotProductTask {
                 log.warn("未查询到热门商品数据");
                 return;
             }
-
             String redisKey = NumberConstant.HOT_PRODUCTS_REDIS_KEY;
-            redisTemplate.delete(redisKey);
+            stringRedisTemplate.delete(redisKey);
 
             if (!hotProducts.isEmpty()) {
-                redisTemplate.opsForList().leftPushAll(redisKey, hotProducts);
+                hotProducts.forEach(hotProduct -> {
+                    String key = redisKey + hotProduct.getId();
+                    stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(hotProduct));
+                });
                 log.info("热门商品刷新完成，共 {} 个商品", hotProducts.size());
             }
 

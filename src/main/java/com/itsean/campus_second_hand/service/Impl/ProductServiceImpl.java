@@ -1,7 +1,10 @@
 package com.itsean.campus_second_hand.service.Impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.json.JSONUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import com.itsean.campus_second_hand.constant.NumberConstant;
 import com.itsean.campus_second_hand.constant.StringConstant;
 import com.itsean.campus_second_hand.context.BaseContext;
@@ -10,6 +13,7 @@ import com.itsean.campus_second_hand.dto.ProductListPageQueryDTO;
 import com.itsean.campus_second_hand.entity.Product;
 import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.entity.result.PageResult;
+import com.itsean.campus_second_hand.entity.result.Result;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.ProductService;
@@ -18,14 +22,20 @@ import com.itsean.campus_second_hand.utils.SimpleRandomSortUtil;
 import com.itsean.campus_second_hand.vo.ProductDetailVO;
 import com.itsean.campus_second_hand.vo.ProductVO;
 import lombok.extern.slf4j.Slf4j;
+import nonapi.io.github.classgraph.json.JSONUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.itsean.campus_second_hand.constant.NumberConstant.HOT_PRODUCTS_REDIS_KEY;
 
 @Slf4j
 @Service
@@ -37,6 +47,8 @@ public class ProductServiceImpl implements ProductService {
     private UserMapper userMapper;
     @Resource
     private ProductViewService productViewService;
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 添加商品
@@ -67,7 +79,15 @@ public class ProductServiceImpl implements ProductService {
      */
     @Override
     public ProductDetailVO getProductById(Long id) {
-        Product product = productMapper.getProductById(id);
+        // 先尝试从热门商品缓存读取
+        String hotKey = HOT_PRODUCTS_REDIS_KEY + id;
+        String hotProductJson = stringRedisTemplate.opsForValue().get(hotKey);
+        Product product = null;
+        if (StrUtil.isNotBlank(hotProductJson)) {
+            product = JSONUtil.toBean(hotProductJson, Product.class);
+        } else {
+            product = productMapper.getProductById(id);
+        }
 
         productViewService.incrementViewCount(id);
 
@@ -232,6 +252,42 @@ public class ProductServiceImpl implements ProductService {
         product.setStatus(NumberConstant.PRODUCT_STATUS_UP);
         product.setUpdateTime(LocalDateTime.now());
         productMapper.update(product);
+    }
+
+    /**
+     * 获取top20热门商品
+     * @return
+     */
+    @Override
+    public Result top20List() {
+        String keyPrefix = HOT_PRODUCTS_REDIS_KEY;
+
+        // 尝试从 Redis 聚合读取所有热门商品
+        Set<String> keys = stringRedisTemplate.keys(keyPrefix + "*");
+        if (CollUtil.isNotEmpty(keys)) {
+            List<String> jsonList = stringRedisTemplate.opsForValue().multiGet(keys);
+            List<Product> hotProductList = jsonList.stream()
+                    .filter(StrUtil::isNotBlank)
+                    .map(json -> JSONUtil.toBean(json, Product.class))
+                    .sorted((p1, p2) -> p2.getViewCount().compareTo(p1.getViewCount()))
+                    .collect(Collectors.toList());
+            if (!hotProductList.isEmpty()) {
+                return Result.success(hotProductList);
+            }
+        }
+
+        // Redis 未命中，查数据库
+        List<Product> hotProductList = productMapper.selectHotProducts(20);
+        if(CollUtil.isEmpty(hotProductList)){
+            return Result.error("未查询到热门商品");
+        }
+
+        // 逐个写入 Redis，方便后续列表和详情都能命中缓存
+        hotProductList.forEach(hotProduct -> {
+            String littleKey = keyPrefix + hotProduct.getId();
+            stringRedisTemplate.opsForValue().set(littleKey, JSONUtil.toJsonStr(hotProduct));
+        });
+        return Result.success(hotProductList);
     }
 
 }

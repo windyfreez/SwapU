@@ -3,6 +3,7 @@ package com.itsean.campus_second_hand.service;
 import com.itsean.campus_second_hand.dto.ProductDTO;
 import com.itsean.campus_second_hand.dto.ProductListPageQueryDTO;
 import com.itsean.campus_second_hand.entity.result.PageResult;
+import com.itsean.campus_second_hand.entity.result.Result;
 import com.itsean.campus_second_hand.vo.ProductDetailVO;
 import com.itsean.campus_second_hand.vo.ProductVO;
 import org.springframework.stereotype.Service;
@@ -60,4 +61,10 @@ public interface ProductService {
      * @param id
      */
     void takeup(Long id);
+
+    /**
+     * 获取top20热门商品
+     * @return
+     */
+    Result top20List();
 }

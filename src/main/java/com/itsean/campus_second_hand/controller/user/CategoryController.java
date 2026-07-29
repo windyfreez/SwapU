@@ -30,7 +30,6 @@ public class CategoryController {
     @ApiOperation("获取所有分类")
     public Result<List<Category>> list(){
         log.info("获取所有分类");
-        List<Category> categoryList = categoryService.list();
-        return Result.success(categoryList);
+        return categoryService.list();
     }
 }
