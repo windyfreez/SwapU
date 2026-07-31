@@ -149,6 +149,9 @@ UNIQUE(user_id, product_id)
 | 0 | 未读 |
 | 1 | 已读 |
 
+### 数据库ER图
+<img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/0780f4e4-bcab-47bd-bd97-9d19f784d7b2" />
+
 
 创建表结构sql文件：
 ```sql
