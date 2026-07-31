@@ -30,17 +30,22 @@
 **代码实现要点：**
 
 ```java
+/**
+ * 同步浏览量到数据库
+ */
 @Scheduled(cron = "0 0/5 * * * ?")
 public void syncViewCountToDB() {
-    log.info("开始同步浏览量到数据库");
+    log.info("开始同步浏览量到数据库:{}", LocalDateTime.now());
 
-    Set<String> keys = stringRedisTemplate.keys("product:view:count:*");
+    // 1. 获取所有商品浏览量 key
+    Set<String> keys = stringRedisTemplate.keys(PRODUCT_VIEW_PREFIX + "*");
     if (keys == null || keys.isEmpty()) return;
 
     List<HashMap<String, Long>> updateList = new ArrayList<>();
+
     for (String key : keys) {
         try {
-            Long productId = Long.parseLong(key.replace("product:view:count:", ""));
+            Long productId = Long.parseLong(key.replace(PRODUCT_VIEW_PREFIX, ""));
             String countStr = stringRedisTemplate.opsForValue().get(key);
             if (countStr == null) continue;
 
@@ -50,17 +55,18 @@ public void syncViewCountToDB() {
             HashMap<String, Long> map = new HashMap<>();
             map.put("productId", productId);
             map.put("count", count);
-            updateList.add(map);  
-        } catch (Exception e) {
-            log.error("解析浏览量key出错: {}", key, e);
-        }
+            updateList.add(map);
+        } catch (Exception ignored) {}
     }
 
+    // 2. 批量更新数据库
     if (!updateList.isEmpty()) {
         productMapper.batchUpdateViewCount(updateList);
-        stringRedisTemplate.delete(keys);
-        log.info("同步完成：{} 条", updateList.size());
     }
+
+    // 3. 删除 Redis 临时计数
+    stringRedisTemplate.delete(keys);
+    log.info("同步完成：{} 条" ,updateList.size());
 }
 ```
 
@@ -93,18 +99,108 @@ CREATE INDEX idx_view_count ON product(view_count DESC);
 每隔 10 分钟，系统自动执行一次热门商品的刷新任务。任务内部首先调用 Mapper 方法从数据库查询当前浏览量最高的前 20 件商品，然后将旧缓存删除，再以列表形式将新的热门商品列表存入 Redis。
 
 ```java
-@Scheduled(cron = "0 0/10 * * * ?")
+@Scheduled(cron = "0 0/1 * * * ?")
 public void refreshHotProducts() {
-    log.info("刷新热门商品到 Redis...");
-    List<Product> hotProducts = productMapper.selectHotProducts(20);
-    
-    redisTemplate.delete("hot:products");
-    redisTemplate.opsForList().leftPushAll("hot:products", hotProducts);
-    log.info("热门商品刷新完成");
+    log.info("开始刷新热门商品到 Redis,{}", LocalDateTime.now());
+
+    try {
+        List<Product> hotProducts = productMapper.selectHotProducts(NumberConstant.HOT_PRODUCT_LIMIT);
+
+        if (hotProducts == null || hotProducts.isEmpty()) {
+            log.warn(CANT_SEARCH_HOT_PRODUCTS);
+            return;
+        }
+        String redisKey = StringConstant.HOT_PRODUCTS_REDIS_KEY;
+        stringRedisTemplate.delete(redisKey);
+
+        if (!hotProducts.isEmpty()) {
+            hotProducts.forEach(hotProduct -> {
+                String key = redisKey + hotProduct.getId();
+                stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(hotProduct));
+            });
+            log.info("热门商品刷新完成，共 {} 个商品", hotProducts.size());
+        }
+
+    } catch (Exception e) {
+        log.error("刷新热门商品失败", e);
+    }
 }
 ```
 
-**查询路径变更：** 前端或服务层需要获取热门商品时，不再调用数据库查询，而是直接从 Redis 的 `hot:products` 键中读取。这一变更使得热门商品接口的响应时间从原来的平均 80ms ~ 120ms 降低至 5ms 以内。
+**第三步：查询路径变更** 
+
+前端或服务层需要获取热门商品时，不再调用数据库查询，而是直接从 Redis 的 `hot:products` 键中读取。这一变更使得热门商品接口的响应时间从原来的平均 80ms ~ 120ms 降低至 5ms 以内。
+```java
+/**
+     * 获取top20热门商品
+     * @return
+     */
+    @Override
+    public Result top20List() {
+        String keyPrefix = HOT_PRODUCTS_REDIS_KEY;
+
+        // 尝试从 Redis 聚合读取所有热门商品
+        Set<String> keys = stringRedisTemplate.keys(keyPrefix + "*");
+        if (CollUtil.isNotEmpty(keys)) {
+            List<String> jsonList = stringRedisTemplate.opsForValue().multiGet(keys);
+            List<Product> hotProductList = jsonList.stream()
+                    .filter(StrUtil::isNotBlank)
+                    .map(json -> JSONUtil.toBean(json, Product.class))
+                    .sorted((p1, p2) -> p2.getViewCount().compareTo(p1.getViewCount()))
+                    .collect(Collectors.toList());
+            if (!hotProductList.isEmpty()) {
+                return Result.success(hotProductList);
+            }
+        }
+
+        // Redis 未命中，查数据库
+        List<Product> hotProductList = productMapper.selectHotProducts(20);
+        if(CollUtil.isEmpty(hotProductList)){
+            return Result.error(CANT_SEARCH_HOT_PRODUCTS);
+        }
+
+        // 逐个写入 Redis，方便后续列表和详情都能命中缓存
+        hotProductList.forEach(hotProduct -> {
+            String littleKey = keyPrefix + hotProduct.getId();
+            stringRedisTemplate.opsForValue().set(littleKey, JSONUtil.toJsonStr(hotProduct));
+        });
+        return Result.success(hotProductList);
+    }
+```
+
+同时，由于redis中存入了热门商品的所有detail，所以针对前端或服务层访问商品详细信息时，我们也可以调用redis缓存来提高接口平均响应速度：
+即访问某个商品详细信息时，**先查找redis缓存**中是否有该商品的详细信息，如果有，则直接调用redis缓存的所有信息，如果没有，再查询数据库。
+由此可以减少查询数据库次数。
+```java
+/**
+     * 根据id获取商品信息
+     * @param id
+     * @return
+     */
+    @Override
+    public ProductDetailVO getProductById(Long id) {
+        // 先尝试从热门商品缓存读取
+        String hotKey = HOT_PRODUCTS_REDIS_KEY + id;
+        String hotProductJson = stringRedisTemplate.opsForValue().get(hotKey);
+        Product product = null;
+        if (StrUtil.isNotBlank(hotProductJson)) {
+            product = JSONUtil.toBean(hotProductJson, Product.class);
+        } else {
+            product = productMapper.getProductById(id);
+        }
+
+        productViewService.incrementViewCount(id);
+
+        //后续逻辑为补全基础属性...
+
+        return productDetailVO;
+
+    }
+```
+
+通过实施**商品浏览量异步写入数据库**和**缓存热门商品的方案**，该系统性能有了显著的提升：使用Jmeter工具进行高并发压测，测得商品访问平均速度由420ms优化至68ms，
+这不仅使得热门商品可以应对更高的访问量，还可以提高热门商品的访问流量，进而提升售卖效率。
+
 
 ---
 
@@ -380,9 +476,9 @@ public static List<Product> weightedRandomSort(List<Product> products) {
 
 ## 四、 方案总结与对比
 
-| 优化方案 | 核心解决的问题 | 关键技术点 | 性能提升指标 |
-|---------|-------------|-----------|------------|
-| 浏览量异步处理 | 数据库写入压力过大 | Redis计数器 + 定时批量同步 | 数据库写入减少 99% |
-| 热门商品缓存预热 | 热门商品查询慢 | 定时计算 + Redis缓存 | 响应时间从 80~120ms 降至 5ms 以内 |
-| 库存预扣减方案 | 高并发下的库存超卖与性能瓶颈 | Lua原子操作 + 消息队列异步同步 + 定时对账 | TPS 从 500 提升至 8000+ |
-| 推荐加权随机排序 | 推荐内容固化、新商品曝光不足 | 分区 + 随机打乱算法 | 新商品 CTR 提升 35% |
+| 优化方案 | 核心解决的问题 | 关键技术点 | 性能提升指标                |
+|---------|-------------|-----------|-----------------------|
+| 浏览量异步处理 | 数据库写入压力过大 | Redis计数器 + 定时批量同步 | 数据库写入减少 99%           |
+| 热门商品缓存预热 | 热门商品查询慢 | 定时计算 + Redis缓存 | 平均响应时间从 420ms 降至 68ms |
+| 库存预扣减方案 | 高并发下的库存超卖与性能瓶颈 | Lua原子操作 + 消息队列异步同步 + 定时对账 | TPS 从 500 提升至 8000+   |
+| 推荐加权随机排序 | 推荐内容固化、新商品曝光不足 | 分区 + 随机打乱算法 | 新商品 CTR 提升 35%        |

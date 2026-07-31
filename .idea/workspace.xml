@@ -4,309 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="优化热门商品redis缓存结构">
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/CampusSecondHandApplication.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/config/OssConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/config/RedisConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/config/WebMvcConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/config/WebSocketConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/constant/JwtClaimsConstant.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/constant/MessageConstant.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/constant/NumberConstant.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/constant/StringConstant.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/context/BaseContext.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/AddressBookController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/CategoryController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/ChatController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/CommonController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/FavoriteController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/OrderController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/ProductController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/UserController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/ChatHistoryQueryDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/ChatMessageDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/ChatSessionQueryDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/FavoriteDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/FavoritePageQueryDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/MarkReadDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderCancelDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderConfirmDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderDeliverDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderPageQueryDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderPayDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/OrderReceiveDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/PasswordDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/ProductDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/ProductListPageQueryDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/UserDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/UserLoginDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/dto/UserRegisterDTO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/AddressBook.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/Admin.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/Category.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/ChatMessage.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/Order.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/Product.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/User.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/result/PageResult.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/result/Result.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/exception/AccountRepeatException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/exception/BaseException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/exception/ChatMessageException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/exception/OrderException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/handler/ChatWebSocketHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/handler/GlobalExceptionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/handler/JsonStringListTypeHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/interceptor/JwtTokenUserInterceptor.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/AddressBookMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/AdminMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/CategoryMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ChatMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/FavoriteMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/OrderMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ProductMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/UserMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/properties/AliOssProperties.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/properties/JwtProperties.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/AddressBookService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/CategoryService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ChatService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/FavoriteService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/AddressBookServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/CatrgoryServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ChatServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/FavoriteServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/OrderServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ProductServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ProductViewServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/UserServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/OrderService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ProductService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ProductViewService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/UserService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/task/HotProductTask.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/task/OrderStatusTask.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/task/ViewCountSyncTask.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/utils/AliOssUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/utils/JwtUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/utils/SimpleRandomSortUtil.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/ChatMessageVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/ChatResponseVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/ChatSessionVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/FavoriteVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderCancelVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderConfirmVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderDeliverVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderDetailVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderPageVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderPayVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderReceiveVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderStatisticsVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/ProductDetailVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/ProductVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/UserLoginVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/UserRegisterVO.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/application.yml.example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/AddressBookMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/CategoryMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/ChatMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/FavoriteMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/OrderMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/ProductMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/UserMapper.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/public/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/App.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/assets/base.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/assets/logo.svg" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/assets/main.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/HelloWorld.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/TabBar.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/TheWelcome.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/WelcomeItem.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/icons/IconCommunity.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/icons/IconDocumentation.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/icons/IconEcosystem.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/icons/IconSupport.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/components/icons/IconTooling.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/main.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/router/index.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/ChatRoom.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/CreateOrder.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/EditProduct.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/EditProfile.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Home.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Login.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Messages.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/MyAddress.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/MyFavorites.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/MyOrders.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/MyProducts.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/MyWallet.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/OrderDetail.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/ProductDetail.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Profile.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Register.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Sell.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/src/views/Settings.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/front/vite.config.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/fastcgi.conf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/fastcgi_params" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/koi-utf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/koi-win" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/mime.types" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/nginx.conf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/scgi_params" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/uwsgi_params" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/conf/win-utf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/README" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/geo2nginx.pl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/unicode2nginx/koi-utf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/unicode2nginx/unicode-to-nginx.pl" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/unicode2nginx/win-utf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/vim/ftdetect/nginx.vim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/vim/ftplugin/nginx.vim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/vim/indent/nginx.vim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/contrib/vim/syntax/nginx.vim" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/CHANGES" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/CHANGES.ru" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/OpenSSL.LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/PCRE.LICENCE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/README" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/docs/zlib.LICENSE" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/html/assets/index.a243078b.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/html/assets/index.e73a2458.css" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/html/favicon.ico" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/html/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/logs/nginx.pid" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx-1.22.1/nginx.exe" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notemd/logo.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notemd/optimization.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notemd/swapu_database.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notemd/swapu_interface_doc.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/notemd/swapu_interface_doc_swagger.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/CampusSecondHandApplication.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/config/OssConfiguration.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/config/RedisConfiguration.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/config/WebMvcConfiguration.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/config/WebSocketConfiguration.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/constant/JwtClaimsConstant.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/constant/MessageConstant.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/constant/NumberConstant.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/constant/StringConstant.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/context/BaseContext.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/AddressBookController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/CategoryController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/ChatController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/CommonController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/FavoriteController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/OrderController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/ProductController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/controller/user/UserController.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/ChatHistoryQueryDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/ChatMessageDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/ChatSessionQueryDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/FavoriteDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/FavoritePageQueryDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/MarkReadDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderCancelDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderConfirmDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderDeliverDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderPageQueryDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderPayDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/OrderReceiveDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/PasswordDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/ProductDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/ProductListPageQueryDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/UserDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/UserLoginDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/dto/UserRegisterDTO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/AddressBook.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/Admin.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/Category.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/ChatMessage.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/Order.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/Product.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/User.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/result/PageResult.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/entity/result/Result.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/exception/AccountRepeatException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/exception/BaseException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/exception/ChatMessageException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/exception/OrderException.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/handler/ChatWebSocketHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/handler/GlobalExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/handler/JsonStringListTypeHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/interceptor/JwtTokenUserInterceptor.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/AddressBookMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/AdminMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/CategoryMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/ChatMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/FavoriteMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/OrderMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/ProductMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/mapper/UserMapper.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/properties/AliOssProperties.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/properties/JwtProperties.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/AddressBookService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/CategoryService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/ChatService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/FavoriteService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/AddressBookServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/CatrgoryServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/ChatServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/FavoriteServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/OrderServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/ProductServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/ProductViewServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/Impl/UserServiceImpl.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/OrderService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/ProductService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/ProductViewService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/service/UserService.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/task/HotProductTask.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/task/OrderStatusTask.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/task/ViewCountSyncTask.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/utils/AliOssUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/utils/JwtUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/utils/SimpleRandomSortUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/ChatMessageVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/ChatResponseVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/ChatSessionVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/FavoriteVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderCancelVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderConfirmVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderDeliverVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderDetailVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderPageVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderPayVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderReceiveVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderStatisticsVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/OrderVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/ProductDetailVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/ProductVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/UserLoginVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/itsean/campus_second_hand/vo/UserRegisterVO.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/application.yml.example" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/AddressBookMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/CategoryMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/ChatMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/FavoriteMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/OrderMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/ProductMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/resources/mapper/UserMapper.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/itsean/campus_second_hand/CampusSecondHandApplicationTests.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/test/java/com/itsean/campus_second_hand/CampusSecondHandApplicationTests.java" afterDir="false" />
+    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="项目结构优化">
+      <change beforePath="$PROJECT_DIR$/study/swapu_optimization.md" beforeDir="false" afterPath="$PROJECT_DIR$/study/swapu_optimization.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -774,7 +473,7 @@
       <workItem from="1785427217343" duration="105000" />
       <workItem from="1785427372302" duration="2797000" />
       <workItem from="1785430548403" duration="486000" />
-      <workItem from="1785475601268" duration="1156000" />
+      <workItem from="1785475601268" duration="2812000" />
     </task>
     <task id="LOCAL-00001" summary="用户模块代码开发">
       <option name="closed" value="true" />
@@ -960,7 +659,23 @@
       <option name="project" value="LOCAL" />
       <updated>1785337426675</updated>
     </task>
-    <option name="localTasksCounter" value="24" />
+    <task id="LOCAL-00024" summary="项目结构优化">
+      <option name="closed" value="true" />
+      <created>1785476811650</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1785476811650</updated>
+    </task>
+    <task id="LOCAL-00025" summary="项目结构优化">
+      <option name="closed" value="true" />
+      <created>1785476883254</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1785476883254</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -1025,7 +740,8 @@
     <MESSAGE value="更新后端代码：订单地址簿代码优化完善" />
     <MESSAGE value="修复聊天记录bug" />
     <MESSAGE value="优化热门商品redis缓存结构" />
-    <option name="LAST_COMMIT_MESSAGE" value="优化热门商品redis缓存结构" />
+    <MESSAGE value="项目结构优化" />
+    <option name="LAST_COMMIT_MESSAGE" value="项目结构优化" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
