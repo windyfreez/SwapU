@@ -148,7 +148,8 @@ com.itsean.campus_second_hand
 ## 项目地址
 
 本项目的所有代码已经托管到Github上 ，欢迎大家 Star 和 Fork 支持~
-项目地址：https://github.com/windyfreez/SwapU
+- GitHub地址：https://github.com/windyfreez/SwapU
+- gitee地址：https://gitee.com/OriginalPlayer/SwapU
 
 ## 技术选型
 
