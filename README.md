@@ -173,7 +173,7 @@ com.itsean.swapu
 <img width="2660" height="1131" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/65fd9db0-7eea-4c3a-afba-eed67cf3989f" />
 
 ### 数据库ER图：
-<img width="2207" height="2374" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/842dbf9e-8c1a-4740-a1e0-c803f263510e" />
+<img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/ac22117f-62bf-4f74-bd06-34148a8c712b" />
 
 ## 业务架构
 我们将业务逻辑拆解为五个核心协作模块：
