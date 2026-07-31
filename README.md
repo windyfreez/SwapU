@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/windyfreez/SwapU/raw/main/notemd/logo.png" width="400" alt="SwapU Logo">
+  <img src="https://github.com/windyfreez/SwapU/screenshot/logo.png" width="400" alt="SwapU Logo">
   
   <h1>SwapU 云市集</h1>
   <p><b>一个采用前后端分离架构设计的云端市集平台</b></p>
