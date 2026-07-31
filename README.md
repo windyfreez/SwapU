@@ -48,8 +48,9 @@ SwapU云市集，一个采用**前后端分离架构**设计的云端市集平�
 - study：用于存放项目文档和部署指南
 - screenshot：前端页面展示、文档图片资源
 
+**SwapU_user模块:**
 ```
-com.itsean.swapu
+com.itsean.campus_second_hand
 │
 ├── config                     # 配置层
 │   ├── RedisConfiguration
