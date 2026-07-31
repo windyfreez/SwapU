@@ -40,7 +40,13 @@ SwapU云市集，一个采用**前后端分离架构**设计的云端市集平�
 - 📍 **地址模块**：收货地址管理（增删改查、默认地址设置）
 - 🚀 **性能优化**：Redis缓存、库存预扣减、异步同步、定时任务调度
 
-## 项目目录
+## 项目结构
+- SwapU_user
+- swapu_admin
+- swapu_front
+- swapu_admin_front
+- study
+- screenshot
 
 ```
 com.itsean.swapu
