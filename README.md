@@ -41,12 +41,12 @@ SwapU云市集，一个采用**前后端分离架构**设计的云端市集平�
 - 🚀 **性能优化**：Redis缓存、库存预扣减、异步同步、定时任务调度
 
 ## 项目结构
-- SwapU_user:主要包括用户端后端的
-- swapu_admin
-- swapu_front
-- swapu_admin_front
-- study
-- screenshot
+- SwapU_user：用户端所有服务，包括用户管理、商品、订单、聊天、地址模块
+- swapu_admin：管理端所有服务，包括管理员管理、商品、订单统计、数据统计模块**（尚未完成）**
+- swapu_front：用户端前端页面
+- swapu_admin_front：管理端前端页面
+- study：用于存放项目文档和部署指南
+- screenshot：前端页面展示、文档图片资源
 
 ```
 com.itsean.swapu
