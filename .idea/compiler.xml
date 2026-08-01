@@ -7,6 +7,8 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="SwapU_user" />
+        <module name="swapu_common" />
+        <module name="swapu_pojo" />
         <module name="swapu_admin" />
       </profile>
     </annotationProcessing>
@@ -19,6 +21,8 @@
       <module name="SwapU_user" options="-parameters" />
       <module name="SwapU_user (1)" options="-parameters" />
       <module name="swapu_admin" options="-parameters" />
+      <module name="swapu_common" options="-parameters" />
+      <module name="swapu_pojo" options="-parameters" />
     </option>
   </component>
 </project>

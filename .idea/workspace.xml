@@ -5,20 +5,50 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="项目结构优化">
+      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/study/swapu_optimization.md" beforeDir="false" afterPath="$PROJECT_DIR$/study/swapu_optimization.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/ChatController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/ChatController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/handler/ChatWebSocketHandler.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/handler/ChatWebSocketHandler.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ChatMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ChatMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ChatService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ChatService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ChatServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ChatServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/ChatMapper.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/ChatMapper.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_admin/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_admin/pom.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$/swapu_common">
+      <ProjectState />
+    </projectState>
+  </component>
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$/swapu_common">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
-            <expand />
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="swapu_common" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="swapu_common" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+            </expand>
             <select />
           </tree_state>
         </projects_view>
@@ -77,38 +107,39 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Maven.SwapU [package].executor": "Run",
-    "Maven.campus_second_hand [compile].executor": "Run",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "Spring Boot.CampusSecondHandApplication.executor": "Debug",
-    "Spring Boot.SwapUAdminApplication.executor": "Debug",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Codespace/Code/mode/SwapU",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_interpreter_path": "node",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.21839081",
-    "run.configurations.included.in.services": "true",
-    "settings.editor.selected.configurable": "MavenSettings",
-    "ts.external.directory.path": "D:\\Develop\\JetBrains\\IntelliJ IDEA 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Maven.SwapU [package].executor&quot;: &quot;Run&quot;,
+    &quot;Maven.campus_second_hand [compile].executor&quot;: &quot;Run&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
+    &quot;Spring Boot.CampusSecondHandApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;Spring Boot.SwapUAdminApplication.executor&quot;: &quot;Debug&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Codespace/Code/mode/SwapU&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;node&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.21839081&quot;,
+    &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;D:\\Develop\\JetBrains\\IntelliJ IDEA 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="ReactorSettings">
     <option name="notificationShown" value="true" />
   </component>
@@ -119,10 +150,10 @@
     </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="D:\Codespace\Code\mode\SwapU" />
+      <recent name="D:\Codespace\Code\mode\SwapU\swapu_common" />
       <recent name="D:\Codespace\Code\mode\SwapU\SwapU_user\src" />
       <recent name="D:\Codespace\Code\mode\SwapU_front" />
       <recent name="D:\Codespace\Code\mode\SwapU_front\src" />
-      <recent name="D:\Codespace\Code\mode\campus_second_hand\src\main\java\com\itsean\campus_second_hand" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Codespace\Code\mode\SwapU\SwapU_user\src" />
@@ -160,7 +191,7 @@
       </map>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Spring Boot.CampusSecondHandApplication">
     <configuration name="Debug Application" type="JavascriptDebugType" uri="http://localhost:5173">
       <method v="2" />
     </configuration>
@@ -176,6 +207,13 @@
     <configuration name="CampusSecondHandApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <module name="SwapU_user" />
       <option name="SPRING_BOOT_MAIN_CLASS" value="com.itsean.campus_second_hand.CampusSecondHandApplication" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="SwapUAdminApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
+      <module name="swapu_admin" />
+      <option name="SPRING_BOOT_MAIN_CLASS" value="com.itsean.swapu_admin.SwapUAdminApplication" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
@@ -474,7 +512,14 @@
       <workItem from="1785427217343" duration="105000" />
       <workItem from="1785427372302" duration="2797000" />
       <workItem from="1785430548403" duration="486000" />
-      <workItem from="1785475601268" duration="3530000" />
+      <workItem from="1785475601268" duration="4313000" />
+      <workItem from="1785480392783" duration="167000" />
+      <workItem from="1785482054999" duration="2721000" />
+      <workItem from="1785484842438" duration="918000" />
+      <workItem from="1785507174348" duration="582000" />
+      <workItem from="1785560535285" duration="2408000" />
+      <workItem from="1785564126240" duration="1483000" />
+      <workItem from="1785566292376" duration="1667000" />
     </task>
     <task id="LOCAL-00001" summary="用户模块代码开发">
       <option name="closed" value="true" />
@@ -684,7 +729,15 @@
       <option name="project" value="LOCAL" />
       <updated>1785478643531</updated>
     </task>
-    <option name="localTasksCounter" value="27" />
+    <task id="LOCAL-00027" summary="项目结构优化">
+      <option name="closed" value="true" />
+      <created>1785479189023</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1785479189023</updated>
+    </task>
+    <option name="localTasksCounter" value="28" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

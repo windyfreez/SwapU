@@ -1,12 +1,12 @@
 package com.itsean.campus_second_hand.service;
 
 import com.github.pagehelper.PageInfo;
-import com.itsean.campus_second_hand.dto.ChatHistoryQueryDTO;
-import com.itsean.campus_second_hand.dto.ChatMessageDTO;
-import com.itsean.campus_second_hand.dto.ChatSessionQueryDTO;
-import com.itsean.campus_second_hand.entity.ChatMessage;
-import com.itsean.campus_second_hand.vo.ChatMessageVO;
-import com.itsean.campus_second_hand.vo.ChatSessionVO;
+import com.itsean.pojo.dto.ChatHistoryQueryDTO;
+import com.itsean.pojo.dto.ChatMessageDTO;
+import com.itsean.pojo.dto.ChatSessionQueryDTO;
+import com.itsean.pojo.entity.ChatMessage;
+import com.itsean.pojo.vo.ChatMessageVO;
+import com.itsean.pojo.vo.ChatSessionVO;
 
 public interface ChatService {
 

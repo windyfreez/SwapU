@@ -1,16 +1,16 @@
 package com.itsean.campus_second_hand.controller.user;
 
 import com.github.pagehelper.PageInfo;
-import com.itsean.campus_second_hand.dto.ChatHistoryQueryDTO;
-import com.itsean.campus_second_hand.dto.ChatMessageDTO;
-import com.itsean.campus_second_hand.dto.ChatSessionQueryDTO;
-import com.itsean.campus_second_hand.dto.MarkReadDTO;
-import com.itsean.campus_second_hand.entity.ChatMessage;
-import com.itsean.campus_second_hand.entity.result.Result;
 import com.itsean.campus_second_hand.service.ChatService;
-import com.itsean.campus_second_hand.vo.ChatMessageVO;
-import com.itsean.campus_second_hand.vo.ChatResponseVO;
-import com.itsean.campus_second_hand.vo.ChatSessionVO;
+import com.itsean.pojo.dto.MarkReadDTO;
+import com.itsean.pojo.dto.ChatHistoryQueryDTO;
+import com.itsean.pojo.dto.ChatMessageDTO;
+import com.itsean.pojo.dto.ChatSessionQueryDTO;
+import com.itsean.pojo.vo.ChatResponseVO;
+import com.itsean.pojo.vo.ChatMessageVO;
+import com.itsean.pojo.vo.ChatSessionVO;
+import com.itsean.pojo.entity.ChatMessage;
+import com.itsean.pojo.Result;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

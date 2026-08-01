@@ -1,12 +1,12 @@
 package com.itsean.campus_second_hand.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itsean.campus_second_hand.dto.ChatMessageDTO;
-import com.itsean.campus_second_hand.entity.ChatMessage;
+import com.itsean.pojo.dto.ChatMessageDTO;
+import com.itsean.pojo.entity.ChatMessage;
 import com.itsean.campus_second_hand.properties.JwtProperties;
 import com.itsean.campus_second_hand.service.ChatService;
 import com.itsean.campus_second_hand.utils.JwtUtil;
-import com.itsean.campus_second_hand.vo.ChatResponseVO;
+import com.itsean.pojo.vo.ChatResponseVO;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

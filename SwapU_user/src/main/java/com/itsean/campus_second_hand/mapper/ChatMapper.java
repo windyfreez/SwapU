@@ -1,8 +1,8 @@
 package com.itsean.campus_second_hand.mapper;
 
-import com.itsean.campus_second_hand.entity.ChatMessage;
-import com.itsean.campus_second_hand.vo.ChatMessageVO;
-import com.itsean.campus_second_hand.vo.ChatSessionVO;
+import com.itsean.pojo.entity.ChatMessage;
+import com.itsean.pojo.vo.ChatMessageVO;
+import com.itsean.pojo.vo.ChatSessionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

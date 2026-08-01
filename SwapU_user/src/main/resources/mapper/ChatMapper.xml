@@ -7,7 +7,7 @@
         VALUES (#{fromUserId}, #{toUserId}, #{productId}, #{messageType}, #{message}, #{isRead}, #{createTime})
     </insert>
 
-    <select id="getChatHistory" resultType="com.itsean.campus_second_hand.vo.ChatMessageVO">
+    <select id="getChatHistory" resultType="com.itsean.pojo.vo.ChatMessageVO">
         SELECT
         cm.id AS messageId,
         cm.from_user_id AS fromUserId,
@@ -28,7 +28,7 @@
         ORDER BY cm.create_time DESC
     </select>
 
-    <select id="getChatSessions" resultType="com.itsean.campus_second_hand.vo.ChatSessionVO">
+    <select id="getChatSessions" resultType="com.itsean.pojo.vo.ChatSessionVO">
         SELECT
             CASE
                 WHEN cm.from_user_id = #{currentUserId} THEN cm.to_user_id

@@ -22,6 +22,8 @@
     </properties>
 
     <modules>
+        <module>swapu_pojo</module>
+        <module>swapu_common</module>
         <module>SwapU_user</module>
         <module>swapu_front</module>
         <module>swapu_admin</module>
