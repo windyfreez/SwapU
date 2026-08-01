@@ -40,10 +40,17 @@ SwapU云市集，一个采用**前后端分离架构**设计的云端市集平�
 - 📍 **地址模块**：收货地址管理（增删改查、默认地址设置）
 - 🚀 **性能优化**：Redis缓存、库存预扣减、异步同步、定时任务调度
 
-## 项目目录
+## 项目结构
+- SwapU_user：用户端所有服务，包括用户管理、商品、订单、聊天、地址模块
+- swapu_admin：管理端所有服务，包括管理员管理、商品、订单统计、数据统计模块（**尚未完成**）
+- swapu_front：用户端前端页面
+- swapu_admin_front：管理端前端页面（**尚未完成**）
+- study：用于存放项目文档和部署指南
+- screenshot：前端页面展示、文档图片资源
 
+**SwapU_user模块:**
 ```
-com.itsean.swapu
+com.itsean.campus_second_hand
 │
 ├── config                     # 配置层
 │   ├── RedisConfiguration
@@ -140,8 +147,9 @@ com.itsean.swapu
 
 ## 项目地址
 
-本项目的所有代码已经托管到Github上 ，欢迎大家 Star 和 Fork 支持~
-项目地址：https://github.com/windyfreez/SwapU
+本项目的所有代码已经托管到Github和gitee上 ，欢迎大家 Star 和 Fork 支持~
+- GitHub地址：https://github.com/windyfreez/SwapU
+- gitee地址：https://gitee.com/OriginalPlayer/SwapU
 
 ## 技术选型
 
@@ -173,7 +181,7 @@ com.itsean.swapu
 <img width="2660" height="1131" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/65fd9db0-7eea-4c3a-afba-eed67cf3989f" />
 
 ### 数据库ER图：
-<img width="2207" height="2374" alt="mermaid-diagram (2)" src="https://github.com/user-attachments/assets/842dbf9e-8c1a-4740-a1e0-c803f263510e" />
+<img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/ac22117f-62bf-4f74-bd06-34148a8c712b" />
 
 ## 业务架构
 我们将业务逻辑拆解为五个核心协作模块：
