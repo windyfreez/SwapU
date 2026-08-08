@@ -324,7 +324,7 @@ subgraph Storage
 S2 --> OSS[对象存储<br/>商品图片]
 
 end
-
+```
 ### 数据库ER图：
 <img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/ac22117f-62bf-4f74-bd06-34148a8c712b" />
 
