@@ -179,8 +179,151 @@ com.itsean.campus_second_hand
 | Nginx | 静态资源服务器与反向代理，部署前端应用 | https://nginx.org/ |
 
 
-### 系统架构图：
-<img width="2660" height="1131" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/65fd9db0-7eea-4c3a-afba-eed67cf3989f" />
+
+---
+
+### 系统架构图
+
+```mermaid
+flowchart TB
+
+%% ==========================
+%% 用户层
+%% ==========================
+
+A[用户端 Client<br/>Vue3 + Element Plus]
+
+A --> B[Nginx<br/>反向代理/静态资源]
+
+
+%% ==========================
+%% 网关层
+%% ==========================
+
+B --> C[Spring Boot Application]
+
+
+%% ==========================
+%% Controller层
+%% ==========================
+
+subgraph Controller Layer
+
+C --> C1[UserController<br/>用户模块]
+
+C --> C2[ProductController<br/>商品模块]
+
+C --> C3[OrderController<br/>订单模块]
+
+C --> C4[ChatController<br/>聊天模块]
+
+end
+
+
+%% ==========================
+%% Service层
+%% ==========================
+
+subgraph Service Layer
+
+C1 --> S1[UserService<br/>用户认证/信息管理]
+
+C2 --> S2[ProductService<br/>商品生命周期管理]
+
+C3 --> S3[OrderService<br/>订单交易流程]
+
+C4 --> S4[ChatService<br/>消息处理]
+
+end
+
+
+
+%% ==========================
+%% Redis缓存
+%% ==========================
+
+subgraph Redis Cache Layer
+
+S2 --> R1[(Redis)]
+
+R1 --> R2[热点商品缓存<br/>Hot Product Cache]
+
+R1 --> R3[商品详情缓存<br/>Product Detail Cache]
+
+R1 --> R4[库存预扣减<br/>Stock Control]
+
+end
+
+
+
+%% ==========================
+%% WebSocket
+%% ==========================
+
+subgraph RealTime Communication
+
+S4 --> W[WebSocket Server]
+
+W --> M1[在线用户Session管理]
+
+W --> M2[实时消息推送]
+
+end
+
+
+
+%% ==========================
+%% 数据层
+%% ==========================
+
+subgraph Data Persistence Layer
+
+S1 --> DB[(MySQL)]
+
+S2 --> DB
+
+S3 --> DB
+
+S4 --> DB
+
+
+DB --> T1[user用户表]
+
+DB --> T2[product商品表]
+
+DB --> T3[order订单表]
+
+DB --> T4[message消息表]
+
+end
+
+
+
+%% ==========================
+%% 高并发扩展
+%% ==========================
+
+subgraph High Concurrency Optimization
+
+S3 --> MQ[RabbitMQ<br/>异步订单处理]
+
+MQ --> Consumer[订单消费者]
+
+Consumer --> DB
+
+end
+
+
+
+%% ==========================
+%% 文件存储
+%% ==========================
+
+subgraph Storage
+
+S2 --> OSS[对象存储<br/>商品图片]
+
+end
 
 ### 数据库ER图：
 <img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/ac22117f-62bf-4f74-bd06-34148a8c712b" />
