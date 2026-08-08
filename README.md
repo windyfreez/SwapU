@@ -516,6 +516,222 @@ erDiagram
 
 辅助服务模块为系统其他业务模块提供公共支撑能力。系统集成对象存储服务（OSS）实现商品图片上传与访问；利用 Redis 实现热点数据缓存、用户状态缓存以及热门商品缓存，提高系统访问性能；通过定时任务机制完成热门商品统计、浏览量同步以及订单状态维护等后台任务，保障系统稳定运行。
 
+### 商品交易流程图
+```mermaid
+sequenceDiagram
+
+    autonumber
+
+    participant Buyer as 买家用户
+    participant Front as Vue3前端
+    participant API as SpringBoot服务
+    participant Redis as Redis缓存
+    participant DB as MySQL数据库
+    participant WS as WebSocket服务
+    participant Seller as 卖家用户
+
+
+    %% =========================
+    %% 商品浏览阶段
+    %% =========================
+
+    rect rgb(240,248,255)
+
+    Note over Buyer,Seller: 商品浏览与咨询阶段
+
+
+    Buyer->>Front: 浏览商品列表
+
+    Front->>API: 请求商品分页数据
+
+    API->>Redis: 查询商品缓存
+
+
+    alt 缓存命中
+
+        Redis-->>API: 返回商品数据
+
+    else 缓存不存在
+
+        API->>DB: 查询商品信息
+
+        DB-->>API: 返回商品数据
+
+        API->>Redis: 写入商品缓存
+
+    end
+
+
+    API-->>Front: 返回商品列表
+
+    Front-->>Buyer: 展示商品
+
+
+    Buyer->>Front: 查看商品详情
+
+    Front->>API: 请求商品详情
+
+    API->>Redis: 查询热点商品缓存
+
+
+    Redis-->>API: 返回详情数据
+
+    API-->>Front: 返回商品详情
+
+    Front-->>Buyer: 展示详情页面
+
+
+    end
+
+
+
+    %% =========================
+    %% 实时沟通阶段
+    %% =========================
+
+
+    rect rgb(255,250,240)
+
+    Note over Buyer,Seller: 买卖双方实时沟通
+
+
+    Buyer->>WS: 建立WebSocket连接
+
+    WS->>Seller: 推送在线状态
+
+
+    Buyer->>WS: 咨询商品信息
+
+    WS->>Seller: 实时转发消息
+
+
+    Seller->>WS: 回复消息
+
+    WS->>Buyer: 推送回复内容
+
+
+    WS->>DB: 保存聊天记录
+
+
+    end
+
+
+
+    %% =========================
+    %% 创建订单阶段
+    %% =========================
+
+
+    rect rgb(240,255,240)
+
+    Note over Buyer,Seller: 交易订单创建
+
+
+    Buyer->>Front: 点击购买商品
+
+    Front->>API: 创建订单请求
+
+
+    API->>Redis: 校验库存
+
+
+    alt 库存充足
+
+        Redis-->>API: 扣减库存成功
+
+
+        API->>DB: 创建订单记录
+
+
+        DB-->>API: 返回订单信息
+
+
+        API-->>Front: 创建订单成功
+
+
+    else 库存不足
+
+
+        Redis-->>API: 库存不足
+
+        API-->>Front: 返回失败提示
+
+
+    end
+
+
+    end
+
+
+
+    %% =========================
+    %% 卖家处理阶段
+    %% =========================
+
+
+    rect rgb(255,245,245)
+
+    Note over Buyer,Seller: 卖家确认交易
+
+
+    API->>Seller: 推送新订单通知
+
+
+    Seller->>API: 确认接单
+
+
+    API->>DB: 更新订单状态
+
+
+    DB-->>API: 更新成功
+
+
+    API-->>Buyer: 通知订单状态变化
+
+
+    end
+
+
+
+    %% =========================
+    %% 发货收货阶段
+    %% =========================
+
+
+    rect rgb(245,245,255)
+
+    Note over Buyer,Seller: 商品交付阶段
+
+
+    Seller->>API: 提交发货信息
+
+
+    API->>DB: 更新物流信息
+
+
+    DB-->>API: 保存物流数据
+
+
+    API-->>Buyer: 推送发货通知
+
+
+
+    Buyer->>API: 确认收货
+
+
+    API->>DB: 更新订单完成状态
+
+
+    DB-->>API: 交易完成
+
+
+    API-->>Seller: 通知交易完成
+
+
+    end
+
+```
+
 ## 性能优化
 
 为提升系统在高并发访问场景下的响应能力与稳定性，本系统从缓存机制、数据同步以及推荐策略等方面进行了优化设计。
