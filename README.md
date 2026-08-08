@@ -326,7 +326,170 @@ S2 --> OSS[对象存储<br/>商品图片]
 end
 ```
 ### 数据库ER图：
-<img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/ac22117f-62bf-4f74-bd06-34148a8c712b" />
+```mermaid
+erDiagram
+
+    USER {
+        bigint id PK "用户ID"
+        varchar student_id "学号"
+        varchar username "用户名"
+        varchar password "密码"
+        varchar avatar "头像"
+        varchar phone "手机号"
+        varchar email "邮箱"
+        varchar college "学院"
+        decimal balance "余额"
+        int credit_score "信用分"
+        tinyint status "状态"
+        varchar nickname "昵称"
+        datetime create_time
+        datetime update_time
+    }
+
+
+    CATEGORY {
+        int id PK "分类ID"
+        varchar name "分类名称"
+        int sort "排序"
+        tinyint status "状态"
+        datetime create_time
+        datetime update_time
+        bigint create_user
+        bigint update_user
+    }
+
+
+    PRODUCT {
+        bigint id PK "商品ID"
+        bigint user_id FK "发布用户"
+        varchar title "商品标题"
+        text description "商品描述"
+        int category_id FK "分类ID"
+        decimal price "售价"
+        decimal original_price "原价"
+        json images "商品图片"
+        varchar product_condition "商品成色"
+        tinyint status "商品状态"
+        int view_count "浏览量"
+        tinyint is_top "是否置顶"
+        int quantity "库存"
+        datetime create_time
+        datetime update_time
+    }
+
+
+    ORDERS {
+        bigint order_id PK "订单ID"
+        varchar order_no "订单编号"
+        bigint product_id FK "商品ID"
+        varchar product_title
+        varchar product_image
+        int quantity "购买数量"
+
+        bigint buyer_id FK "买家ID"
+        bigint seller_id FK "卖家ID"
+
+        decimal unit_price
+        decimal amount
+        decimal freight
+        decimal total_amount
+
+        int status "订单状态"
+
+        datetime create_time
+        datetime pay_time
+        datetime cancel_time
+        datetime deliver_time
+        datetime confirm_time
+        datetime receive_time
+
+        bigint address_id FK
+        varchar logistics_company
+        varchar logistics_no
+    }
+
+
+
+    ADDRESS_BOOK {
+        bigint id PK "地址ID"
+        bigint user_id FK "用户ID"
+        varchar consignee "收货人"
+        varchar phone "手机号"
+
+        varchar province_name
+        varchar city_name
+        varchar district_name
+
+        varchar detail "详细地址"
+
+        varchar label
+        tinyint is_default
+    }
+
+
+
+    FAVORITE {
+        bigint id PK
+        bigint user_id FK
+        bigint product_id FK
+        datetime create_time
+    }
+
+
+
+    CHAT_MESSAGE {
+        bigint id PK
+
+        bigint from_user_id FK "发送用户"
+
+        bigint to_user_id FK "接收用户"
+
+        bigint product_id FK "商品ID"
+
+        text message
+
+        tinyint message_type
+
+        tinyint is_read
+
+        datetime create_time
+    }
+
+
+
+    %% =====================
+    %% Relationship
+    %% =====================
+
+
+    USER ||--o{ PRODUCT : "发布"
+
+    CATEGORY ||--o{ PRODUCT : "分类"
+
+    USER ||--o{ ORDERS : "买家"
+
+    USER ||--o{ ORDERS : "卖家"
+
+    PRODUCT ||--o{ ORDERS : "生成订单"
+
+
+    USER ||--o{ FAVORITE : "收藏"
+
+    PRODUCT ||--o{ FAVORITE : "被收藏"
+
+
+    USER ||--o{ ADDRESS_BOOK : "拥有"
+
+
+    USER ||--o{ CHAT_MESSAGE : "发送"
+
+    USER ||--o{ CHAT_MESSAGE : "接收"
+
+
+    PRODUCT ||--o{ CHAT_MESSAGE : "咨询"
+
+    ADDRESS_BOOK ||--o{ ORDERS : "配送地址"
+```
 
 ## 业务架构
 我们将业务逻辑拆解为五个核心协作模块：
