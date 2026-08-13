@@ -50,97 +50,6 @@ SwapU云市集，一个采用**前后端分离架构**设计的云端市集平�
 - study：用于存放项目文档和部署指南
 - screenshot：前端页面展示、文档图片资源
 
-**SwapU_user模块:**
-```
-com.itsean.campus_second_hand
-│
-├── config                     # 配置层
-│   ├── RedisConfiguration
-│   ├── WebMvcConfiguration
-│   ├── WebSocketConfiguration
-│   └── OssConfiguration
-│
-├── controller                 # 接口控制层
-│   ├── UserController
-│   ├── ProductController
-│   ├── OrderController
-│   ├── FavoriteController
-│   ├── CategoryController
-│   ├── ChatController
-│   └── AddressBookController
-│
-├── dto                        # 数据传输对象
-│   ├── UserLoginDTO
-│   ├── ProductDTO
-│   ├── OrderDTO
-│   ├── ChatMessageDTO
-│   └── ...
-│
-├── service                    # 业务接口层
-│   ├── UserService
-│   ├── ProductService
-│   ├── OrderService
-│   ├── ChatService
-│   └── ...
-│
-├── service.impl               # 业务实现层
-│   ├── UserServiceImpl
-│   ├── ProductServiceImpl
-│   ├── OrderServiceImpl
-│   ├── ChatServiceImpl
-│   └── ...
-│
-├── mapper                     # 数据访问层
-│   ├── UserMapper
-│   ├── ProductMapper
-│   ├── OrderMapper
-│   ├── FavoriteMapper
-│   ├── ChatMapper
-│   └── ...
-│
-├── entity                     # 实体类
-│   ├── User
-│   ├── Product
-│   ├── Order
-│   ├── Favorite
-│   ├── Category
-│   └── ChatMessage
-│
-├── vo                         # 视图对象
-│   ├── ProductVO
-│   ├── OrderVO
-│   ├── ChatResponseVO
-│   └── ...
-│
-├── interceptor                # 拦截器
-│   └── JwtTokenUserInterceptor
-│
-├── handler                    # 处理器
-│   ├── GlobalExceptionHandler
-│   └── ChatWebSocketHandler
-│
-├── task                       # 定时任务
-│   ├── HotProductTask
-│   ├── ViewCountSyncTask
-│   └── OrderStatusTask
-│
-├── utils                      # 工具类
-│   ├── JwtUtil
-│   ├── AliOssUtil
-│   └── SimpleRandomSortUtil
-│
-├── constant                   # 常量定义
-│
-├── exception                  # 自定义异常
-│
-├── properties                 # 配置属性绑定
-│
-├── context                    # 上下文管理
-│   └── BaseContext
-│
-└── CampusSecondHandApplication
-```
-
 ## 项目文档
 
 - [接口文档](study/swapu_interface_doc.md)
@@ -179,11 +88,317 @@ com.itsean.campus_second_hand
 | Nginx | 静态资源服务器与反向代理，部署前端应用 | https://nginx.org/ |
 
 
-### 系统架构图：
-<img width="2660" height="1131" alt="mermaid-diagram (1)" src="https://github.com/user-attachments/assets/65fd9db0-7eea-4c3a-afba-eed67cf3989f" />
 
+---
+
+### 系统架构图
+
+```mermaid
+flowchart TB
+
+%% ==========================
+%% 用户层
+%% ==========================
+
+A[用户端 Client<br/>Vue3 + Element Plus]
+
+A --> B[Nginx<br/>反向代理/静态资源]
+
+
+%% ==========================
+%% 网关层
+%% ==========================
+
+B --> C[Spring Boot Application]
+
+
+%% ==========================
+%% Controller层
+%% ==========================
+
+subgraph Controller Layer
+
+C --> C1[UserController<br/>用户模块]
+
+C --> C2[ProductController<br/>商品模块]
+
+C --> C3[OrderController<br/>订单模块]
+
+C --> C4[ChatController<br/>聊天模块]
+
+end
+
+
+%% ==========================
+%% Service层
+%% ==========================
+
+subgraph Service Layer
+
+C1 --> S1[UserService<br/>用户认证/信息管理]
+
+C2 --> S2[ProductService<br/>商品生命周期管理]
+
+C3 --> S3[OrderService<br/>订单交易流程]
+
+C4 --> S4[ChatService<br/>消息处理]
+
+end
+
+
+
+%% ==========================
+%% Redis缓存
+%% ==========================
+
+subgraph Redis Cache Layer
+
+S2 --> R1[(Redis)]
+
+R1 --> R2[热点商品缓存<br/>Hot Product Cache]
+
+R1 --> R3[商品详情缓存<br/>Product Detail Cache]
+
+R1 --> R4[库存预扣减<br/>Stock Control]
+
+end
+
+
+
+%% ==========================
+%% WebSocket
+%% ==========================
+
+subgraph RealTime Communication
+
+S4 --> W[WebSocket Server]
+
+W --> M1[在线用户Session管理]
+
+W --> M2[实时消息推送]
+
+end
+
+
+
+%% ==========================
+%% 数据层
+%% ==========================
+
+subgraph Data Persistence Layer
+
+S1 --> DB[(MySQL)]
+
+S2 --> DB
+
+S3 --> DB
+
+S4 --> DB
+
+
+DB --> T1[user用户表]
+
+DB --> T2[product商品表]
+
+DB --> T3[order订单表]
+
+DB --> T4[message消息表]
+
+end
+
+
+
+%% ==========================
+%% 高并发扩展
+%% ==========================
+
+subgraph High Concurrency Optimization
+
+S3 --> MQ[RabbitMQ<br/>异步订单处理]
+
+MQ --> Consumer[订单消费者]
+
+Consumer --> DB
+
+end
+
+
+
+%% ==========================
+%% 文件存储
+%% ==========================
+
+subgraph Storage
+
+S2 --> OSS[对象存储<br/>商品图片]
+
+end
+```
 ### 数据库ER图：
-<img width="1988" height="3490" alt="campus" src="https://github.com/user-attachments/assets/ac22117f-62bf-4f74-bd06-34148a8c712b" />
+```mermaid
+erDiagram
+
+    USER {
+        bigint id PK "用户ID"
+        varchar student_id "学号"
+        varchar username "用户名"
+        varchar password "密码"
+        varchar avatar "头像"
+        varchar phone "手机号"
+        varchar email "邮箱"
+        varchar college "学院"
+        decimal balance "余额"
+        int credit_score "信用分"
+        tinyint status "状态"
+        varchar nickname "昵称"
+        datetime create_time
+        datetime update_time
+    }
+
+
+    CATEGORY {
+        int id PK "分类ID"
+        varchar name "分类名称"
+        int sort "排序"
+        tinyint status "状态"
+        datetime create_time
+        datetime update_time
+        bigint create_user
+        bigint update_user
+    }
+
+
+    PRODUCT {
+        bigint id PK "商品ID"
+        bigint user_id FK "发布用户"
+        varchar title "商品标题"
+        text description "商品描述"
+        int category_id FK "分类ID"
+        decimal price "售价"
+        decimal original_price "原价"
+        json images "商品图片"
+        varchar product_condition "商品成色"
+        tinyint status "商品状态"
+        int view_count "浏览量"
+        tinyint is_top "是否置顶"
+        int quantity "库存"
+        datetime create_time
+        datetime update_time
+    }
+
+
+    ORDERS {
+        bigint order_id PK "订单ID"
+        varchar order_no "订单编号"
+        bigint product_id FK "商品ID"
+        varchar product_title
+        varchar product_image
+        int quantity "购买数量"
+
+        bigint buyer_id FK "买家ID"
+        bigint seller_id FK "卖家ID"
+
+        decimal unit_price
+        decimal amount
+        decimal freight
+        decimal total_amount
+
+        int status "订单状态"
+
+        datetime create_time
+        datetime pay_time
+        datetime cancel_time
+        datetime deliver_time
+        datetime confirm_time
+        datetime receive_time
+
+        bigint address_id FK
+        varchar logistics_company
+        varchar logistics_no
+    }
+
+
+
+    ADDRESS_BOOK {
+        bigint id PK "地址ID"
+        bigint user_id FK "用户ID"
+        varchar consignee "收货人"
+        varchar phone "手机号"
+
+        varchar province_name
+        varchar city_name
+        varchar district_name
+
+        varchar detail "详细地址"
+
+        varchar label
+        tinyint is_default
+    }
+
+
+
+    FAVORITE {
+        bigint id PK
+        bigint user_id FK
+        bigint product_id FK
+        datetime create_time
+    }
+
+
+
+    CHAT_MESSAGE {
+        bigint id PK
+
+        bigint from_user_id FK "发送用户"
+
+        bigint to_user_id FK "接收用户"
+
+        bigint product_id FK "商品ID"
+
+        text message
+
+        tinyint message_type
+
+        tinyint is_read
+
+        datetime create_time
+    }
+
+
+
+    %% =====================
+    %% Relationship
+    %% =====================
+
+
+    USER ||--o{ PRODUCT : "发布"
+
+    CATEGORY ||--o{ PRODUCT : "分类"
+
+    USER ||--o{ ORDERS : "买家"
+
+    USER ||--o{ ORDERS : "卖家"
+
+    PRODUCT ||--o{ ORDERS : "生成订单"
+
+
+    USER ||--o{ FAVORITE : "收藏"
+
+    PRODUCT ||--o{ FAVORITE : "被收藏"
+
+
+    USER ||--o{ ADDRESS_BOOK : "拥有"
+
+
+    USER ||--o{ CHAT_MESSAGE : "发送"
+
+    USER ||--o{ CHAT_MESSAGE : "接收"
+
+
+    PRODUCT ||--o{ CHAT_MESSAGE : "咨询"
+
+    ADDRESS_BOOK ||--o{ ORDERS : "配送地址"
+```
 
 ## 业务架构
 我们将业务逻辑拆解为五个核心协作模块：
@@ -209,6 +424,222 @@ com.itsean.campus_second_hand
 ### 辅助服务模块
 
 辅助服务模块为系统其他业务模块提供公共支撑能力。系统集成对象存储服务（OSS）实现商品图片上传与访问；利用 Redis 实现热点数据缓存、用户状态缓存以及热门商品缓存，提高系统访问性能；通过定时任务机制完成热门商品统计、浏览量同步以及订单状态维护等后台任务，保障系统稳定运行。
+
+### 商品交易流程图
+```mermaid
+sequenceDiagram
+
+    autonumber
+
+    participant Buyer as 买家用户
+    participant Front as Vue3前端
+    participant API as SpringBoot服务
+    participant Redis as Redis缓存
+    participant DB as MySQL数据库
+    participant WS as WebSocket服务
+    participant Seller as 卖家用户
+
+
+    %% =========================
+    %% 商品浏览阶段
+    %% =========================
+
+    rect rgb(240,248,255)
+
+    Note over Buyer,Seller: 商品浏览与咨询阶段
+
+
+    Buyer->>Front: 浏览商品列表
+
+    Front->>API: 请求商品分页数据
+
+    API->>Redis: 查询商品缓存
+
+
+    alt 缓存命中
+
+        Redis-->>API: 返回商品数据
+
+    else 缓存不存在
+
+        API->>DB: 查询商品信息
+
+        DB-->>API: 返回商品数据
+
+        API->>Redis: 写入商品缓存
+
+    end
+
+
+    API-->>Front: 返回商品列表
+
+    Front-->>Buyer: 展示商品
+
+
+    Buyer->>Front: 查看商品详情
+
+    Front->>API: 请求商品详情
+
+    API->>Redis: 查询热点商品缓存
+
+
+    Redis-->>API: 返回详情数据
+
+    API-->>Front: 返回商品详情
+
+    Front-->>Buyer: 展示详情页面
+
+
+    end
+
+
+
+    %% =========================
+    %% 实时沟通阶段
+    %% =========================
+
+
+    rect rgb(255,250,240)
+
+    Note over Buyer,Seller: 买卖双方实时沟通
+
+
+    Buyer->>WS: 建立WebSocket连接
+
+    WS->>Seller: 推送在线状态
+
+
+    Buyer->>WS: 咨询商品信息
+
+    WS->>Seller: 实时转发消息
+
+
+    Seller->>WS: 回复消息
+
+    WS->>Buyer: 推送回复内容
+
+
+    WS->>DB: 保存聊天记录
+
+
+    end
+
+
+
+    %% =========================
+    %% 创建订单阶段
+    %% =========================
+
+
+    rect rgb(240,255,240)
+
+    Note over Buyer,Seller: 交易订单创建
+
+
+    Buyer->>Front: 点击购买商品
+
+    Front->>API: 创建订单请求
+
+
+    API->>Redis: 校验库存
+
+
+    alt 库存充足
+
+        Redis-->>API: 扣减库存成功
+
+
+        API->>DB: 创建订单记录
+
+
+        DB-->>API: 返回订单信息
+
+
+        API-->>Front: 创建订单成功
+
+
+    else 库存不足
+
+
+        Redis-->>API: 库存不足
+
+        API-->>Front: 返回失败提示
+
+
+    end
+
+
+    end
+
+
+
+    %% =========================
+    %% 卖家处理阶段
+    %% =========================
+
+
+    rect rgb(255,245,245)
+
+    Note over Buyer,Seller: 卖家确认交易
+
+
+    API->>Seller: 推送新订单通知
+
+
+    Seller->>API: 确认接单
+
+
+    API->>DB: 更新订单状态
+
+
+    DB-->>API: 更新成功
+
+
+    API-->>Buyer: 通知订单状态变化
+
+
+    end
+
+
+
+    %% =========================
+    %% 发货收货阶段
+    %% =========================
+
+
+    rect rgb(245,245,255)
+
+    Note over Buyer,Seller: 商品交付阶段
+
+
+    Seller->>API: 提交发货信息
+
+
+    API->>DB: 更新物流信息
+
+
+    DB-->>API: 保存物流数据
+
+
+    API-->>Buyer: 推送发货通知
+
+
+
+    Buyer->>API: 确认收货
+
+
+    API->>DB: 更新订单完成状态
+
+
+    DB-->>API: 交易完成
+
+
+    API-->>Seller: 通知交易完成
+
+
+    end
+
+```
 
 ## 性能优化
 
