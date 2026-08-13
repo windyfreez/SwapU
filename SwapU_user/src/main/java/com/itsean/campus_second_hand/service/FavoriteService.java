@@ -12,7 +12,7 @@ public interface FavoriteService {
      * 添加收藏
      * @param favoriteDTO
      */
-    void add(FavoriteDTO favoriteDTO);
+    void addFavorite(FavoriteDTO favoriteDTO);
 
     /**
      * 取消收藏

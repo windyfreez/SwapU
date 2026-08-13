@@ -27,9 +27,9 @@ public class FavoriteController {
      */
     @ApiOperation("添加收藏")
     @PostMapping("/add")
-    private Result add(@RequestBody FavoriteDTO favoriteDTO){
+    public Result addFavorite(@RequestBody FavoriteDTO favoriteDTO){
         log.info("添加收藏：{}",favoriteDTO);
-        favoriteService.add(favoriteDTO);
+        favoriteService.addFavorite(favoriteDTO);
         return Result.success("收藏成功");
     }
 

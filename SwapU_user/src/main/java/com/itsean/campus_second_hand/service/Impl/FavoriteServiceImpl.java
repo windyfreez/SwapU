@@ -29,7 +29,7 @@ public class FavoriteServiceImpl implements FavoriteService {
      * @param favoriteDTO
      */
     @Override
-    public void add(FavoriteDTO favoriteDTO) {
+    public void addFavorite(FavoriteDTO favoriteDTO) {
         log.info("当前用户id：{}", BaseContext.getCurrentId());
         favoriteDTO.setUserId(BaseContext.getCurrentId());
         favoriteDTO.setCreateTime(LocalDateTime.now());

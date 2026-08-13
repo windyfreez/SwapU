@@ -22,6 +22,8 @@ public class StringConstant {
     public static final String PRODUCT_VIEW_PREFIX = "product:view:count:";
     public static final String CATEGORY_LIST_PREFIX = "category:list:";
     public static final String HOT_PRODUCTS_REDIS_KEY = "hot:products:";
+    public static final String BEHAVIOR_QUEUE_KEY = "log:behavior:queue";
+
 
 
 

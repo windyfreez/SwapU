@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.campus_second_hand.mapper.UserBehaviorLogMapper">
+
+
+    <insert id="addBehavior">
+        insert into user_behavior_log
+        (user_id, product_id, behavior_type, behavior_value, category_id, source, create_time)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.userId}, #{item.productId}, #{item.behaviorType}, #{item.behaviorValue},
+            #{item.categoryId}, #{item.source}, #{item.createTime})
+        </foreach>
+    </insert>
+
+</mapper>

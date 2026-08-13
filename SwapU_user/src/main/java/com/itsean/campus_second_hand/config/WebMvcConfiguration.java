@@ -128,7 +128,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/user/login", "/user/register")
-                .excludePathPatterns("/product/detail/**")
                 .excludePathPatterns("/category/list")
                 .excludePathPatterns("/product/hot")
                 .excludePathPatterns("/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/swagger-ui.html/**");
