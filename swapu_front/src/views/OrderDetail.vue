@@ -1,160 +1,172 @@
 <template>
   <div class="order-detail-page">
-    <header class="detail-header">
-      <button class="back-btn" @click="goBack">‹</button>
-      <span class="header-title">订单详情</span>
-      <span class="placeholder"></span>
-    </header>
-
-    <div v-if="order" class="detail-content">
-      <div class="status-section">
-        <div class="status-badge" :class="getStatusClass(order.status)">
-          {{ order.statusDesc }}
-        </div>
-        <div class="order-no">订单号: {{ order.orderNo }}</div>
-        <div class="create-time">下单时间: {{ formatTime(order.createTime) }}</div>
+    <div class="container">
+      <!-- 面包屑 -->
+      <div class="breadcrumb">
+        <router-link to="/">首页</router-link>
+        <span>/</span>
+        <router-link to="/my-orders">我的订单</router-link>
+        <span>/</span>
+        <span>订单详情</span>
       </div>
 
-      <div class="section-card">
-        <div class="section-title">商品信息</div>
-        <div class="product-card">
-          <img :src="getFirstImage(order.productImage)" class="product-image" />
-          <div class="product-detail">
-            <h3 class="product-title">{{ order.productTitle }}</h3>
-            <p class="product-desc">{{ order.productDescription }}</p>
-            <div class="product-price-row">
-              <span class="price">¥{{ order.unitPrice }}</span>
-              <span class="quantity">数量: {{ order.quantity }}</span>
+      <div v-if="order" class="detail-content">
+        <!-- 状态条 -->
+        <div class="card status-card">
+          <div class="status-badge" :class="getStatusClass(order.status)">
+            {{ order.statusDesc }}
+          </div>
+          <div class="order-no">订单号: {{ order.orderNo }}</div>
+          <div class="create-time">下单时间: {{ formatTime(order.createTime) }}</div>
+        </div>
+
+        <!-- 商品信息 -->
+        <div class="card section-card">
+          <div class="section-title">商品信息</div>
+          <div class="product-card">
+            <img :src="getFirstImage(order.productImage)" class="product-image" />
+            <div class="product-detail">
+              <h3 class="product-title">{{ order.productTitle }}</h3>
+              <p class="product-desc">{{ order.productDescription }}</p>
+              <div class="product-price-row">
+                <span class="price">¥{{ order.unitPrice }}</span>
+                <span class="quantity">数量: {{ order.quantity }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="section-card">
-        <div class="section-title">买家信息</div>
-        <div class="info-list">
-          <div class="info-item">
-            <span class="info-label">买家昵称</span>
-            <span class="info-value">{{ buyerInfo?.nickname || buyerInfo?.username || order.buyerName }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">头像</span>
-            <img v-if="buyerInfo?.avatar" :src="buyerInfo.avatar" class="info-avatar" />
-            <span v-else class="info-value">👤</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-title">卖家信息</div>
-        <div class="info-list">
-          <div class="info-item">
-            <span class="info-label">卖家昵称</span>
-            <span class="info-value">{{ sellerInfo?.nickname || sellerInfo?.username || order.sellerName }}</span>
-          </div>
-          <div class="info-item">
-            <span class="info-label">头像</span>
-            <img v-if="sellerInfo?.avatar" :src="sellerInfo.avatar" class="info-avatar" />
-            <span v-else class="info-value">👤</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-title">收货地址</div>
-        <div v-if="addressInfo" class="address-info">
-          <div class="address-icon">📍</div>
-          <div class="address-content">
-            <div class="address-header">
-              <span class="consignee">{{ addressInfo.consignee }}</span>
-              <span class="phone">{{ addressInfo.phone }}</span>
-              <span v-if="addressInfo.isDefault === 1" class="default-tag">默认</span>
-            </div>
-            <div class="address-text">{{ addressInfo.provinceName }}{{ addressInfo.cityName }}{{ addressInfo.districtName }}{{ addressInfo.detail }}</div>
-          </div>
-        </div>
-        <div v-else-if="order.address" class="address-info">
-          <div class="address-icon">📍</div>
-          <div class="address-content">
-            <div class="address-text">{{ order.address }}</div>
-          </div>
-        </div>
-        <div v-else class="address-empty">
-          <span class="empty-text">暂无收货地址</span>
-        </div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-title">物流信息</div>
-        <div v-if="order.logisticsNo" class="logistics-info">
-          <div class="logistics-item">
-            <span class="info-label">物流公司</span>
-            <span class="info-value">{{ order.logisticsCompany }}</span>
-          </div>
-          <div class="logistics-item">
-            <span class="info-label">物流单号</span>
-            <span class="info-value">{{ order.logisticsNo }}</span>
-          </div>
-        </div>
-        <div v-else class="no-logistics">暂无物流信息</div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-title">金额明细</div>
-        <div class="amount-list">
-          <div class="amount-item">
-            <span class="amount-label">商品金额</span>
-            <span class="amount-value">¥{{ order.amount }}</span>
-          </div>
-          <div class="amount-item">
-            <span class="amount-label">运费</span>
-            <span class="amount-value">¥{{ order.freight }}</span>
-          </div>
-          <div class="amount-item total">
-            <span class="amount-label">订单总额</span>
-            <span class="amount-value">¥{{ order.totalAmount }}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="section-card">
-        <div class="section-title">交易时间线</div>
-        <div class="timeline">
-          <div class="timeline-item" :class="{ active: order.payTime }">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-label">付款时间</div>
-              <div class="timeline-value">{{ order.payTime ? formatTime(order.payTime) : '未付款' }}</div>
+        <!-- 买/卖家信息(两列) -->
+        <div class="info-cols">
+          <div class="card section-card">
+            <div class="section-title">买家信息</div>
+            <div class="user-row">
+              <img v-if="buyerInfo?.avatar" :src="buyerInfo.avatar" class="info-avatar" />
+              <span v-else class="info-avatar info-avatar-fallback">👤</span>
+              <span class="info-value">{{ buyerInfo?.nickname || buyerInfo?.username || order.buyerName }}</span>
             </div>
           </div>
-          <div class="timeline-item" :class="{ active: order.deliverTime }">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-label">发货时间</div>
-              <div class="timeline-value">{{ order.deliverTime ? formatTime(order.deliverTime) : '未发货' }}</div>
-            </div>
-          </div>
-          <div class="timeline-item" :class="{ active: order.confirmTime }">
-            <div class="timeline-dot"></div>
-            <div class="timeline-content">
-              <div class="timeline-label">确认收货</div>
-              <div class="timeline-value">{{ order.confirmTime ? formatTime(order.confirmTime) : '未确认' }}</div>
+          <div class="card section-card">
+            <div class="section-title">卖家信息</div>
+            <div class="user-row">
+              <img v-if="sellerInfo?.avatar" :src="sellerInfo.avatar" class="info-avatar" />
+              <span v-else class="info-avatar info-avatar-fallback">👤</span>
+              <span class="info-value">{{ sellerInfo?.nickname || sellerInfo?.username || order.sellerName }}</span>
             </div>
           </div>
         </div>
+
+        <!-- 收货地址 -->
+        <div class="card section-card">
+          <div class="section-title">收货地址</div>
+          <div v-if="addressInfo" class="address-info">
+            <div class="address-icon">📍</div>
+            <div class="address-content">
+              <div class="address-header">
+                <span class="consignee">{{ addressInfo.consignee }}</span>
+                <span class="phone">{{ addressInfo.phone }}</span>
+                <span v-if="addressInfo.isDefault === 1" class="default-tag">默认</span>
+              </div>
+              <div class="address-text">{{ addressInfo.provinceName }}{{ addressInfo.cityName }}{{ addressInfo.districtName }}{{ addressInfo.detail }}</div>
+            </div>
+          </div>
+          <div v-else-if="order.address" class="address-info">
+            <div class="address-icon">📍</div>
+            <div class="address-content">
+              <div class="address-text">{{ order.address }}</div>
+            </div>
+          </div>
+          <div v-else class="address-empty">
+            <span class="empty-text">暂无收货地址</span>
+          </div>
+        </div>
+
+        <!-- 物流信息 -->
+        <div class="card section-card">
+          <div class="section-title">物流信息</div>
+          <div v-if="order.logisticsNo" class="info-list">
+            <div class="info-item">
+              <span class="info-label">物流公司</span>
+              <span class="info-value">{{ order.logisticsCompany }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">物流单号</span>
+              <span class="info-value">{{ order.logisticsNo }}</span>
+            </div>
+          </div>
+          <div v-else class="no-logistics">暂无物流信息</div>
+        </div>
+
+        <!-- 金额明细 -->
+        <div class="card section-card">
+          <div class="section-title">金额明细</div>
+          <div class="amount-list">
+            <div class="amount-item">
+              <span class="amount-label">商品金额</span>
+              <span class="amount-value">¥{{ order.amount }}</span>
+            </div>
+            <div class="amount-item">
+              <span class="amount-label">运费</span>
+              <span class="amount-value">¥{{ order.freight }}</span>
+            </div>
+            <div class="amount-item total">
+              <span class="amount-label">订单总额</span>
+              <span class="amount-value">¥{{ order.totalAmount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 交易时间线 -->
+        <div class="card section-card">
+          <div class="section-title">交易时间线</div>
+          <div class="timeline">
+            <div class="timeline-item" :class="{ active: order.payTime }">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">付款时间</div>
+                <div class="timeline-value">{{ order.payTime ? formatTime(order.payTime) : '未付款' }}</div>
+              </div>
+            </div>
+            <div class="timeline-item" :class="{ active: order.deliverTime }">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">发货时间</div>
+                <div class="timeline-value">{{ order.deliverTime ? formatTime(order.deliverTime) : '未发货' }}</div>
+              </div>
+            </div>
+            <div class="timeline-item" :class="{ active: order.confirmTime }">
+              <div class="timeline-dot"></div>
+              <div class="timeline-content">
+                <div class="timeline-label">确认收货</div>
+                <div class="timeline-value">{{ order.confirmTime ? formatTime(order.confirmTime) : '未确认' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 买家留言 -->
+        <div v-if="order.buyerMessage" class="card section-card">
+          <div class="section-title">买家留言</div>
+          <div class="buyer-message">{{ order.buyerMessage }}</div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="card action-card">
+          <button v-if="isSeller && order.status === 1" class="btn btn-primary" @click="handleConfirm">确认接单</button>
+          <button v-if="isBuyer && order.status === 2" class="btn btn-primary" @click="handlePay">去支付</button>
+          <button v-if="isBuyer && order.status === 2" class="btn btn-outline" @click="handleCancel">取消订单</button>
+          <button v-if="isSeller && order.status === 3" class="btn btn-primary" @click="handleDeliver">确认发货</button>
+          <button v-if="isBuyer && order.status === 4" class="btn btn-primary" @click="handleConfirm">确认收货</button>
+        </div>
       </div>
 
-      <div v-if="order.buyerMessage" class="section-card">
-        <div class="section-title">买家留言</div>
-        <div class="buyer-message">{{ order.buyerMessage }}</div>
+      <div v-else class="loading-state">
+        <div class="loading-icon">⏳</div>
+        <p>加载中...</p>
       </div>
     </div>
 
-    <div v-else class="loading-state">
-      <div class="loading-icon">⏳</div>
-      <p>加载中...</p>
-    </div>
-
+    <!-- 取消订单弹窗 -->
     <div v-if="showCancelModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -162,20 +174,21 @@
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
-          <label class="modal-label">取消原因</label>
-          <textarea 
-            v-model="cancelReason" 
-            class="modal-textarea" 
+          <label class="form-label">取消原因</label>
+          <textarea
+            v-model="cancelReason"
+            class="form-textarea"
             placeholder="请输入取消原因"
           ></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmCancel">确认取消</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmCancel">确认取消</button>
         </div>
       </div>
     </div>
 
+    <!-- 确认发货弹窗 -->
     <div v-if="showDeliverModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -183,26 +196,31 @@
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
-          <label class="modal-label">物流公司</label>
-          <input 
-            v-model="logisticsCompany" 
-            class="modal-input" 
-            placeholder="请输入物流公司"
-          />
-          <label class="modal-label">物流单号</label>
-          <input 
-            v-model="logisticsNo" 
-            class="modal-input" 
-            placeholder="请输入物流单号"
-          />
+          <div class="form-group">
+            <label class="form-label">物流公司</label>
+            <input
+              v-model="logisticsCompany"
+              class="form-input"
+              placeholder="请输入物流公司"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">物流单号</label>
+            <input
+              v-model="logisticsNo"
+              class="form-input"
+              placeholder="请输入物流单号"
+            />
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmDeliver">确认发货</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmDeliver">确认发货</button>
         </div>
       </div>
     </div>
 
+    <!-- 确认接单弹窗 -->
     <div v-if="showConfirmModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -210,22 +228,23 @@
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
-          <label class="modal-label">运费</label>
-          <input 
-            v-model="freight" 
-            type="number" 
-            class="modal-input" 
+          <label class="form-label">运费</label>
+          <input
+            v-model="freight"
+            type="number"
+            class="form-input"
             placeholder="请输入运费"
             step="0.01"
           />
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmOrder">确认接单</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmOrder">确认接单</button>
         </div>
       </div>
     </div>
 
+    <!-- 支付弹窗 -->
     <div v-if="showPayModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -234,8 +253,8 @@
         </div>
         <div class="modal-body">
           <div class="pay-methods">
-            <div 
-              v-for="method in payMethods" 
+            <div
+              v-for="method in payMethods"
               :key="method.value"
               class="pay-method"
               :class="{ active: selectedPayType === method.value }"
@@ -247,27 +266,20 @@
             </div>
           </div>
           <div v-if="selectedPayType === 3" class="pay-password-section">
-            <label class="modal-label">支付密码</label>
-            <input 
-              v-model="payPassword" 
-              type="password" 
-              class="modal-input" 
+            <label class="form-label">支付密码</label>
+            <input
+              v-model="payPassword"
+              type="password"
+              class="form-input"
               placeholder="请输入支付密码"
             />
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmPay">确认支付</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmPay">确认支付</button>
         </div>
       </div>
-    </div>
-    <div v-if="order" class="bottom-actions">
-      <button v-if="isSeller && order.status === 1" class="action-btn primary" @click="handleConfirm">确认接单</button>
-      <button v-if="isBuyer && order.status === 2" class="action-btn primary" @click="handlePay">去支付</button>
-      <button v-if="isBuyer && order.status === 2" class="action-btn" @click="handleCancel">取消订单</button>
-      <button v-if="isSeller && order.status === 3" class="action-btn primary" @click="handleDeliver">确认发货</button>
-      <button v-if="isBuyer && order.status === 4" class="action-btn primary" @click="handleConfirm">确认收货</button>
     </div>
   </div>
 </template>
@@ -686,148 +698,117 @@ onMounted(() => {
 
 <style scoped>
 .order-detail-page {
-  min-height: 100vh;
-  background: #fafafa;
-  padding-bottom: 140px;
+  min-height: 60vh;
+  padding-bottom: 40px;
 }
 
-.detail-header {
+.detail-content {
+  max-width: 860px;
+  margin: 0 auto;
+  padding-top: 20px;
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
-  padding-top: calc(15px + env(safe-area-inset-top));
+  flex-direction: column;
+  gap: 16px;
 }
 
-.back-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  font-size: 24px;
-  color: #1a1a1a;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 36px;
-}
-
-.status-section {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  padding: 20px 15px;
-  text-align: center;
+/* 状态条 */
+.status-card {
+  padding: 24px 28px;
+  background: linear-gradient(120deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1px solid #bfdbfe;
 }
 
 .status-badge {
   display: inline-block;
-  padding: 8px 24px;
-  border-radius: 20px;
-  font-size: 16px;
+  padding: 6px 18px;
+  border-radius: 999px;
+  font-size: 15px;
   font-weight: 600;
-  color: white;
+  background: #fff;
   margin-bottom: 10px;
 }
 
 .status-pending {
-  background: rgba(245, 158, 11, 0.9);
+  color: var(--c-warning);
 }
 
 .status-wait-pay {
-  background: rgba(239, 68, 68, 0.9);
+  color: var(--c-danger);
 }
 
 .status-wait-deliver {
-  background: rgba(59, 130, 246, 0.9);
+  color: var(--c-primary);
 }
 
 .status-wait-receive {
-  background: rgba(16, 185, 129, 0.9);
+  color: var(--c-success);
 }
 
 .status-completed {
-  background: rgba(102, 102, 102, 0.9);
+  color: var(--c-text-2);
 }
 
 .status-cancelled {
-  background: rgba(153, 153, 153, 0.9);
+  color: var(--c-text-3);
 }
 
 .order-no {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 5px;
+  color: var(--c-text-2);
+  margin-bottom: 4px;
 }
 
 .create-time {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--c-text-3);
 }
 
-.detail-content {
-  padding: 15px;
-}
-
+/* 通用卡片 */
 .section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  border: 1px solid #f0f0f0;
+  padding: 18px 22px;
 }
 
 .section-title {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f5f5f5;
+  color: var(--c-text);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
 }
 
+/* 商品信息 */
 .product-card {
   display: flex;
-  gap: 12px;
+  gap: 16px;
 }
 
 .product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius);
   object-fit: cover;
+  flex-shrink: 0;
+  background: #f0f1f3;
 }
 
 .product-detail {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .product-title {
   font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 4px;
 }
 
 .product-desc {
-  font-size: 12px;
-  color: #999;
+  font-size: 13px;
+  color: var(--c-text-3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -837,19 +818,56 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: auto;
 }
 
 .price {
   font-size: 18px;
-  font-weight: 600;
-  color: #ef4444;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
 .quantity {
   font-size: 13px;
-  color: #999;
+  color: var(--c-text-3);
 }
 
+/* 买/卖家信息两列 */
+.info-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.user-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.info-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.info-avatar-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--c-primary-light);
+  font-size: 20px;
+}
+
+.info-value {
+  font-size: 14px;
+  color: var(--c-text);
+  font-weight: 500;
+}
+
+/* 信息行 */
 .info-list {
   display: flex;
   flex-direction: column;
@@ -864,28 +882,22 @@ onMounted(() => {
 
 .info-label {
   font-size: 14px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
-.info-value {
+.info-item .info-value {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
-.info-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
+/* 地址 */
 .address-info {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px;
-  background: #fafafa;
-  border-radius: 8px;
+  padding: 12px 14px;
+  background: #fafbfc;
+  border-radius: var(--radius);
 }
 
 .address-icon {
@@ -895,6 +907,7 @@ onMounted(() => {
 
 .address-content {
   flex: 1;
+  min-width: 0;
 }
 
 .address-header {
@@ -907,25 +920,25 @@ onMounted(() => {
 .consignee {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .phone {
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .default-tag {
   font-size: 11px;
-  color: #ef4444;
-  background: #fef2f2;
+  color: var(--c-danger);
+  background: var(--c-danger-light);
   padding: 1px 6px;
   border-radius: 4px;
 }
 
 .address-text {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
   line-height: 1.6;
 }
 
@@ -936,28 +949,17 @@ onMounted(() => {
 
 .empty-text {
   font-size: 14px;
-  color: #999;
-}
-
-.logistics-info {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.logistics-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  color: var(--c-text-3);
 }
 
 .no-logistics {
   font-size: 14px;
-  color: #999;
+  color: var(--c-text-3);
   text-align: center;
   padding: 20px 0;
 }
 
+/* 金额 */
 .amount-list {
   display: flex;
   flex-direction: column;
@@ -971,27 +973,28 @@ onMounted(() => {
 }
 
 .amount-item.total {
-  border-top: 1px solid #f5f5f5;
-  padding-top: 10px;
-  margin-top: 5px;
+  border-top: 1px solid var(--c-border);
+  padding-top: 12px;
+  margin-top: 4px;
 }
 
 .amount-label {
   font-size: 14px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .amount-value {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .amount-item.total .amount-value {
   font-size: 18px;
-  font-weight: 600;
-  color: #ef4444;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
+/* 时间线 */
 .timeline {
   position: relative;
   padding-left: 20px;
@@ -1004,7 +1007,7 @@ onMounted(() => {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: #e8ecf0;
+  background: var(--c-border);
 }
 
 .timeline-item {
@@ -1023,11 +1026,11 @@ onMounted(() => {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #ddd;
+  background: var(--c-border-strong);
 }
 
 .timeline-item.active .timeline-dot {
-  background: #2563eb;
+  background: var(--c-primary);
 }
 
 .timeline-content {
@@ -1038,23 +1041,33 @@ onMounted(() => {
 
 .timeline-label {
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .timeline-value {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
+/* 买家留言 */
 .buyer-message {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
   line-height: 1.6;
+}
+
+/* 操作按钮卡片 */
+.action-card {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 18px 22px;
 }
 
 .loading-state {
   text-align: center;
   padding: 60px 20px;
+  color: var(--c-text-3);
 }
 
 .loading-icon {
@@ -1064,49 +1077,16 @@ onMounted(() => {
 
 .loading-state p {
   font-size: 15px;
-  color: #999;
 }
 
-.bottom-actions {
-  position: fixed;
-  bottom: 60px;
-  left: 0;
-  right: 0;
-  display: flex;
-  gap: 0;
-  padding: 0;
-  background: white;
-  border-top: 1px solid #f0f0f0;
-}
-
-.action-btn {
-  flex: 1;
-  padding: 15px;
-  border: none;
-  border-right: 1px solid #e8ecf0;
-  border-radius: 0;
-  font-size: 15px;
-  color: #666;
-  background: white;
-}
-
-.action-btn:last-child {
-  border-right: none;
-}
-
-.action-btn.primary {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
-}
-
+/* 弹窗 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1114,106 +1094,82 @@ onMounted(() => {
 }
 
 .modal-content {
-  width: 100%;
-  background: white;
-  border-radius: 12px;
+  background: var(--c-card);
+  width: 420px;
+  max-width: 90vw;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .modal-close {
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: none;
   background: transparent;
   font-size: 24px;
-  color: #999;
+  color: var(--c-text-3);
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
 }
 
 .modal-body {
   padding: 20px;
 }
 
-.modal-label {
-  display: block;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.modal-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 15px;
-  box-sizing: border-box;
-  color: #1a1a1a;
-}
-
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 15px 20px;
-  border-top: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--c-border);
 }
 
-.btn-secondary {
+.modal-footer .btn {
   flex: 1;
-  padding: 12px;
-  background: #f5f7fa;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #666;
-}
-
-.btn-primary {
-  flex: 1;
-  padding: 12px;
-  background: #2563eb;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: white;
 }
 
 .pay-methods {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .pay-method {
   display: flex;
   align-items: center;
-  padding: 15px;
-  border: 1px solid #e8ecf0;
-  border-radius: 10px;
-  background: white;
-  transition: all 0.3s;
+  padding: 14px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: var(--c-card);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pay-method:hover {
+  border-color: var(--c-border-strong);
 }
 
 .pay-method.active {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
 }
 
 .pay-icon {
@@ -1224,7 +1180,7 @@ onMounted(() => {
 .pay-label {
   flex: 1;
   font-size: 15px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .pay-check {
@@ -1233,13 +1189,19 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2563eb;
+  background: var(--c-primary);
   color: white;
   border-radius: 50%;
   font-size: 12px;
 }
 
 .pay-password-section {
-  margin-top: 10px;
+  margin-top: 4px;
+}
+
+@media (max-width: 720px) {
+  .info-cols {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

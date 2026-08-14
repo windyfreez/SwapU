@@ -1,51 +1,54 @@
 <template>
-  <div class="favorites-page">
-    <header class="page-header">
-      <span class="back-btn" @click="goBack">‹</span>
-      <h1>我的收藏</h1>
-      <span class="placeholder"></span>
-    </header>
+  <AccountLayout active="favorites">
+    <div class="favorites-page">
+      <h1 class="page-title">我的收藏</h1>
 
-    <div class="favorites-content">
-      <div v-if="loading" class="loading">加载中...</div>
-      
-      <div v-else-if="favorites.length === 0" class="empty">
+      <div v-if="loading" class="loading-state">
+        <p>加载中...</p>
+      </div>
+
+      <div v-else-if="favorites.length === 0" class="card empty-state">
         <div class="empty-icon">❤️</div>
         <p>暂无收藏商品</p>
       </div>
-      
-      <div v-else class="favorites-list">
-        <div 
-          v-for="item in favorites" 
-          :key="item.id" 
-          class="favorite-item"
-          @click="goToDetail(item.id)"
-        >
-          <div class="item-image">
-            <img :src="getFirstImage(item.images)" alt="" />
-          </div>
-          <div class="item-info">
-            <h3 class="item-title">{{ item.title || '商品' + item.id }}</h3>
-            <p class="item-desc">{{ item.description || '' }}</p>
-            <div class="item-meta">
-              <span class="item-price">¥{{ item.price || 0 }}</span>
-              <span class="item-time">{{ formatTime(item.createTime) }}</span>
+
+      <div v-else>
+        <div class="favorites-grid">
+          <div
+            v-for="item in favorites"
+            :key="item.id"
+            class="card favorite-card"
+            @click="goToDetail(item.id)"
+          >
+            <div class="item-image">
+              <img :src="getFirstImage(item.images)" alt="" />
+            </div>
+            <div class="item-info">
+              <h3 class="item-title">{{ item.title || '商品' + item.id }}</h3>
+              <p class="item-desc">{{ item.description || '' }}</p>
+              <div class="item-meta">
+                <span class="item-price">¥{{ item.price || 0 }}</span>
+                <span class="item-time">{{ formatTime(item.createTime) }}</span>
+              </div>
+              <button class="btn btn-outline btn-sm cancel-btn" @click.stop="cancelFavorite(item.id)">
+                取消收藏
+              </button>
             </div>
           </div>
-          <button class="cancel-btn" @click.stop="cancelFavorite(item.id)">取消收藏</button>
+        </div>
+
+        <div v-if="hasMore" class="load-more" @click="loadMore">
+          加载更多
         </div>
       </div>
-
-      <div v-if="hasMore" class="load-more" @click="loadMore">
-        加载更多
-      </div>
     </div>
-  </div>
+  </AccountLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AccountLayout from '../components/AccountLayout.vue'
 
 const router = useRouter()
 const loading = ref(false)
@@ -173,105 +176,55 @@ onMounted(() => {
 
 <style scoped>
 .favorites-page {
-  min-height: 100vh;
-  background: #fafafa;
+  min-height: 60vh;
 }
 
-.page-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  padding: 12px 16px;
-  padding-top: calc(12px + env(safe-area-inset-top));
-  border-bottom: 1px solid #f0f0f0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+.favorites-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
 }
 
-.page-header h1 {
-  font-size: 17px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.back-btn {
-  font-size: 28px;
-  color: #1a1a1a;
+.favorite-card {
+  overflow: hidden;
   cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
 }
 
-.placeholder {
-  width: 28px;
-}
-
-.favorites-content {
-  padding: 12px;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #999;
-}
-
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.empty p {
-  color: #999;
-  font-size: 14px;
-}
-
-.favorites-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.favorite-item {
-  display: flex;
-  background: white;
-  border-radius: 12px;
-  padding: 12px;
-  gap: 12px;
-  cursor: pointer;
+.favorite-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--c-border-strong);
 }
 
 .item-image {
-  width: 80px;
-  height: 80px;
-  border-radius: 8px;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #f0f1f3;
   overflow: hidden;
-  flex-shrink: 0;
 }
 
 .item-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.favorite-card:hover .item-image img {
+  transform: scale(1.04);
 }
 
 .item-info {
-  flex: 1;
+  padding: 14px 16px 16px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  min-width: 0;
 }
 
 .item-title {
   font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-weight: 600;
+  color: var(--c-text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -279,45 +232,46 @@ onMounted(() => {
 
 .item-desc {
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 4px 0 10px;
 }
 
 .item-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 12px;
 }
 
 .item-price {
-  font-size: 16px;
-  font-weight: 600;
-  color: #ff6b6b;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
 .item-time {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
 }
 
 .cancel-btn {
-  align-self: center;
-  padding: 6px 12px;
-  border: 1px solid #ddd;
-  border-radius: 16px;
-  background: white;
-  font-size: 12px;
-  color: #666;
-  cursor: pointer;
+  width: 100%;
 }
 
 .load-more {
   text-align: center;
   padding: 16px;
-  color: #666;
+  color: var(--c-primary);
   font-size: 14px;
   cursor: pointer;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+
+.load-more:hover {
+  background: var(--c-primary-light);
 }
 </style>

@@ -1,85 +1,87 @@
 <template>
-  <div class="register-page">
-    <div class="register-container">
-      <div class="header">
-        <span class="back-btn" @click="goBack">‹</span>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo">🔄</div>
         <h1>注册账号</h1>
-        <span class="placeholder"></span>
+        <p>加入 SwapU 云市集,开启云端集市之旅</p>
       </div>
 
-      <form @submit.prevent="handleRegister" class="register-form">
-        <div class="form-group">
-          <label>学号 <span class="required">*</span></label>
-          <input 
-            type="text" 
-            v-model="form.studentId" 
-            placeholder="请输入学号"
-            class="form-input"
-          />
+      <form @submit.prevent="handleRegister" class="auth-form">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">学号 <span class="required">*</span></label>
+            <input
+              type="text"
+              v-model="form.studentId"
+              placeholder="请输入学号"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">用户名 <span class="required">*</span></label>
+            <input
+              type="text"
+              v-model="form.username"
+              placeholder="2-20个字符"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">昵称</label>
+            <input
+              type="text"
+              v-model="form.nickname"
+              placeholder="请输入昵称"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">手机号 <span class="required">*</span></label>
+            <input
+              type="tel"
+              v-model="form.phone"
+              placeholder="请输入手机号"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">密码 <span class="required">*</span></label>
+            <input
+              type="password"
+              v-model="form.password"
+              placeholder="6-20位"
+              class="form-input"
+            />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">确认密码 <span class="required">*</span></label>
+            <input
+              type="password"
+              v-model="form.confirmPassword"
+              placeholder="再次输入密码"
+              class="form-input"
+            />
+          </div>
         </div>
 
         <div class="form-group">
-          <label>用户名 <span class="required">*</span></label>
-          <input 
-            type="text" 
-            v-model="form.username" 
-            placeholder="2-20个字符"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>昵称</label>
-          <input 
-            type="text" 
-            v-model="form.nickname" 
-            placeholder="请输入昵称"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>密码 <span class="required">*</span></label>
-          <input 
-            type="password" 
-            v-model="form.password" 
-            placeholder="6-20位"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>确认密码 <span class="required">*</span></label>
-          <input 
-            type="password" 
-            v-model="form.confirmPassword" 
-            placeholder="再次输入密码"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>手机号 <span class="required">*</span></label>
-          <input 
-            type="tel" 
-            v-model="form.phone" 
-            placeholder="请输入手机号"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label>邮箱</label>
-          <input 
-            type="email" 
-            v-model="form.email" 
+          <label class="form-label">邮箱</label>
+          <input
+            type="email"
+            v-model="form.email"
             placeholder="选填"
             class="form-input"
           />
         </div>
 
         <div class="form-group">
-          <label>学院 <span class="required">*</span></label>
+          <label class="form-label">学院 <span class="required">*</span></label>
           <select v-model="form.college" class="form-select">
             <option value="">请选择学院</option>
             <option value="计算机学院">计算机学院</option>
@@ -98,15 +100,20 @@
         <label class="agree-checkbox">
           <input type="checkbox" v-model="agree" />
           <span>我已阅读并同意</span>
-          <span class="link">《用户协议》</span>
+          <span class="text-link">《用户协议》</span>
           <span>和</span>
-          <span class="link">《隐私政策》</span>
+          <span class="text-link">《隐私政策》</span>
         </label>
 
-        <button type="submit" class="register-btn" :disabled="isLoading">
-          {{ isLoading ? '注册中...' : '注册' }}
+        <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isLoading">
+          {{ isLoading ? '注册中...' : '注 册' }}
         </button>
       </form>
+
+      <div class="auth-footer">
+        <span>已有账号？</span>
+        <span class="text-link" @click="goToLogin">去登录</span>
+      </div>
     </div>
   </div>
 </template>
@@ -210,112 +217,91 @@ const handleRegister = async () => {
   }
 }
 
-const goBack = () => {
-  router.back()
+const goToLogin = () => {
+  router.push('/login')
 }
 </script>
 
 <style scoped>
-.register-page {
+.auth-page {
   min-height: 100vh;
-  background: #fafafa;
-}
-
-.register-container {
-  background: white;
-  padding-bottom: 30px;
-}
-
-.header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 16px 15px;
-  padding-top: calc(16px + env(safe-area-inset-top));
-  border-bottom: 1px solid #f0f0f0;
+  justify-content: center;
+  background: linear-gradient(160deg, #f5f6f8 0%, #e8eefb 100%);
+  padding: 24px 20px;
 }
 
-.back-btn {
-  font-size: 24px;
-  color: #333;
+.auth-card {
+  width: 100%;
+  max-width: 560px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 44px 32px;
+  box-shadow: 0 8px 40px rgba(16, 24, 40, 0.1);
 }
 
-.header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
+.auth-brand {
+  text-align: center;
+  margin-bottom: 28px;
 }
 
-.placeholder {
-  width: 24px;
+.auth-logo {
+  font-size: 44px;
+  margin-bottom: 10px;
 }
 
-.register-form {
-  padding: 20px 15px;
+.auth-brand h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 6px;
 }
 
-.form-group {
-  margin-bottom: 16px;
+.auth-brand p {
+  font-size: 13px;
+  color: var(--c-text-3);
 }
 
-.form-group label {
-  display: block;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 18px;
 }
 
 .required {
-  color: #ff6b6b;
-}
-
-.form-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #e8ecf0;
-  border-radius: 10px;
-  font-size: 14px;
-  background: #fafafa;
-}
-
-.form-select {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #e8ecf0;
-  border-radius: 10px;
-  font-size: 14px;
-  background: #fafafa;
+  color: var(--c-danger);
 }
 
 .agree-checkbox {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  gap: 4px;
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
   margin-bottom: 20px;
+  cursor: pointer;
 }
 
 .agree-checkbox input {
-  margin-right: 6px;
+  margin-right: 4px;
 }
 
-.link {
-  color: #2563eb;
+.auth-footer {
+  text-align: center;
+  font-size: 14px;
+  color: var(--c-text-2);
+  margin-top: 20px;
 }
 
-.register-btn {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 500;
-}
+@media (max-width: 560px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 
-.register-btn:disabled {
-  opacity: 0.7;
+  .auth-card {
+    padding: 28px 22px 24px;
+  }
 }
 </style>

@@ -1,49 +1,48 @@
 <template>
-  <div class="my-products-page">
-    <header class="page-header">
-      <span class="back-btn" @click="goBack">←</span>
-      <h1>我的发布</h1>
-      <span class="placeholder"></span>
-    </header>
+  <AccountLayout active="products">
+    <div class="my-products-page">
+      <h1 class="page-title">我的发布</h1>
 
-    <div class="filter-bar">
-      <div 
-        class="filter-item" 
-        :class="{ active: statusFilter === '' }"
-        @click="statusFilter = ''; page = 1; fetchMyProducts()"
-      >
-        全部
+      <!-- 状态筛选 tabs -->
+      <div class="card filter-tabs">
+        <button
+          class="filter-tab"
+          :class="{ active: statusFilter === '' }"
+          @click="statusFilter = ''; page = 1; fetchMyProducts()"
+        >
+          全部
+        </button>
+        <button
+          class="filter-tab"
+          :class="{ active: statusFilter === '1' }"
+          @click="statusFilter = '1'; page = 1; fetchMyProducts()"
+        >
+          在售
+        </button>
+        <button
+          class="filter-tab"
+          :class="{ active: statusFilter === '2' }"
+          @click="statusFilter = '2'; page = 1; fetchMyProducts()"
+        >
+          已售
+        </button>
       </div>
-      <div 
-        class="filter-item" 
-        :class="{ active: statusFilter === '1' }"
-        @click="statusFilter = '1'; page = 1; fetchMyProducts()"
-      >
-        在售
-      </div>
-      <div 
-        class="filter-item" 
-        :class="{ active: statusFilter === '2' }"
-        @click="statusFilter = '2'; page = 1; fetchMyProducts()"
-      >
-        已售
-      </div>
-    </div>
 
-    <div class="products-list">
-      <div v-if="loading" class="loading">加载中...</div>
-      
-      <div v-else-if="products.length === 0" class="empty">
+      <div v-if="loading" class="loading-state">
+        <p>加载中...</p>
+      </div>
+
+      <div v-else-if="products.length === 0" class="card empty-state">
         <div class="empty-icon">📦</div>
         <p>暂无发布的商品</p>
-        <button class="publish-btn" @click="goToPublish">去发布</button>
+        <button class="btn btn-primary" @click="goToPublish">去发布</button>
       </div>
 
-      <div v-else>
-        <div 
-          v-for="product in products" 
-          :key="product.id" 
-          class="product-item"
+      <div v-else class="products-list">
+        <div
+          v-for="product in products"
+          :key="product.id"
+          class="card product-item"
         >
           <div class="product-content" @click="goToDetail(product.id)">
             <div class="product-image">
@@ -67,24 +66,24 @@
             </div>
           </div>
           <div class="product-actions">
-            <button class="action-btn edit-btn" @click.stop="goToEdit(product.id)">
+            <button class="btn btn-outline btn-sm" @click.stop="goToEdit(product.id)">
               修改
             </button>
-            <button 
-              v-if="product.status === 1" 
-              class="action-btn offline-btn" 
+            <button
+              v-if="product.status === 1"
+              class="btn btn-outline btn-sm"
               @click.stop="handleOffline(product)"
             >
               下架
             </button>
-            <button 
-              v-if="product.status === 3" 
-              class="action-btn online-btn" 
+            <button
+              v-if="product.status === 3"
+              class="btn btn-outline btn-sm"
               @click.stop="handleOnline(product)"
             >
               上架
             </button>
-            <button class="action-btn delete-btn" @click.stop="handleDelete(product)">
+            <button class="btn btn-danger btn-sm" @click.stop="handleDelete(product)">
               删除
             </button>
           </div>
@@ -96,12 +95,13 @@
         <div v-else class="no-more">没有更多了</div>
       </div>
     </div>
-  </div>
+  </AccountLayout>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AccountLayout from '../components/AccountLayout.vue'
 
 const router = useRouter()
 const loading = ref(false)
@@ -318,163 +318,72 @@ onMounted(() => {
 
 <style scoped>
 .my-products-page {
-  min-height: 100vh;
-  background: #fafafa;
+  min-height: 60vh;
 }
 
-.page-header {
+.filter-tabs {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  padding: 12px 16px;
-  padding-top: calc(12px + env(safe-area-inset-top));
-  border-bottom: 1px solid #f0f0f0;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.back-btn {
-  font-size: 24px;
-  color: #333;
-  width: 32px;
-}
-
-.page-header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 32px;
-}
-
-.filter-bar {
-  display: flex;
-  background: white;
-  padding: 10px 15px;
-  gap: 10px;
-  border-bottom: 1px solid #f0f0f0;
-  position: sticky;
-  top: 56px;
-  z-index: 99;
-}
-
-.filter-item {
-  flex: 1;
-  text-align: center;
-  padding: 8px;
-  border-radius: 20px;
-  font-size: 14px;
-  color: #666;
-  background: #f5f7fa;
-  transition: all 0.2s ease;
-}
-
-.filter-item.active {
-  background: #eff6ff;
-  color: #2563eb;
-  font-weight: 500;
-}
-
-.products-list {
-  padding: 10px 15px;
-}
-
-.loading {
-  text-align: center;
-  padding: 40px;
-  color: #999;
-}
-
-.empty {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-icon {
-  font-size: 64px;
+  gap: 4px;
+  padding: 6px;
   margin-bottom: 16px;
 }
 
-.empty p {
-  font-size: 16px;
-  color: #999;
-  margin-bottom: 20px;
+.filter-tab {
+  padding: 8px 20px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius);
+  font-size: 14px;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
-.publish-btn {
-  padding: 12px 30px;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 14px;
+.filter-tab:hover {
+  background: #f5f6f8;
+  color: var(--c-text);
+}
+
+.filter-tab.active {
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+.products-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .product-item {
-  background: white;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #f0f0f0;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.product-item:hover {
+  border-color: var(--c-border-strong);
 }
 
 .product-content {
-  display: flex;
-  padding: 12px;
-}
-
-.product-actions {
-  display: flex;
-  border-top: 1px solid #f0f0f0;
-}
-
-.action-btn {
   flex: 1;
-  height: 44px;
-  border: none;
-  background: white;
-  font-size: 14px;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-}
-
-.action-btn:not(:last-child) {
-  border-right: 1px solid #f0f0f0;
-}
-
-.action-btn:active {
-  background: #f5f5f5;
-}
-
-.edit-btn {
-  color: #2563eb;
-}
-
-.offline-btn {
-  color: #f59e0b;
-}
-
-.online-btn {
-  color: #10b981;
-}
-
-.delete-btn {
-  color: #ef4444;
+  gap: 16px;
+  cursor: pointer;
 }
 
 .product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
+  width: 120px;
+  height: 120px;
+  border-radius: var(--radius);
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
+  background: #f0f1f3;
 }
 
 .product-image img {
@@ -483,28 +392,13 @@ onMounted(() => {
   object-fit: cover;
 }
 
-.sold-badge {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
-  font-weight: 500;
-}
-
+.sold-badge,
 .offline-badge {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(107, 114, 128, 0.8);
   color: white;
   display: flex;
   align-items: center;
@@ -513,17 +407,25 @@ onMounted(() => {
   font-weight: 500;
 }
 
+.sold-badge {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.offline-badge {
+  background: rgba(107, 114, 128, 0.8);
+}
+
 .product-info {
   flex: 1;
-  margin-left: 12px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
 }
 
 .product-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text);
   margin-bottom: 4px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -532,7 +434,7 @@ onMounted(() => {
 
 .product-desc {
   font-size: 13px;
-  color: #999;
+  color: var(--c-text-2);
   margin-bottom: 8px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -548,35 +450,54 @@ onMounted(() => {
 
 .product-price {
   font-size: 18px;
-  font-weight: 600;
-  color: #ef4444;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
 .product-original-price {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
   text-decoration: line-through;
 }
 
 .product-stats {
   display: flex;
-  gap: 15px;
+  gap: 16px;
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
   margin-top: auto;
+}
+
+.product-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+  width: 76px;
+}
+
+.product-actions .btn {
+  width: 100%;
 }
 
 .load-more {
   text-align: center;
-  padding: 15px;
-  color: #2563eb;
+  padding: 16px;
+  color: var(--c-primary);
   font-size: 14px;
+  cursor: pointer;
+  border-radius: var(--radius);
+  transition: background 0.15s;
+}
+
+.load-more:hover {
+  background: var(--c-primary-light);
 }
 
 .no-more {
   text-align: center;
-  padding: 15px;
-  color: #999;
+  padding: 16px;
+  color: var(--c-text-3);
   font-size: 14px;
 }
 </style>

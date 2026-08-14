@@ -64,8 +64,8 @@ public class BehaviorAspect {
                 return;
             }
 
-            // userId：当前登录用户（JWT 拦截器已写入 ThreadLocal）
-            Long userId = BaseContext.getCurrentId();
+            // userId：当前登录用户
+            Long userId = BaseContext.getCurrentId();//BaseContext.getCurrentId()为null是因为拦截器未拦截该接口
             // productId：按方法签名从入参提取
             Long productId = extractProductId(methodName, args);
             if (productId == null) {

@@ -1,32 +1,60 @@
 <template>
   <div class="home-page">
-    <header class="header">
-      <div class="search-box" @click="showSearch = true">
-        <span class="search-icon">🔍</span>
-        <span class="search-placeholder">{{ keyword || '搜索二手商品' }}</span>
-      </div>
-    </header>
-
-    <div v-if="showSearch" class="search-modal" @click="showSearch = false">
-      <div class="search-content" @click.stop>
-        <div class="search-input-wrapper">
-          <input 
-            v-model="keyword" 
-            type="text" 
-            placeholder="输入商品关键词"
-            class="search-input"
-            @keyup.enter="handleSearch"
-          />
-          <button class="search-btn" @click="handleSearch">搜索</button>
+    <div class="container">
+      <!-- 分类导航 -->
+      <div class="category-bar card">
+        <div
+          v-for="cat in categories"
+          :key="cat.id"
+          class="category-item"
+          :class="{ active: activeCategory === cat.id }"
+          @click="activeCategory = cat.id"
+        >
+          <span class="category-icon">{{ cat.icon }}</span>
+          <span class="category-name">{{ cat.name }}</span>
         </div>
-        <div class="search-filters">
-          <div class="filter-row">
+      </div>
+
+      <!-- 热门商品 -->
+      <section class="section">
+        <div class="section-header">
+          <h2>🔥 热门商品</h2>
+        </div>
+        <div v-if="hotGoods.length > 0" class="goods-grid">
+          <div
+            v-for="item in hotGoods"
+            :key="'hot-' + item.id"
+            class="goods-card"
+            @click="goToDetail(item)"
+          >
+            <div class="goods-image">
+              <img :src="item.image" :alt="item.title" />
+            </div>
+            <div class="goods-info">
+              <h3 class="goods-title">{{ item.title }}</h3>
+              <div class="goods-footer">
+                <span class="goods-price">¥{{ item.price }}</span>
+                <span v-if="item.originalPrice" class="goods-original-price">¥{{ item.originalPrice }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 精选推荐 -->
+      <section class="section">
+        <div class="section-header">
+          <h2>精选推荐</h2>
+        </div>
+
+        <div class="filter-bar card">
+          <div class="filter-item">
             <span class="filter-label">价格区间</span>
             <input v-model="minPrice" type="number" placeholder="最低价" class="filter-input" />
-            <span class="filter-separator">-</span>
+            <span class="filter-sep">—</span>
             <input v-model="maxPrice" type="number" placeholder="最高价" class="filter-input" />
           </div>
-          <div class="filter-row">
+          <div class="filter-item">
             <span class="filter-label">成色</span>
             <select v-model="condition" class="filter-select">
               <option value="">全部</option>
@@ -35,7 +63,7 @@
               <option value="3">有使用痕迹</option>
             </select>
           </div>
-          <div class="filter-row">
+          <div class="filter-item">
             <span class="filter-label">排序</span>
             <select v-model="sort" class="filter-select">
               <option value="time_desc">最新发布</option>
@@ -44,154 +72,81 @@
               <option value="view_desc">最热</option>
             </select>
           </div>
+          <button class="btn btn-primary" @click="handleSearch">搜索</button>
+          <button class="btn" @click="handleReset">重置</button>
         </div>
-        <button class="search-submit" @click="handleSearch">确认搜索</button>
-      </div>
-    </div>
 
-    <div class="category-scroll">
-      <div 
-        v-for="cat in categories" 
-        :key="cat.id"
-        class="category-item"
-        :class="{ active: activeCategory === cat.id }"
-        @click="activeCategory = cat.id"
-      >
-        <span class="category-icon">{{ cat.icon }}</span>
-        <span class="category-name">{{ cat.name }}</span>
-      </div>
-    </div>
-
-    <section class="banner-section">
-      <div class="banner">
-        <div class="banner-content">
-          <h2>云端市集</h2>
-          <p>品质好物 · 便捷生活</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="hot-section">
-      <div class="section-header">
-        <h2>🔥 热门商品</h2>
-        <span class="more">查看更多</span>
-      </div>
-      <div class="hot-scroll">
-        <div
-          v-for="item in hotGoods"
-          :key="item.id"
-          class="hot-card"
-          @click="goToDetail(item)"
-        >
-          <div class="hot-image">
-            <img :src="item.image" :alt="item.title" />
-          </div>
-          <div class="hot-info">
-            <h3 class="hot-title">{{ item.title }}</h3>
-            <div class="hot-footer">
-              <span class="hot-price">¥{{ item.price }}</span>
-              <span v-if="item.originalPrice" class="hot-original-price">¥{{ item.originalPrice }}</span>
+        <div class="goods-grid">
+          <div
+            v-for="item in goods"
+            :key="item.id"
+            class="goods-card"
+            @click="goToDetail(item)"
+          >
+            <div class="goods-image">
+              <img :src="item.image" :alt="item.title" />
+            </div>
+            <div class="goods-info">
+              <h3 class="goods-title">{{ item.title }}</h3>
+              <p class="goods-desc">{{ item.description }}</p>
+              <div class="goods-footer">
+                <span class="goods-price">¥{{ item.price }}</span>
+                <span v-if="item.originalPrice" class="goods-original-price">¥{{ item.originalPrice }}</span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </section>
 
-    <section class="goods-section">
-      <div class="section-header">
-        <h2>精选推荐</h2>
-        <span class="more">查看更多</span>
-      </div>
-      <div class="goods-grid">
-        <div
-          v-for="item in goods"
-          :key="item.id"
-          class="goods-card"
-          @click="goToDetail(item)"
-        >
-          <div class="goods-image">
-            <img :src="item.image" :alt="item.title" />
-          </div>
-          <div class="goods-info">
-            <h3 class="goods-title">{{ item.title }}</h3>
-            <p class="goods-desc">{{ item.description }}</p>
-            <div class="goods-footer">
-              <span class="goods-price">¥{{ item.price }}</span>
-              <span v-if="item.originalPrice" class="goods-original-price">¥{{ item.originalPrice }}</span>
-            </div>
-          </div>
+        <div class="loading-more" v-if="loading">
+          <span>加载中...</span>
         </div>
-      </div>
-      <div class="loading-more" v-if="loading">
-        <span>加载中...</span>
-      </div>
-      <div class="no-more" v-if="noMore && goods.length > 0">
-        <span>没有更多了</span>
-      </div>
-      <div class="empty-state" v-if="!loading && goods.length === 0">
-        <span>暂无商品</span>
-      </div>
-      
-      <div class="pagination" v-if="total > 0 && goods.length > 0">
-        <div class="pagination-info">
-          <span>共 {{ total }} 件商品</span>
-          <span style="margin-left: 10px; font-size: 12px; color: #999;">当前页: {{ page }}</span>
+        <div class="no-more" v-if="noMore && goods.length > 0">
+          <span>没有更多了</span>
         </div>
-        <div class="pagination-controls">
-          <select v-model="pageSize" class="page-size-select" @change="handlePageSizeChange">
-            <option :value="10">10条/页</option>
-            <option :value="20">20条/页</option>
-            <option :value="30">30条/页</option>
-          </select>
+        <div class="empty-state" v-if="!loading && goods.length === 0">
+          <span class="empty-icon">📦</span>
+          <p>暂无商品</p>
+        </div>
+
+        <div class="pagination" v-if="total > 0 && goods.length > 0">
+          <div class="pagination-info">
+            <span>共 {{ total }} 件商品</span>
+            <select v-model="pageSize" class="page-size-select" @change="handlePageSizeChange">
+              <option :value="10">10条/页</option>
+              <option :value="20">20条/页</option>
+              <option :value="30">30条/页</option>
+            </select>
+          </div>
           <div class="page-nav">
-            <button 
-              class="page-btn" 
-              :class="{ disabled: page === 1 }" 
+            <button
+              class="page-btn"
+              :class="{ disabled: page === 1 }"
               @click="changePage(page - 1)"
             >
               ‹
             </button>
             <span class="current-page">{{ page }}</span>
-            <button 
-              class="page-btn" 
-              :class="{ disabled: page >= Math.ceil(total / pageSize) }" 
+            <button
+              class="page-btn"
+              :class="{ disabled: page >= Math.ceil(total / pageSize) }"
               @click="changePage(page + 1)"
             >
               ›
             </button>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="quick-actions">
-      <div class="action-item">
-        <span class="action-icon">🎁</span>
-        <span class="action-text">新人礼包</span>
-      </div>
-      <div class="action-item">
-        <span class="action-icon">🚚</span>
-        <span class="action-text">同城配送</span>
-      </div>
-      <div class="action-item">
-        <span class="action-icon">🛡️</span>
-        <span class="action-text">品质保障</span>
-      </div>
-      <div class="action-item">
-        <span class="action-icon">💯</span>
-        <span class="action-text">正品保证</span>
-      </div>
-    </section>
+      </section>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
+const route = useRoute()
 
-const showSearch = ref(false)
 const activeCategory = ref('all')
 const keyword = ref('')
 const minPrice = ref('')
@@ -265,23 +220,20 @@ const fetchHotGoods = async () => {
       return
     }
     const data = await response.json()
-    console.log('热门商品接口返回:', data)
-    
+
     if (data.code === 200 && data.data) {
       let goodsArray = data.data
-      
-      // 处理二维数组情况：data: [[...]]
+
       if (Array.isArray(goodsArray) && goodsArray.length > 0 && Array.isArray(goodsArray[0])) {
         goodsArray = goodsArray[0]
       }
-      
+
       if (!Array.isArray(goodsArray)) {
         console.error('热门商品数据不是数组:', typeof goodsArray, goodsArray)
         return
       }
-      
+
       const goodsList = goodsArray.map(item => {
-        // 处理Redis中可能存储为字符串的情况
         if (typeof item === 'string') {
           try {
             item = JSON.parse(item)
@@ -303,9 +255,8 @@ const fetchHotGoods = async () => {
           createTime: item.createTime
         }
       }).filter(item => item !== null)
-      
+
       hotGoods.value = goodsList
-      console.log('最终热门商品列表:', hotGoods.value)
     } else {
       console.error('热门商品数据格式错误:', data)
     }
@@ -356,7 +307,6 @@ const fetchGoods = async (reset = false) => {
       return
     }
     const data = await response.json()
-    console.log('商品列表接口返回:', data)
     if (data.code === 200 && data.data) {
       const goodsArray = data.data.list || data.data.records || []
       const newGoods = goodsArray.map(item => {
@@ -384,7 +334,8 @@ const fetchGoods = async (reset = false) => {
           viewCount: item.viewCount || item.view_count,
           favoriteCount: item.favoriteCount || item.favorite_count,
           createTime: item.createTime || item.create_time,
-          seller: item.seller
+          seller: item.seller,
+          description: item.description || ''
         }
       })
       if (reset) {
@@ -393,7 +344,6 @@ const fetchGoods = async (reset = false) => {
         goods.value = [...goods.value, ...newGoods]
       }
       total.value = data.data.total || data.total || 0
-      console.log('total updated:', total.value)
       if (goods.value.length >= total.value) {
         noMore.value = true
       }
@@ -406,9 +356,19 @@ const fetchGoods = async (reset = false) => {
 }
 
 const handleSearch = () => {
-  showSearch.value = false
   page.value = 1
   fetchGoods(true)
+}
+
+const handleReset = () => {
+  minPrice.value = ''
+  maxPrice.value = ''
+  condition.value = ''
+  sort.value = 'time_desc'
+  keyword.value = ''
+  page.value = 1
+  fetchGoods(true)
+  router.replace({ path: '/', query: {} })
 }
 
 const handlePageSizeChange = () => {
@@ -418,10 +378,10 @@ const handlePageSizeChange = () => {
 
 const changePage = (newPage) => {
   const totalPages = Math.ceil(total.value / pageSize.value)
-  console.log('changePage called:', { currentPage: page.value, newPage, totalPages, total: total.value, pageSize: pageSize.value })
   if (newPage < 1 || newPage > totalPages || loading.value) return
   page.value = newPage
   fetchGoods(true)
+  window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
 watch(activeCategory, () => {
@@ -429,7 +389,17 @@ watch(activeCategory, () => {
   fetchGoods(true)
 })
 
+watch(
+  () => route.query.keyword,
+  (val) => {
+    keyword.value = val || ''
+    page.value = 1
+    fetchGoods(true)
+  }
+)
+
 onMounted(() => {
+  keyword.value = route.query.keyword || ''
   fetchCategories()
   fetchHotGoods()
   fetchGoods()
@@ -438,327 +408,124 @@ onMounted(() => {
 const goToDetail = (item) => {
   router.push(`/product/${item.id}`)
 }
-
-const loadMore = () => {
-  if (!noMore.value && !loading.value) {
-    page.value++
-    fetchGoods()
-  }
-}
 </script>
 
 <style scoped>
 .home-page {
-  min-height: 100vh;
-  background: #fafafa;
+  padding-top: 20px;
 }
 
-.header {
-  background: #ffffff;
-  padding: 16px 15px;
-  padding-top: calc(16px + env(safe-area-inset-top));
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.search-box {
+/* 分类栏 */
+.category-bar {
   display: flex;
-  align-items: center;
-  background: #f5f7fa;
-  border-radius: 8px;
-  padding: 10px 14px;
-  border: 1px solid #e8ecf0;
-}
-
-.search-icon {
-  font-size: 14px;
-  margin-right: 8px;
-}
-
-.search-placeholder {
-  color: #999;
-  font-size: 14px;
-}
-
-.search-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 100px;
-  z-index: 1000;
-}
-
-.search-content {
-  background: white;
-  width: 100%;
-  border-radius: 12px;
-  padding: 20px;
-}
-
-.search-input-wrapper {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  flex: 1;
-  padding: 10px 14px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.search-btn {
-  padding: 10px 20px;
-  background: #1e88e5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.search-filters {
-  margin-bottom: 20px;
-}
-
-.filter-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 12px;
-  gap: 10px;
-}
-
-.filter-label {
-  font-size: 14px;
-  color: #666;
-  width: 60px;
-}
-
-.filter-input {
-  padding: 8px 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 6px;
-  font-size: 14px;
-  width: 80px;
-}
-
-.filter-separator {
-  color: #999;
-}
-
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 6px;
-  font-size: 14px;
-  flex: 1;
-}
-
-.search-submit {
-  width: 100%;
-  padding: 12px;
-  background: #1e88e5;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-}
-
-.category-scroll {
-  display: flex;
-  overflow-x: auto;
-  white-space: nowrap;
-  background: white;
-  padding: 12px 0;
-}
-
-.category-scroll::-webkit-scrollbar {
-  display: none;
+  flex-wrap: wrap;
+  padding: 14px 10px;
+  margin-bottom: 28px;
+  gap: 4px;
 }
 
 .category-item {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  padding: 0 18px;
-  min-width: 56px;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: var(--c-text-2);
+}
+
+.category-item:hover {
+  background: #f5f6f8;
 }
 
 .category-icon {
-  font-size: 24px;
-  margin-bottom: 4px;
+  font-size: 17px;
 }
 
 .category-name {
-  font-size: 12px;
-  color: #666;
+  font-size: 14px;
 }
 
-.category-item.active .category-name {
-  color: #2563eb;
-  font-weight: 500;
-}
-
-.category-item.active .category-icon {
-  transform: scale(1.05);
-}
-
-.banner-section {
-  padding: 12px 15px;
-}
-
-.banner {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  border-radius: 12px;
-  padding: 24px 20px;
-}
-
-.banner-content h2 {
-  font-size: 20px;
+.category-item.active {
+  background: var(--c-primary-light);
+  color: var(--c-primary);
   font-weight: 600;
-  color: white;
-  margin-bottom: 6px;
 }
 
-.banner-content p {
-  font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.goods-section {
-  padding: 0 15px;
+/* 区块 */
+.section {
+  margin-bottom: 36px;
 }
 
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  padding-top: 8px;
+  margin-bottom: 16px;
 }
 
 .section-header h2 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-text);
 }
 
-.more {
-  font-size: 12px;
-  color: #2563eb;
-}
-
-.hot-section {
-  padding: 10px;
-}
-
-.hot-scroll {
-  display: flex;
-  overflow-x: auto;
-  gap: 10px;
-  padding: 5px 0;
-}
-
-.hot-card {
-  flex-shrink: 0;
-  width: 130px;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #f0f0f0;
-}
-
-.hot-image {
-  width: 100%;
-  height: 100px;
-}
-
-.hot-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.hot-info {
-  padding: 8px;
-}
-
-.hot-title {
-  font-size: 12px;
-  font-weight: 500;
-  color: #1a1a1a;
-  margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.hot-footer {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-}
-
-.hot-price {
-  font-size: 14px;
-  font-weight: 600;
-  color: #ef4444;
-}
-
-.hot-original-price {
-  font-size: 10px;
-  color: #bbb;
-  text-decoration: line-through;
-}
-
+/* 商品网格 */
 .goods-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));
+  gap: 18px;
 }
 
 .goods-card {
-  background: white;
-  border-radius: 10px;
+  background: #fff;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.goods-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--c-border-strong);
 }
 
 .goods-image {
   width: 100%;
-  height: 130px;
+  aspect-ratio: 4 / 3;
+  background: #f0f1f3;
+  overflow: hidden;
 }
 
 .goods-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.goods-card:hover .goods-image img {
+  transform: scale(1.04);
 }
 
 .goods-info {
-  padding: 10px;
+  padding: 12px 14px 14px;
 }
 
 .goods-title {
-  font-size: 13px;
-  font-weight: 500;
-  color: #1a1a1a;
-  margin-bottom: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 6px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .goods-desc {
-  font-size: 11px;
-  color: #999;
-  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--c-text-3);
+  margin-bottom: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -766,114 +533,129 @@ const loadMore = () => {
 
 .goods-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .goods-price {
-  font-size: 15px;
-  font-weight: 600;
-  color: #2563eb;
-}
-
-.goods-location {
-  font-size: 10px;
-  color: #bbb;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
 .goods-original-price {
   font-size: 12px;
-  color: #bbb;
+  color: var(--c-text-3);
   text-decoration: line-through;
 }
 
-.loading-more, .no-more, .empty-state {
+/* 筛选栏 */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 14px 18px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.filter-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-label {
+  font-size: 13px;
+  color: var(--c-text-2);
+  white-space: nowrap;
+}
+
+.filter-input {
+  width: 90px;
+  padding: 7px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fafbfc;
+}
+
+.filter-input:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  background: #fff;
+}
+
+.filter-sep {
+  color: var(--c-text-3);
+}
+
+.filter-select {
+  padding: 7px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fafbfc;
+  min-width: 130px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--c-primary);
+}
+
+/* 分页 */
+.loading-more,
+.no-more {
   text-align: center;
   padding: 20px;
-  color: #999;
-  font-size: 14px;
-}
-
-.quick-actions {
-  display: flex;
-  justify-content: space-around;
-  background: white;
-  margin: 15px;
-  padding: 20px 0;
-  border-radius: 12px;
-  border: 1px solid #f0f0f0;
-}
-
-.action-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.action-icon {
-  font-size: 24px;
-  margin-bottom: 6px;
-}
-
-.action-text {
-  font-size: 12px;
-  color: #666;
+  color: var(--c-text-3);
+  font-size: 13px;
 }
 
 .pagination {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  background: white;
-  margin-top: 10px;
-  border-radius: 8px;
+  padding: 20px 4px;
 }
 
 .pagination-info {
-  font-size: 13px;
-  color: #666;
-}
-
-.pagination-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
+  font-size: 13px;
+  color: var(--c-text-2);
 }
 
 .page-size-select {
   padding: 6px 10px;
-  border: 1px solid #e8ecf0;
-  border-radius: 6px;
-  font-size: 13px;
-  background: white;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fff;
 }
 
 .page-nav {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
 }
 
 .page-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #f5f7fa;
-  border-radius: 6px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fff;
   font-size: 16px;
-  color: #666;
-  cursor: pointer;
-  border: none;
-  padding: 0;
-  outline: none;
-  appearance: none;
+  color: var(--c-text-2);
+  transition: all 0.2s;
 }
 
 .page-btn:hover:not(.disabled) {
-  background: #e8ecf0;
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 .page-btn.disabled {
@@ -883,9 +665,9 @@ const loadMore = () => {
 
 .current-page {
   font-size: 14px;
-  font-weight: 500;
-  color: #1e88e5;
-  min-width: 32px;
+  font-weight: 600;
+  color: var(--c-text);
+  min-width: 28px;
   text-align: center;
 }
 </style>

@@ -1,20 +1,14 @@
 <template>
-  <div class="wallet-page">
-    <header class="wallet-header">
-      <button class="back-btn" @click="goBack">‹</button>
-      <span class="header-title">我的钱包</span>
-      <span class="placeholder"></span>
-    </header>
-
-    <div class="balance-card">
-      <div class="balance-label">账户余额</div>
+  <AccountLayout active="wallet">
+    <div class="balance-card card">
+      <div class="balance-label">账户余额（元）</div>
       <div class="balance-value">¥{{ userInfo.balance || '0.00' }}</div>
       <div class="balance-actions">
-        <button class="action-btn primary" @click="showRechargeModal = true">充值</button>
+        <button class="recharge-btn" @click="showRechargeModal = true">充 值</button>
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section card">
       <div class="menu-item">
         <span class="menu-icon">📊</span>
         <span class="menu-text">收支明细</span>
@@ -59,10 +53,11 @@
         </div>
       </div>
     </div>
-  </div>
+  </AccountLayout>
 </template>
 
 <script setup>
+import AccountLayout from '../components/AccountLayout.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -150,101 +145,62 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.wallet-page {
-  min-height: 100vh;
-  background: #fafafa;
-}
-
-.wallet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
-  padding-top: calc(15px + env(safe-area-inset-top));
-}
-
-.back-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  font-size: 24px;
-  color: #1a1a1a;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 36px;
-}
-
 .balance-card {
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  margin: 15px;
-  padding: 30px;
-  border-radius: 16px;
-  text-align: center;
-  color: white;
+  padding: 32px 36px;
+  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%);
+  border: none;
+  color: #fff;
+  margin-bottom: 20px;
 }
 
 .balance-label {
   font-size: 14px;
-  opacity: 0.9;
-  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 12px;
 }
 
 .balance-value {
   font-size: 40px;
-  font-weight: 600;
-  margin-bottom: 20px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 24px;
 }
 
-.balance-actions {
-  display: flex;
-  gap: 15px;
+.recharge-btn {
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
-}
-
-.action-btn {
-  padding: 12px 30px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  border-radius: 25px;
+  height: 40px;
+  padding: 0 36px;
+  border: none;
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--c-primary);
   font-size: 15px;
-  color: white;
-  background: transparent;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.action-btn.primary {
-  background: white;
-  color: #2563eb;
+.recharge-btn:hover {
+  background: #f0f4ff;
+  color: var(--c-primary-hover);
 }
 
 .menu-section {
-  background: white;
-  margin: 0 15px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1px solid #f0f0f0;
+  padding: 8px 4px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  transition: background 0.15s;
 }
 
-.menu-item:last-child {
-  border-bottom: none;
+.menu-item + .menu-item {
+  border-top: 1px solid var(--c-border);
+  border-radius: 0;
 }
 
 .menu-icon {
@@ -255,12 +211,12 @@ onMounted(() => {
 .menu-text {
   flex: 1;
   font-size: 15px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .menu-arrow {
   font-size: 18px;
-  color: #ddd;
+  color: var(--c-text-3);
 }
 
 .modal-overlay {
@@ -269,7 +225,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -277,9 +233,10 @@ onMounted(() => {
 }
 
 .modal-content {
-  width: 100%;
-  background: white;
-  border-radius: 12px;
+  width: 420px;
+  max-width: 90vw;
+  background: #fff;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -287,14 +244,14 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .close-btn {
@@ -306,7 +263,8 @@ onMounted(() => {
   border: none;
   background: transparent;
   font-size: 24px;
-  color: #999;
+  color: var(--c-text-3);
+  cursor: pointer;
 }
 
 .modal-body {
@@ -324,70 +282,61 @@ onMounted(() => {
   flex: 1;
   min-width: calc(33.33% - 7px);
   padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 14px;
-  color: #666;
-  background: white;
+  color: var(--c-text-2);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.amount-option:hover {
+  border-color: var(--c-border-strong);
 }
 
 .amount-option.active {
-  border-color: #2563eb;
-  color: #2563eb;
-  background: #eff6ff;
-}
-
-.custom-amount {
-  margin-bottom: 10px;
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  background: var(--c-primary-light);
+  font-weight: 600;
 }
 
 .amount-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 11px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: #fafbfc;
+  color: var(--c-text);
   box-sizing: border-box;
-  color: #1a1a1a;
 }
 
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-label {
-  display: block;
-  font-size: 13px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 15px;
-  box-sizing: border-box;
-  color: #1a1a1a;
-}
-
-.form-input::placeholder {
-  color: #999;
+.amount-input:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  background: #fff;
 }
 
 .modal-footer {
-  padding: 15px 20px;
-  border-top: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--c-border);
 }
 
 .btn-submit {
   width: 100%;
-  padding: 14px;
+  height: 42px;
   border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  color: white;
-  background: #2563eb;
+  border-radius: var(--radius);
+  font-size: 15px;
+  color: #fff;
+  background: var(--c-primary);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-submit:hover {
+  background: var(--c-primary-hover);
 }
 </style>

@@ -1,19 +1,18 @@
 <template>
-  <div class="address-page">
-    <header class="address-header">
-      <button class="back-btn" @click="goBack">‹</button>
-      <span class="header-title">我的地址</span>
-      <button class="add-btn" @click="openAddModal">+</button>
-    </header>
+  <AccountLayout active="address">
+    <div class="address-header">
+      <h1 class="page-title">我的地址</h1>
+      <button class="btn btn-primary" @click="openAddModal">+ 添加地址</button>
+    </div>
 
-    <div class="address-list">
+    <div v-if="addresses.length > 0" class="address-grid">
       <div 
         v-for="address in addresses" 
         :key="address.id" 
-        class="address-card"
+        class="address-card card"
       >
         <div class="address-main" @click="selectAddress(address)">
-          <div class="address-header">
+          <div class="address-head">
             <span class="consignee">{{ address.consignee }}</span>
             <span class="phone">{{ address.phone }}</span>
             <span v-if="address.sex" class="sex">{{ address.sex === '1' ? '男' : '女' }}</span>
@@ -22,22 +21,22 @@
             {{ address.provinceName }}{{ address.cityName }}{{ address.districtName }}{{ address.detail }}
           </div>
           <div class="address-footer">
-            <span v-if="address.label" class="address-label">{{ address.label }}</span>
-            <span v-if="address.isDefault === 1" class="default-tag">默认</span>
+            <span v-if="address.label" class="badge badge-blue">{{ address.label }}</span>
+            <span v-if="address.isDefault === 1" class="badge badge-red">默认</span>
           </div>
         </div>
         <div class="address-actions">
-          <button class="action-btn" @click="openEditModal(address)">编辑</button>
-          <button class="action-btn delete" @click="handleDelete(address.id)">删除</button>
-          <button v-if="address.isDefault !== 1" class="action-btn" @click="setDefault(address)">设为默认</button>
+          <button class="btn btn-outline btn-sm" @click="openEditModal(address)">编辑</button>
+          <button class="btn btn-danger btn-sm" @click="handleDelete(address.id)">删除</button>
+          <button v-if="address.isDefault !== 1" class="btn btn-sm" @click="setDefault(address)">设为默认</button>
         </div>
       </div>
+    </div>
 
-      <div v-if="addresses.length === 0" class="empty-state">
-        <span class="empty-icon">📍</span>
-        <p>暂无收货地址</p>
-        <button class="add-empty-btn" @click="openAddModal">添加收货地址</button>
-      </div>
+    <div v-else class="empty-state card">
+      <span class="empty-icon">📍</span>
+      <p>暂无收货地址</p>
+      <button class="btn btn-primary" @click="openAddModal">添加收货地址</button>
     </div>
 
     <div v-if="showModal" class="modal-overlay" @click="closeModal">
@@ -113,15 +112,16 @@
           </label>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="handleSubmit">{{ isEdit ? '保存修改' : '添加地址' }}</button>
+          <button class="btn-cancel" @click="closeModal">取消</button>
+          <button class="btn-confirm" @click="handleSubmit">{{ isEdit ? '保存修改' : '添加地址' }}</button>
         </div>
       </div>
     </div>
-  </div>
+  </AccountLayout>
 </template>
 
 <script setup>
+import AccountLayout from '../components/AccountLayout.vue'
 import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -323,69 +323,35 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.address-page {
-  min-height: 100vh;
-  background: #f5f7fa;
-}
-
 .address-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
-  background: white;
-  border-bottom: 1px solid #f0f0f0;
+  margin-bottom: 20px;
 }
 
-.back-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  font-size: 24px;
-  color: #1a1a1a;
+.address-header .page-title {
+  margin-bottom: 0;
 }
 
-.header-title {
-  font-size: 17px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.add-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: #2563eb;
-  color: white;
-  border-radius: 50%;
-  font-size: 24px;
-}
-
-.address-list {
-  padding: 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
+.address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
 }
 
 .address-card {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
 }
 
 .address-main {
-  padding: 15px;
+  flex: 1;
+  cursor: pointer;
 }
 
-.address-header {
+.address-head {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -395,95 +361,44 @@ onMounted(() => {
 .consignee {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .phone {
   font-size: 14px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .sex {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
 }
 
 .address-detail {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
   line-height: 1.6;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
+  word-break: break-all;
 }
 
 .address-footer {
   display: flex;
-  gap: 10px;
-}
-
-.address-label {
-  font-size: 12px;
-  color: #2563eb;
-  background: #eff6ff;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.default-tag {
-  font-size: 12px;
-  color: #ef4444;
-  background: #fef2f2;
-  padding: 2px 8px;
-  border-radius: 4px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .address-actions {
   display: flex;
-  border-top: 1px solid #f5f5f5;
-}
-
-.action-btn {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  background: white;
-  font-size: 14px;
-  color: #666;
-  border-right: 1px solid #f5f5f5;
-}
-
-.action-btn:last-child {
-  border-right: none;
-}
-
-.action-btn.delete {
-  color: #ef4444;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--c-border);
+  justify-content: flex-end;
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 60px 20px;
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.empty-state p {
-  font-size: 15px;
-  color: #999;
-  margin-bottom: 20px;
-}
-
-.add-empty-btn {
-  padding: 12px 30px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  margin-top: 0;
 }
 
 .modal-overlay {
@@ -492,7 +407,7 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -500,24 +415,26 @@ onMounted(() => {
 }
 
 .modal-content {
-  width: 100%;
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
+  width: 480px;
+  max-width: 90vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: var(--radius-lg);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .modal-close {
@@ -529,7 +446,8 @@ onMounted(() => {
   border: none;
   background: transparent;
   font-size: 24px;
-  color: #999;
+  color: var(--c-text-3);
+  cursor: pointer;
 }
 
 .modal-body {
@@ -539,69 +457,84 @@ onMounted(() => {
 .modal-label {
   display: block;
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
   margin-bottom: 8px;
 }
 
 .modal-input {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: #fafbfc;
   box-sizing: border-box;
-  color: #1a1a1a;
-  margin-bottom: 15px;
+  color: var(--c-text);
+  margin-bottom: 16px;
+}
+
+.modal-input:focus,
+.modal-textarea:focus,
+.region-input:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  background: #fff;
 }
 
 .modal-textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 15px;
+  padding: 10px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-size: 14px;
+  background: #fafbfc;
   box-sizing: border-box;
-  color: #1a1a1a;
-  margin-bottom: 15px;
+  color: var(--c-text);
+  margin-bottom: 16px;
   min-height: 80px;
   resize: none;
 }
 
 .sex-options {
   display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .sex-option {
-  padding: 10px 30px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
+  padding: 8px 28px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 14px;
-  color: #666;
-  background: white;
+  color: var(--c-text-2);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.15s;
 }
 
 .sex-option.active {
-  border-color: #2563eb;
-  background: #eff6ff;
-  color: #2563eb;
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  font-weight: 600;
 }
 
 .region-inputs {
   display: flex;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .region-input {
   flex: 1;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 14px;
+  background: #fafbfc;
   box-sizing: border-box;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .checkbox-label {
@@ -609,8 +542,7 @@ onMounted(() => {
   align-items: center;
   gap: 8px;
   font-size: 14px;
-  color: #1a1a1a;
-  margin-bottom: 10px;
+  color: var(--c-text);
 }
 
 .checkbox-label input {
@@ -621,27 +553,36 @@ onMounted(() => {
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 15px 20px;
-  border-top: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-top: 1px solid var(--c-border);
 }
 
-.btn-secondary {
+.btn-cancel,
+.btn-confirm {
   flex: 1;
-  padding: 12px;
-  background: #f5f7fa;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
+  height: 40px;
+  border-radius: var(--radius);
   font-size: 14px;
-  color: #666;
+  cursor: pointer;
 }
 
-.btn-primary {
-  flex: 1;
-  padding: 12px;
-  background: #2563eb;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: white;
+.btn-cancel {
+  background: #fff;
+  border: 1px solid var(--c-border);
+  color: var(--c-text-2);
+}
+
+.btn-cancel:hover {
+  border-color: var(--c-border-strong);
+}
+
+.btn-confirm {
+  background: var(--c-primary);
+  border: 1px solid var(--c-primary);
+  color: #fff;
+}
+
+.btn-confirm:hover {
+  background: var(--c-primary-hover);
 }
 </style>

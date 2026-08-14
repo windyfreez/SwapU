@@ -4,28 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="项目结构优化">
-      <change afterPath="$PROJECT_DIR$/.idea/claudeCodeEditorTabs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/aspect/BehaviorAspect.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/UserBehaviorLogMapper.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/BehaviorBufferService.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/BehaviorBufferServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/task/BehaviorTask.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/resources/mapper/UserBehaviorLogMapper.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/swapu_pojo/src/main/java/com/itsean/pojo/entity/UserBehaviorLog.java" afterDir="false" />
+    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="推荐算法数据处理代码commit">
+      <change beforePath="$PROJECT_DIR$/.idea/claudeCodeEditorTabs.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/config/WebMvcConfiguration.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/config/WebMvcConfiguration.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/FavoriteController.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/FavoriteController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/Product.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/entity/Product.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/properties/JwtProperties.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/properties/JwtProperties.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/FavoriteService.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/FavoriteService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/FavoriteServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/FavoriteServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/src/main/java/com/itsean/common/constant/StringConstant.java" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/src/main/java/com/itsean/common/constant/StringConstant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/aspect/BehaviorAspect.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/aspect/BehaviorAspect.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/JwtClaimsConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/JwtClaimsConstant.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/MessageConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/MessageConstant.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/NumberConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/NumberConstant.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/StringConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/StringConstant.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/context/BaseContext.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/context/BaseContext.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/AccountRepeatException.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/AccountRepeatException.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/BaseException.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/BaseException.class" afterDir="false" />
@@ -35,6 +20,30 @@
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/properties/JwtProperties.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/properties/JwtProperties.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/AliOssUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/AliOssUtil.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/JwtUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/JwtUtil.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/assets/base.css" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/assets/base.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/assets/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/assets/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/components/TabBar.vue" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/ChatRoom.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/ChatRoom.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/CreateOrder.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/CreateOrder.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/EditProduct.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/EditProduct.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/EditProfile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/EditProfile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Home.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Messages.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Messages.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyAddress.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyAddress.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyFavorites.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyFavorites.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyOrders.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyOrders.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyProducts.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyProducts.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyWallet.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyWallet.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/OrderDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/OrderDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/ProductDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/ProductDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Profile.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Register.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Register.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Sell.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Sell.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Settings.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Settings.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/vite.config.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/PageResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/PageResult.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/Result.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/Result.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatHistoryQueryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatHistoryQueryDTO.class" afterDir="false" />
@@ -200,7 +209,7 @@
     &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.21839081&quot;,
     &quot;run.configurations.included.in.services&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;MavenSettings&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;ts.external.directory.path&quot;: &quot;D:\\Develop\\JetBrains\\IntelliJ IDEA 2025.2.4\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -615,7 +624,21 @@
       <workItem from="1786507482399" duration="66000" />
       <workItem from="1786543753942" duration="5785000" />
       <workItem from="1786597687066" duration="757000" />
-      <workItem from="1786601242789" duration="10332000" />
+      <workItem from="1786601242789" duration="10475000" />
+      <workItem from="1786612862905" duration="249000" />
+      <workItem from="1786613187453" duration="1678000" />
+      <workItem from="1786616936572" duration="739000" />
+      <workItem from="1786627791693" duration="13000" />
+      <workItem from="1786629249936" duration="33000" />
+      <workItem from="1786629807497" duration="775000" />
+      <workItem from="1786630601114" duration="3000" />
+      <workItem from="1786631651542" duration="66000" />
+      <workItem from="1786635607598" duration="10000" />
+      <workItem from="1786636054001" duration="16000" />
+      <workItem from="1786636109467" duration="1589000" />
+      <workItem from="1786684632460" duration="1035000" />
+      <workItem from="1786711409074" duration="704000" />
+      <workItem from="1786712843518" duration="841000" />
     </task>
     <task id="LOCAL-00001" summary="用户模块代码开发">
       <option name="closed" value="true" />
@@ -849,7 +872,15 @@
       <option name="project" value="LOCAL" />
       <updated>1785568655603</updated>
     </task>
-    <option name="localTasksCounter" value="30" />
+    <task id="LOCAL-00030" summary="推荐算法数据处理代码commit">
+      <option name="closed" value="true" />
+      <created>1786612824476</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1786612824476</updated>
+    </task>
+    <option name="localTasksCounter" value="31" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -915,7 +946,8 @@
     <MESSAGE value="修复聊天记录bug" />
     <MESSAGE value="优化热门商品redis缓存结构" />
     <MESSAGE value="项目结构优化" />
-    <option name="LAST_COMMIT_MESSAGE" value="项目结构优化" />
+    <MESSAGE value="推荐算法数据处理代码commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="推荐算法数据处理代码commit" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

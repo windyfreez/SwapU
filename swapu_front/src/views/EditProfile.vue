@@ -1,14 +1,31 @@
 <template>
-  <div class="edit-profile-page">
-    <div class="header">
-      <span class="back-btn" @click="goBack">‹</span>
-      <h1>编辑资料</h1>
-      <span class="save-btn" @click="handleSave">保存</span>
-    </div>
+  <AccountLayout active="profile">
+    <form class="edit-form card" @submit.prevent="handleSave">
+      <div class="form-group">
+        <label class="form-label">头像</label>
+        <div class="avatar-upload">
+          <div class="avatar-preview" @click="triggerUpload">
+            <img v-if="form.avatar" :src="form.avatar" alt="头像" />
+            <span v-else>👤</span>
+          </div>
+          <div class="upload-info">
+            <button type="button" class="btn btn-outline btn-sm upload-btn" @click="triggerUpload">
+              {{ isUploading ? '上传中...' : '上传头像' }}
+            </button>
+            <span class="upload-tip">支持JPG、PNG格式</span>
+          </div>
+          <input 
+            ref="fileInput"
+            type="file" 
+            accept="image/jpeg,image/png" 
+            class="file-input"
+            @change="handleFileUpload"
+          />
+        </div>
+      </div>
 
-    <form class="edit-form">
-      <div class="form-section">
-        <label>用户名</label>
+      <div class="form-group">
+        <label class="form-label">用户名 <span class="required">*</span></label>
         <input 
           type="text" 
           v-model="form.username" 
@@ -17,8 +34,8 @@
         />
       </div>
 
-      <div class="form-section">
-        <label>昵称</label>
+      <div class="form-group">
+        <label class="form-label">昵称</label>
         <input 
           type="text" 
           v-model="form.nickname" 
@@ -27,8 +44,8 @@
         />
       </div>
 
-      <div class="form-section">
-        <label>学号</label>
+      <div class="form-group">
+        <label class="form-label">学号</label>
         <input 
           type="text" 
           v-model="form.studentId" 
@@ -38,8 +55,8 @@
         />
       </div>
 
-      <div class="form-section">
-        <label>手机号</label>
+      <div class="form-group">
+        <label class="form-label">手机号</label>
         <input 
           type="tel" 
           v-model="form.phone" 
@@ -48,8 +65,8 @@
         />
       </div>
 
-      <div class="form-section">
-        <label>邮箱</label>
+      <div class="form-group">
+        <label class="form-label">邮箱</label>
         <input 
           type="email" 
           v-model="form.email" 
@@ -58,8 +75,8 @@
         />
       </div>
 
-      <div class="form-section">
-        <label>学院</label>
+      <div class="form-group">
+        <label class="form-label">学院</label>
         <select v-model="form.college" class="form-select">
           <option value="">请选择学院</option>
           <option value="通信工程学院">通信工程学院</option>
@@ -83,33 +100,16 @@
         </select>
       </div>
 
-      <div class="form-section">
-        <label>头像</label>
-        <div class="avatar-upload">
-          <div class="avatar-preview" @click="triggerUpload">
-            <img v-if="form.avatar" :src="form.avatar" alt="头像" />
-            <span v-else>👤</span>
-          </div>
-          <div class="upload-info">
-            <span class="upload-btn" @click="triggerUpload">
-              {{ isUploading ? '上传中...' : '上传头像' }}
-            </span>
-            <span class="upload-tip">支持JPG、PNG格式</span>
-          </div>
-          <input 
-            ref="fileInput"
-            type="file" 
-            accept="image/jpeg,image/png" 
-            class="file-input"
-            @change="handleFileUpload"
-          />
-        </div>
-      </div>
+      <button type="submit" class="btn btn-primary btn-lg submit-btn" :disabled="isLoading">
+        {{ isLoading ? '保存中...' : '保存' }}
+      </button>
     </form>
-  </div>
+  </AccountLayout>
 </template>
 
-<script setup>import { ref, reactive, onMounted } from 'vue';
+<script setup>
+import AccountLayout from '../components/AccountLayout.vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
 const isLoading = ref(false);
@@ -255,98 +255,30 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.edit-profile-page {
-  min-height: 100vh;
-  background: #fafafa;
-}
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 15px;
-  padding-top: calc(16px + env(safe-area-inset-top));
-  background: white;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.back-btn {
-  font-size: 24px;
-  color: #333;
-}
-
-.header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.save-btn {
-  font-size: 16px;
-  color: #2563eb;
-  font-weight: 500;
-}
-
 .edit-form {
-  padding: 15px;
-}
-
-.form-section {
-  background: white;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #f0f0f0;
-}
-
-.form-section label {
-  display: block;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #fafafa;
-}
-
-.form-input:disabled {
-  background: #f0f0f0;
-  color: #999;
-}
-
-.form-select {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #fafafa;
+  max-width: 640px;
+  padding: 28px 30px;
 }
 
 .avatar-upload {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 16px;
 }
 
 .avatar-preview {
-  width: 60px;
-  height: 60px;
+  width: 72px;
+  height: 72px;
   border-radius: 50%;
-  background: #f0f0f0;
+  background: var(--c-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 28px;
+  font-size: 30px;
   flex-shrink: 0;
   cursor: pointer;
-  border: 2px dashed #ddd;
+  border: 2px dashed var(--c-border-strong);
+  overflow: hidden;
 }
 
 .avatar-preview img {
@@ -357,21 +289,20 @@ onMounted(() => {
 }
 
 .upload-info {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-}
-
-.upload-btn {
-  font-size: 14px;
-  color: #2563eb;
-  font-weight: 500;
+  align-items: flex-start;
+  gap: 6px;
 }
 
 .upload-tip {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 4px;
 }
 
 .file-input {

@@ -1,109 +1,120 @@
 <template>
   <div class="create-order-page">
-    <header class="order-header">
-      <button class="back-btn" @click="goBack">‹</button>
-      <span class="header-title">创建订单</span>
-      <span class="placeholder"></span>
-    </header>
+    <div class="container">
+      <!-- 面包屑 -->
+      <div class="breadcrumb">
+        <router-link to="/">首页</router-link>
+        <span>/</span>
+        <router-link :to="`/product/${route.params.productId}`">商品详情</router-link>
+        <span>/</span>
+        <span>创建订单</span>
+      </div>
 
-    <div v-if="product" class="order-content">
-      <div class="section-card">
-        <div class="section-title">收货地址</div>
-        <div v-if="addresses.length > 0" class="address-list">
-          <div 
-            v-for="address in addresses" 
-            :key="address.id" 
-            class="address-item"
-            :class="{ active: selectedAddressId === address.id }"
-            @click="selectedAddressId = address.id"
-          >
-            <div class="address-radio">
-              <span v-if="selectedAddressId === address.id" class="radio-check">✓</span>
-            </div>
-            <div class="address-info">
-              <div class="address-header">
-                <span class="consignee">{{ address.consignee }}</span>
-                <span class="phone">{{ address.phone }}</span>
-                <span v-if="address.isDefault === 1" class="default-tag">默认</span>
+      <div v-if="product" class="order-content">
+        <!-- 收货地址 -->
+        <div class="card section-card">
+          <div class="section-title">收货地址</div>
+          <div v-if="addresses.length > 0" class="address-list">
+            <div
+              v-for="address in addresses"
+              :key="address.id"
+              class="address-item"
+              :class="{ active: selectedAddressId === address.id }"
+              @click="selectedAddressId = address.id"
+            >
+              <div class="address-radio">
+                <span v-if="selectedAddressId === address.id" class="radio-check">✓</span>
               </div>
-              <div class="address-detail">
-                {{ address.provinceName }}{{ address.cityName }}{{ address.districtName }}{{ address.detail }}
+              <div class="address-info">
+                <div class="address-header">
+                  <span class="consignee">{{ address.consignee }}</span>
+                  <span class="phone">{{ address.phone }}</span>
+                  <span v-if="address.isDefault === 1" class="default-tag">默认</span>
+                </div>
+                <div class="address-detail">
+                  {{ address.provinceName }}{{ address.cityName }}{{ address.districtName }}{{ address.detail }}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div v-else class="no-address">
-          <p>暂无收货地址，请先添加</p>
-          <button class="add-address-btn" @click="goToAddAddress">添加收货地址</button>
-        </div>
-      </div>
-
-      <div class="product-card">
-        <img :src="getFirstImage(product.images)" class="product-image" />
-        <div class="product-info">
-          <h3 class="product-title">{{ product.title }}</h3>
-          <p class="product-desc">{{ product.description }}</p>
-          <div class="product-price">
-            <span class="price">¥{{ product.price }}</span>
+          <div v-else class="no-address">
+            <p>暂无收货地址，请先添加</p>
+            <button class="btn btn-primary" @click="goToAddAddress">添加收货地址</button>
           </div>
         </div>
-      </div>
 
-      <div class="section-card">
-        <div class="section-title">购买数量</div>
-        <div class="quantity-control">
-          <button class="qty-btn" @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
-          <input 
-            v-model="quantity" 
-            type="number" 
-            class="qty-input" 
-            min="1"
-          />
-          <button class="qty-btn" @click="increaseQuantity">+</button>
+        <!-- 商品卡 -->
+        <div class="card product-card">
+          <img :src="getFirstImage(product.images)" class="product-image" />
+          <div class="product-info">
+            <h3 class="product-title">{{ product.title }}</h3>
+            <p class="product-desc">{{ product.description }}</p>
+            <div class="product-price">
+              <span class="price">¥{{ product.price }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 购买数量 -->
+        <div class="card section-card">
+          <div class="section-title">购买数量</div>
+          <div class="quantity-control">
+            <button class="qty-btn" @click="decreaseQuantity" :disabled="quantity <= 1">-</button>
+            <input
+              v-model="quantity"
+              type="number"
+              class="qty-input"
+              min="1"
+            />
+            <button class="qty-btn" @click="increaseQuantity">+</button>
+          </div>
+        </div>
+
+        <!-- 买家留言 -->
+        <div class="card section-card">
+          <div class="section-title">买家留言</div>
+          <textarea
+            v-model="buyerMessage"
+            class="form-textarea message-textarea"
+            placeholder="请输入留言，选填"
+          ></textarea>
+        </div>
+
+        <!-- 金额明细 -->
+        <div class="card section-card">
+          <div class="section-title">订单金额</div>
+          <div class="amount-info">
+            <div class="amount-row">
+              <span class="label">商品金额</span>
+              <span class="value">¥{{ product.price }}</span>
+            </div>
+            <div class="amount-row">
+              <span class="label">数量</span>
+              <span class="value">×{{ quantity }}</span>
+            </div>
+            <div class="amount-row total">
+              <span class="label">订单总额</span>
+              <span class="value">¥{{ totalAmount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 提交 -->
+        <div class="card submit-card">
+          <div class="total-section">
+            <span class="total-label">合计:</span>
+            <span class="total-price">¥{{ totalAmount }}</span>
+          </div>
+          <button class="btn btn-primary btn-lg submit-btn" :disabled="loading" @click="submitOrder">
+            {{ loading ? '提交中...' : '立即购买' }}
+          </button>
         </div>
       </div>
 
-      <div class="section-card">
-        <div class="section-title">买家留言</div>
-        <textarea 
-          v-model="buyerMessage" 
-          class="message-textarea" 
-          placeholder="请输入留言，选填"
-        ></textarea>
+      <div v-else class="loading-state">
+        <div class="loading-icon">⏳</div>
+        <p>加载中...</p>
       </div>
-
-      <div class="section-card">
-        <div class="section-title">订单金额</div>
-        <div class="amount-info">
-          <div class="amount-row">
-            <span class="label">商品金额</span>
-            <span class="value">¥{{ product.price }}</span>
-          </div>
-          <div class="amount-row">
-            <span class="label">数量</span>
-            <span class="value">×{{ quantity }}</span>
-          </div>
-          <div class="amount-row total">
-            <span class="label">订单总额</span>
-            <span class="value">¥{{ totalAmount }}</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div v-else class="loading-state">
-      <div class="loading-icon">⏳</div>
-      <p>加载中...</p>
-    </div>
-
-    <div class="bottom-bar">
-      <div class="total-section">
-        <span class="total-label">合计:</span>
-        <span class="total-price">¥{{ totalAmount }}</span>
-      </div>
-      <button class="submit-btn" :disabled="loading" @click="submitOrder">
-        {{ loading ? '提交中...' : '立即购买' }}
-      </button>
     </div>
   </div>
 </template>
@@ -270,108 +281,33 @@ onMounted(() => {
 
 <style scoped>
 .create-order-page {
-  min-height: 100vh;
-  background: #fafafa;
-  padding-bottom: 140px;
-}
-
-.order-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
-  padding-top: calc(15px + env(safe-area-inset-top));
-}
-
-.back-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  font-size: 24px;
-  color: #1a1a1a;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 36px;
+  min-height: 60vh;
+  padding-bottom: 40px;
 }
 
 .order-content {
-  padding: 15px;
-}
-
-.product-card {
-  display: flex;
-  gap: 12px;
-  background: white;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  border: 1px solid #f0f0f0;
-}
-
-.product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
-  object-fit: cover;
-}
-
-.product-info {
-  flex: 1;
+  max-width: 860px;
+  margin: 0 auto;
+  padding-top: 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-}
-
-.product-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-}
-
-.product-desc {
-  font-size: 12px;
-  color: #999;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.product-price {
-  margin-top: 10px;
-}
-
-.price {
-  font-size: 18px;
-  font-weight: 600;
-  color: #ef4444;
+  gap: 16px;
 }
 
 .section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  border: 1px solid #f0f0f0;
+  padding: 18px 22px;
 }
 
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+/* 地址 */
 .address-list {
   display: flex;
   flex-direction: column;
@@ -382,32 +318,38 @@ onMounted(() => {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  transition: all 0.3s;
+  padding: 14px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.address-item:hover {
+  border-color: var(--c-border-strong);
 }
 
 .address-item.active {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
 }
 
 .address-radio {
   width: 20px;
   height: 20px;
-  border: 2px solid #e8ecf0;
+  border: 2px solid var(--c-border-strong);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-top: 2px;
+  background: #fff;
 }
 
 .address-item.active .address-radio {
-  border-color: #2563eb;
-  background: #2563eb;
+  border-color: var(--c-primary);
+  background: var(--c-primary);
 }
 
 .radio-check {
@@ -430,25 +372,25 @@ onMounted(() => {
 .consignee {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .phone {
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .default-tag {
   font-size: 11px;
-  color: #ef4444;
-  background: #fef2f2;
+  color: var(--c-danger);
+  background: var(--c-danger-light);
   padding: 1px 6px;
   border-radius: 4px;
 }
 
 .address-detail {
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
   line-height: 1.5;
 }
 
@@ -459,32 +401,68 @@ onMounted(() => {
 
 .no-address p {
   font-size: 14px;
-  color: #999;
-  margin-bottom: 15px;
+  color: var(--c-text-3);
+  margin-bottom: 16px;
 }
 
-.add-address-btn {
-  padding: 10px 25px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
+/* 商品卡 */
+.product-card {
+  display: flex;
+  gap: 16px;
+  padding: 16px 18px;
 }
 
-.section-title {
+.product-image {
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #f0f1f3;
+}
+
+.product-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.product-title {
   font-size: 15px;
   font-weight: 600;
-  color: #1a1a1a;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f5f5f5;
+  color: var(--c-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
+.product-desc {
+  font-size: 13px;
+  color: var(--c-text-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 4px 0;
+}
+
+.product-price {
+  margin-top: 6px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--c-danger);
+}
+
+/* 数量 */
 .quantity-control {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 12px;
+  max-width: 260px;
 }
 
 .qty-btn {
@@ -493,11 +471,18 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 18px;
-  color: #666;
-  background: white;
+  color: var(--c-text-2);
+  background: var(--c-card);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.qty-btn:hover:not(:disabled) {
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 .qty-btn:disabled {
@@ -509,28 +494,25 @@ onMounted(() => {
   flex: 1;
   text-align: center;
   padding: 10px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 16px;
-  color: #1a1a1a;
+  color: var(--c-text);
+  background: #fafbfc;
+}
+
+.qty-input:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  background: #fff;
 }
 
 .message-textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
-  min-height: 80px;
-  resize: none;
-  color: #1a1a1a;
+  min-height: 90px;
 }
 
-.message-textarea::placeholder {
-  color: #999;
-}
-
+/* 金额 */
 .amount-info {
   display: flex;
   flex-direction: column;
@@ -545,33 +527,70 @@ onMounted(() => {
 
 .amount-row .label {
   font-size: 14px;
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .amount-row .value {
   font-size: 14px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .amount-row.total {
-  border-top: 1px solid #f5f5f5;
-  padding-top: 10px;
-  margin-top: 5px;
+  border-top: 1px solid var(--c-border);
+  padding-top: 12px;
+  margin-top: 4px;
 }
 
 .amount-row.total .label {
   font-weight: 600;
+  color: var(--c-text);
 }
 
 .amount-row.total .value {
   font-size: 18px;
-  font-weight: 600;
-  color: #ef4444;
+  font-weight: 700;
+  color: var(--c-danger);
+}
+
+/* 提交 */
+.submit-card {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 22px;
+}
+
+.total-section {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.total-label {
+  font-size: 14px;
+  color: var(--c-text-2);
+}
+
+.total-price {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--c-danger);
+}
+
+.submit-btn {
+  min-width: 180px;
+}
+
+.submit-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .loading-state {
   text-align: center;
   padding: 60px 20px;
+  color: var(--c-text-3);
 }
 
 .loading-icon {
@@ -581,51 +600,5 @@ onMounted(() => {
 
 .loading-state p {
   font-size: 15px;
-  color: #999;
-}
-
-.bottom-bar {
-  position: fixed;
-  bottom: 60px;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 15px;
-  background: white;
-  border-top: 1px solid #f0f0f0;
-}
-
-.total-section {
-  display: flex;
-  align-items: baseline;
-  gap: 5px;
-}
-
-.total-label {
-  font-size: 14px;
-  color: #666;
-}
-
-.total-price {
-  font-size: 20px;
-  font-weight: 600;
-  color: #ef4444;
-}
-
-.submit-btn {
-  flex: 1;
-  padding: 15px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  color: white;
-  background: #2563eb;
-}
-
-.submit-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
 }
 </style>

@@ -1,16 +1,12 @@
 <template>
-  <div class="sell-page">
-    <header class="sell-header">
-      <span class="back-btn" @click="goBack">←</span>
-      <h1>发布闲置</h1>
-      <span class="placeholder"></span>
-    </header>
+  <div class="container sell-page">
+    <h1 class="page-title">发布商品</h1>
 
     <form @submit.prevent="submitForm" class="sell-form">
-      <div class="form-section">
-        <h3>添加图片</h3>
+      <div class="form-group">
+        <label class="form-label">添加图片 <span class="required">*</span></label>
         <div class="upload-area" @click="triggerFileInput">
-          <div class="upload-icon">+</div>
+          <span class="upload-icon">＋</span>
           <span>点击添加图片</span>
         </div>
         <input 
@@ -30,8 +26,8 @@
         <p class="image-hint">最多上传9张图片</p>
       </div>
 
-      <div class="form-section">
-        <label>商品标题</label>
+      <div class="form-group">
+        <label class="form-label">商品标题 <span class="required">*</span></label>
         <input 
           type="text" 
           v-model="form.title" 
@@ -40,8 +36,8 @@
         />
       </div>
 
-      <div class="form-section">
-        <label>商品描述</label>
+      <div class="form-group">
+        <label class="form-label">商品描述</label>
         <textarea 
           v-model="form.description" 
           placeholder="请描述商品的成色、使用情况等"
@@ -50,71 +46,73 @@
         ></textarea>
       </div>
 
-      <div class="form-section">
-        <label>售价</label>
-        <div class="price-input">
-          <span class="price-symbol">¥</span>
-          <input 
-            type="number" 
-            v-model="form.price" 
-            placeholder="请输入售价"
-            class="form-input price-field"
-          />
+      <div class="price-row">
+        <div class="form-group">
+          <label class="form-label">售价 <span class="required">*</span></label>
+          <div class="price-line">
+            <span class="price-symbol">¥</span>
+            <input 
+              type="number" 
+              v-model="form.price" 
+              placeholder="请输入售价"
+              class="price-field"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">原价（可选）</label>
+          <div class="price-line">
+            <span class="price-symbol">¥</span>
+            <input 
+              type="number" 
+              v-model="form.originalPrice" 
+              placeholder="请输入原价"
+              class="price-field"
+            />
+          </div>
         </div>
       </div>
 
-      <div class="form-section">
-        <label>原价（可选）</label>
-        <div class="price-input">
-          <span class="price-symbol">¥</span>
-          <input 
-            type="number" 
-            v-model="form.originalPrice" 
-            placeholder="请输入原价"
-            class="form-input price-field"
-          />
-        </div>
-      </div>
-
-      <div class="form-section">
-        <label>商品分类</label>
-        <div class="category-options">
-          <div 
+      <div class="form-group">
+        <label class="form-label">商品分类 <span class="required">*</span></label>
+        <div class="option-list">
+          <span
             v-for="cat in categories" 
             :key="cat.id"
-            class="category-option"
+            class="option-item"
             :class="{ active: form.categoryId === cat.id }"
             @click="form.categoryId = cat.id"
           >
             {{ cat.icon }} {{ cat.name }}
-          </div>
+          </span>
         </div>
       </div>
 
-      <div class="form-section">
-        <label>商品成色</label>
-        <div class="condition-options">
-          <div 
+      <div class="form-group">
+        <label class="form-label">商品成色 <span class="required">*</span></label>
+        <div class="option-list">
+          <span 
             v-for="item in conditionOptions" 
             :key="item.value"
-            class="condition-option"
+            class="option-item"
             :class="{ active: form.condition === item.value }"
             @click="form.condition = item.value"
           >
             {{ item.label }}
-          </div>
+          </span>
         </div>
       </div>
 
-      <div class="form-section">
-        <label>商品数量</label>
+      <div class="form-group">
+        <label class="form-label">商品数量</label>
         <div class="quantity-input">
           <button 
             type="button"
             class="quantity-btn" 
             @click="decreaseQuantity"
             :disabled="parseInt(form.quantity) <= 1"
-          >-</button>
+          >−</button>
           <input 
             type="number" 
             v-model="form.quantity" 
@@ -127,13 +125,15 @@
             class="quantity-btn" 
             @click="increaseQuantity"
             :disabled="parseInt(form.quantity) >= 99"
-          >+</button>
+          >＋</button>
         </div>
       </div>
 
-      <button type="submit" class="submit-btn" :disabled="loading">
-        {{ loading ? '发布中...' : '发布商品' }}
-      </button>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-lg" :disabled="loading">
+          {{ loading ? '发布中...' : '发布商品' }}
+        </button>
+      </div>
     </form>
   </div>
 </template>
@@ -357,169 +357,139 @@ onMounted(() => {
 
 <style scoped>
 .sell-page {
-  min-height: 100vh;
-  background: #fafafa;
+  padding-top: 24px;
+  padding-bottom: 60px;
 }
 
-.sell-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: white;
-  padding: 12px 16px;
-  padding-top: calc(12px + env(safe-area-inset-top));
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.back-btn {
-  font-size: 24px;
-  color: #333;
-  width: 32px;
-}
-
-.sell-header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 32px;
+/* 标题与表单同一列对齐 */
+.sell-page .page-title {
+  max-width: 820px;
+  margin: 0 auto 24px;
 }
 
 .sell-form {
-  padding: 15px;
-  padding-bottom: 80px;
+  max-width: 820px;
+  margin: 0 auto;
 }
 
-.form-section {
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 12px;
-  border: 1px solid #f0f0f0;
+.form-group {
+  margin-bottom: 30px;
 }
 
-.form-section h3 {
-  font-size: 14px;
-  color: #333;
-  margin-bottom: 12px;
-  font-weight: 500;
-}
-
-.form-section label {
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.form-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #fafafa;
-}
-
+/* 输入框:白底 + 浅边框,与灰色页面背景区分 */
+.form-input,
 .form-textarea {
   width: 100%;
-  padding: 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  background: #fafafa;
-  resize: none;
+  padding: 12px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-.price-input {
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.price-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+}
+
+.price-line {
   display: flex;
   align-items: center;
-  background: #fafafa;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  padding: 0 12px;
+  gap: 8px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fff;
+  padding: 0 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.price-line:focus-within {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .price-symbol {
   font-size: 16px;
-  color: #2563eb;
+  color: var(--c-primary);
   font-weight: 600;
 }
 
 .price-field {
+  flex: 1;
+  min-width: 0;
   border: none;
+  outline: none;
   background: transparent;
-  padding: 12px;
+  padding: 12px 0;
   font-size: 16px;
   font-weight: 600;
+  color: var(--c-text);
 }
 
-.category-options {
+/* 选项按钮:白底圆角,横向拉长等宽分布;选中变蓝 */
+.option-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
-.category-option {
-  padding: 8px 16px;
-  background: #f5f7fa;
-  border-radius: 20px;
-  font-size: 13px;
-  color: #666;
-  border: 1px solid #e8ecf0;
-}
-
-.category-option.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-  color: #2563eb;
-}
-
-.condition-options {
-  display: flex;
-  gap: 12px;
-}
-
-.condition-option {
+.option-item {
   flex: 1;
-  padding: 10px;
+  min-width: 140px;
+  padding: 11px 16px;
   text-align: center;
-  background: #f5f7fa;
-  border-radius: 8px;
-  font-size: 13px;
-  border: 2px solid #e8ecf0;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
+  font-size: 14px;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
 }
 
-.condition-option.active {
-  background: #eff6ff;
-  border-color: #2563eb;
-  color: #2563eb;
+.option-item:hover {
+  background: #f0f3fa;
+  color: var(--c-text);
 }
 
+.option-item.active {
+  background: var(--c-primary);
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+/* 数量 */
 .quantity-input {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 15px;
+  gap: 12px;
 }
 
 .quantity-btn {
   width: 40px;
   height: 40px;
-  border-radius: 10px;
-  border: 2px solid #e8ecf0;
-  background: white;
+  border: none;
+  border-radius: var(--radius);
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
   font-size: 20px;
-  color: #2563eb;
+  color: var(--c-primary);
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: background 0.15s;
 }
 
 .quantity-btn:hover:not(:disabled) {
-  background: #eff6ff;
-  border-color: #2563eb;
+  background: var(--c-primary-light);
 }
 
 .quantity-btn:disabled {
@@ -528,62 +498,65 @@ onMounted(() => {
 }
 
 .quantity-field {
-  width: 60px;
+  width: 72px;
   height: 40px;
   text-align: center;
-  font-size: 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 15px;
   font-weight: 600;
-  border: 2px solid #e8ecf0;
-  border-radius: 10px;
-  background: white;
+  color: var(--c-text);
 }
 
+.quantity-field:focus {
+  outline: none;
+  border-color: var(--c-primary);
+}
+
+/* 上传区:白底虚线,轻量 */
 .upload-area {
-  border: 2px dashed #2563eb;
-  border-radius: 12px;
-  padding: 40px 30px;
-  text-align: center;
-  color: #2563eb;
-  background: linear-gradient(135deg, #eff6ff 0%, #f0f7ff 100%);
-  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 26px;
+  border: 1.5px dashed var(--c-border-strong);
+  border-radius: var(--radius);
+  color: var(--c-text-2);
+  cursor: pointer;
+  background: #fff;
+  transition: all 0.2s;
 }
 
 .upload-area:hover {
-  border-color: #1d4ed8;
-  background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-  transform: scale(1.01);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  background: #fbfcff;
 }
 
 .upload-icon {
-  font-size: 48px;
-  color: #2563eb;
-  margin-bottom: 12px;
-  transition: transform 0.3s ease;
-}
-
-.upload-area:hover .upload-icon {
-  transform: scale(1.1);
+  font-size: 17px;
+  font-weight: 600;
 }
 
 .upload-area span {
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 14px;
 }
 
 .preview-images {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 14px;
 }
 
 .preview-item {
   position: relative;
   width: 88px;
   height: 88px;
-  border-radius: 10px;
+  border-radius: var(--radius);
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid var(--c-border);
 }
 
 .preview-item img {
@@ -594,41 +567,38 @@ onMounted(() => {
 
 .remove-btn {
   position: absolute;
-  top: -8px;
-  right: -8px;
-  width: 24px;
-  height: 24px;
-  background: #ef4444;
-  color: white;
+  top: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
-  transition: all 0.2s ease;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
 .remove-btn:hover {
-  background: #dc2626;
-  transform: scale(1.1);
+  background: var(--c-danger);
 }
 
-.submit-btn {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 500;
-  margin-top: 20px;
+.image-hint {
+  font-size: 12px;
+  color: var(--c-text-3);
+  margin-top: 8px;
 }
 
-.submit-btn:disabled {
-  opacity: 0.6;
+/* 提交按钮靠右 */
+.form-actions {
+  margin-top: 40px;
+  text-align: right;
+  border-top: 1px solid var(--c-border);
+  padding-top: 24px;
 }
 
 .file-input-hidden {

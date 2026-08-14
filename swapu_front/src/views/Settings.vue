@@ -1,20 +1,11 @@
 <template>
-  <div class="settings-page">
-    <header class="settings-header">
-      <button class="back-btn" @click="goBack">‹</button>
-      <span class="header-title">设置</span>
-      <span class="placeholder"></span>
-    </header>
-
-    <div class="menu-section">
+  <AccountLayout active="settings">
+    <div class="menu-section card">
       <div class="menu-item" @click="goToEditProfile">
         <span class="menu-icon">✏️</span>
         <span class="menu-text">修改资料</span>
         <span class="menu-arrow">›</span>
       </div>
-    </div>
-
-    <div class="menu-section">
       <div class="menu-item">
         <span class="menu-icon">❓</span>
         <span class="menu-text">帮助中心</span>
@@ -27,13 +18,12 @@
       </div>
     </div>
 
-    <div v-if="isLoggedIn" class="sign-out-btn" @click="handleLogout">
-      退出登录
-    </div>
-  </div>
+    <button v-if="isLoggedIn" class="sign-out-btn" @click="handleLogout">退出登录</button>
+  </AccountLayout>
 </template>
 
 <script setup>
+import AccountLayout from '../components/AccountLayout.vue'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -64,60 +54,27 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.settings-page {
-  min-height: 100vh;
-  background: #fafafa;
-}
-
-.settings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: white;
-  padding: 15px;
-  border-bottom: 1px solid #f0f0f0;
-  padding-top: calc(15px + env(safe-area-inset-top));
-}
-
-.back-btn {
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: none;
-  background: transparent;
-  font-size: 24px;
-  color: #1a1a1a;
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 36px;
-}
-
 .menu-section {
-  background: white;
-  margin: 0 15px 10px;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid #f0f0f0;
+  padding: 8px 4px;
+  margin-bottom: 20px;
 }
 
 .menu-item {
   display: flex;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.menu-item:last-child {
-  border-bottom: none;
+.menu-item:hover {
+  background: #f5f6f8;
+}
+
+.menu-item + .menu-item {
+  border-top: 1px solid var(--c-border);
+  border-radius: 0;
 }
 
 .menu-icon {
@@ -128,22 +85,31 @@ onMounted(() => {
 .menu-text {
   flex: 1;
   font-size: 15px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .menu-arrow {
   font-size: 18px;
-  color: #ddd;
+  color: var(--c-text-3);
 }
 
 .sign-out-btn {
-  margin: 20px 15px;
-  padding: 15px;
-  text-align: center;
-  background: white;
-  border-radius: 10px;
-  color: #999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 46px;
+  background: var(--c-card);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  color: var(--c-danger);
   font-size: 15px;
-  border: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sign-out-btn:hover {
+  background: var(--c-danger-light);
+  border-color: var(--c-danger);
 }
 </style>

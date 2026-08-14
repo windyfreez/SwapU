@@ -1,65 +1,60 @@
 <template>
-  <div class="app-container">
-    <div class="page-wrapper">
+  <div class="app-shell">
+    <NavBar v-if="showChrome" />
+    <main class="app-main">
       <router-view />
-    </div>
-    <div v-if="showTabBar" class="tab-bar-wrapper">
-      <TabBar />
-    </div>
+    </main>
+    <footer v-if="showChrome" class="app-footer">
+      <div class="container footer-inner">
+        <span>© {{ year }} SwapU 云市集</span>
+        <span>云端集市 · 让好物触手可及</span>
+      </div>
+    </footer>
   </div>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import TabBar from './components/TabBar.vue'
+import { useRoute } from 'vue-router'
+import NavBar from './components/NavBar.vue'
 
-const router = useRouter()
+const route = useRoute()
+const year = new Date().getFullYear()
 
-const showTabBar = computed(() => {
-  const noTabBarRoutes = ['/login', '/register', '/profile/edit', '/product/:id', '/product/edit/:id', '/order/create/:productId', '/order-detail/:orderNo', '/my-wallet', '/settings', '/messages/chat']
-  const currentPath = router.currentRoute.value.path
-  return !noTabBarRoutes.some(route => {
-    if (route.includes(':')) {
-      const routePrefix = route.split('/:')[0]
-      return currentPath.startsWith(routePrefix + '/')
-    }
-    return currentPath === route
-  })
-})
+// 登录/注册页使用独立的全屏布局,不显示导航与页脚
+const showChrome = computed(() => !['/login', '/register'].includes(route.path))
 </script>
 
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background-color: #f5f5f5;
+.app-shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.app-container {
-  min-height: 100vh;
-  background-color: #f5f5f5;
+.app-main {
+  flex: 1;
 }
 
-.page-wrapper {
-  max-width: 480px;
-  margin: 0 auto;
-  min-height: 100vh;
-  background-color: #f5f5f5;
-  position: relative;
+.app-footer {
+  margin-top: 48px;
+  border-top: 1px solid var(--c-border);
+  background: #fff;
+  padding: 22px 0;
 }
 
-.tab-bar-wrapper {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 480px;
-  margin: 0 auto;
+.footer-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: var(--c-text-3);
+}
+
+@media (max-width: 768px) {
+  .footer-inner {
+    flex-direction: column;
+    gap: 4px;
+  }
 }
 </style>

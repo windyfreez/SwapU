@@ -1,81 +1,105 @@
 <template>
-  <div class="my-orders-page">
-    <header class="orders-header">
-      <div class="header-title">我的订单</div>
-      <div class="role-switch">
-        <button 
-          class="role-btn" 
-          :class="{ active: currentRole === 'buyer' }"
-          @click="switchRole('buyer')"
+  <AccountLayout active="orders">
+    <div class="my-orders-page">
+      <h1 class="page-title">我的订单</h1>
+
+      <!-- 买/卖切换 -->
+      <div class="card toolbar-card">
+        <div class="role-switch">
+          <button
+            class="role-btn"
+            :class="{ active: currentRole === 'buyer' }"
+            @click="switchRole('buyer')"
+          >
+            我买到的
+          </button>
+          <button
+            class="role-btn"
+            :class="{ active: currentRole === 'seller' }"
+            @click="switchRole('seller')"
+          >
+            我卖出的
+          </button>
+        </div>
+      </div>
+
+      <!-- 状态 tabs -->
+      <div class="card status-tabs">
+        <button
+          v-for="tab in statusTabs"
+          :key="tab.value"
+          class="status-tab"
+          :class="{ active: currentStatus === tab.value }"
+          @click="switchStatus(tab.value)"
         >
-          我买到的
-        </button>
-        <button 
-          class="role-btn" 
-          :class="{ active: currentRole === 'seller' }"
-          @click="switchRole('seller')"
-        >
-          我卖出的
+          {{ tab.label }}
+          <span v-if="getStatCount(tab.value) > 0" class="tab-badge">{{ getStatCount(tab.value) }}</span>
         </button>
       </div>
-    </header>
 
-    <div class="status-tabs">
-      <button 
-        v-for="tab in statusTabs" 
-        :key="tab.value"
-        class="status-tab"
-        :class="{ active: currentStatus === tab.value }"
-        @click="switchStatus(tab.value)"
-      >
-        {{ tab.label }}
-        <span v-if="getStatCount(tab.value) > 0" class="tab-badge">{{ getStatCount(tab.value) }}</span>
-      </button>
-    </div>
+      <!-- 订单列表 -->
+      <div v-if="orders.length > 0" class="orders-list">
+        <div
+          v-for="order in orders"
+          :key="order.orderNo"
+          class="card order-card"
+          @click="goToOrderDetail(order.orderNo)"
+        >
+          <div class="order-header">
+            <span class="order-no">订单号: {{ order.orderNo }}</span>
+            <span class="order-status" :class="getStatusClass(order.status)">{{ order.statusDesc }}</span>
+          </div>
 
-    <div class="orders-list">
-      <div 
-        v-for="order in orders" 
-        :key="order.orderNo" 
-        class="order-card"
-        @click="goToOrderDetail(order.orderNo)"
-      >
-        <div class="order-header">
-          <span class="order-no">订单号: {{ order.orderNo }}</span>
-          <span class="order-status" :class="getStatusClass(order.status)">{{ order.statusDesc }}</span>
-        </div>
-        
-        <div class="order-product">
-          <img :src="getFirstImage(order.productImage)" class="product-image" />
-          <div class="product-info">
-            <h3 class="product-title">{{ order.productTitle }}</h3>
-            <p class="product-desc">{{ order.productDescription }}</p>
-            <div class="product-price">
-              <span class="price">¥{{ order.unitPrice }}</span>
-              <span class="quantity">x{{ order.quantity }}</span>
+          <div class="order-body">
+            <img :src="getFirstImage(order.productImage)" class="product-image" />
+            <div class="product-info">
+              <h3 class="product-title">{{ order.productTitle }}</h3>
+              <p class="product-desc">{{ order.productDescription }}</p>
+              <div class="product-price">
+                <span class="price">¥{{ order.unitPrice }}</span>
+                <span class="quantity">x{{ order.quantity }}</span>
+              </div>
+            </div>
+            <div class="order-side">
+              <div class="total-amount">合计: <b>¥{{ order.totalAmount }}</b></div>
+              <div class="order-actions">
+                <button v-if="currentRole === 'seller' && order.status === 1" class="btn btn-primary btn-sm" @click.stop="handleConfirm(order)">确认接单</button>
+                <button v-if="currentRole === 'buyer' && order.status === 2" class="btn btn-primary btn-sm" @click.stop="handlePay(order)">去支付</button>
+                <button v-if="currentRole === 'buyer' && order.status === 2" class="btn btn-outline btn-sm" @click.stop="handleCancel(order)">取消订单</button>
+                <button v-if="currentRole === 'seller' && order.status === 3" class="btn btn-primary btn-sm" @click.stop="handleDeliver(order)">确认发货</button>
+                <button v-if="currentRole === 'buyer' && order.status === 4" class="btn btn-primary btn-sm" @click.stop="handleConfirm(order)">确认收货</button>
+                <button v-if="order.status === 6" class="btn btn-outline btn-sm" @click.stop="handleDelete(order)">删除订单</button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="order-footer">
-          <span class="total-amount">合计: ¥{{ order.totalAmount }}</span>
-          <div class="order-actions">
-            <button v-if="currentRole === 'seller' && order.status === 1" class="action-btn primary" @click.stop="handleConfirm(order)">确认接单</button>
-            <button v-if="currentRole === 'buyer' && order.status === 2" class="action-btn primary" @click.stop="handlePay(order)">去支付</button>
-            <button v-if="currentRole === 'buyer' && order.status === 2" class="action-btn" @click.stop="handleCancel(order)">取消订单</button>
-            <button v-if="currentRole === 'seller' && order.status === 3" class="action-btn primary" @click.stop="handleDeliver(order)">确认发货</button>
-            <button v-if="currentRole === 'buyer' && order.status === 4" class="action-btn primary" @click.stop="handleConfirm(order)">确认收货</button>
-            <button v-if="order.status === 6" class="action-btn" @click.stop="handleDelete(order)">删除订单</button>
-          </div>
-        </div>
+      <div v-else class="card empty-state">
+        <div class="empty-icon">📦</div>
+        <p>暂无订单</p>
+      </div>
+
+      <div v-if="orders.length > 0" class="pagination">
+        <button
+          class="btn btn-outline"
+          :disabled="currentPage === 1"
+          @click="prevPage"
+        >
+          上一页
+        </button>
+        <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
+        <button
+          class="btn btn-outline"
+          :disabled="currentPage >= totalPages"
+          @click="nextPage"
+        >
+          下一页
+        </button>
       </div>
     </div>
 
-    <div v-if="orders.length === 0" class="empty-state">
-      <div class="empty-icon">📦</div>
-      <p>暂无订单</p>
-    </div>
-
+    <!-- 取消订单弹窗 -->
     <div v-if="showCancelModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -83,20 +107,21 @@
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
-          <label class="modal-label">取消原因</label>
-          <textarea 
-            v-model="cancelReason" 
-            class="modal-textarea" 
+          <label class="form-label">取消原因</label>
+          <textarea
+            v-model="cancelReason"
+            class="form-textarea"
             placeholder="请输入取消原因"
           ></textarea>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmCancel">确认取消</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmCancel">确认取消</button>
         </div>
       </div>
     </div>
 
+    <!-- 确认发货弹窗 -->
     <div v-if="showDeliverModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -104,26 +129,31 @@
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
-          <label class="modal-label">物流公司</label>
-          <input 
-            v-model="logisticsCompany" 
-            class="modal-input" 
-            placeholder="请输入物流公司"
-          />
-          <label class="modal-label">物流单号</label>
-          <input 
-            v-model="logisticsNo" 
-            class="modal-input" 
-            placeholder="请输入物流单号"
-          />
+          <div class="form-group">
+            <label class="form-label">物流公司</label>
+            <input
+              v-model="logisticsCompany"
+              class="form-input"
+              placeholder="请输入物流公司"
+            />
+          </div>
+          <div class="form-group">
+            <label class="form-label">物流单号</label>
+            <input
+              v-model="logisticsNo"
+              class="form-input"
+              placeholder="请输入物流单号"
+            />
+          </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmDeliver">确认发货</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmDeliver">确认发货</button>
         </div>
       </div>
     </div>
 
+    <!-- 确认接单弹窗 -->
     <div v-if="showConfirmModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -131,22 +161,23 @@
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
-          <label class="modal-label">运费</label>
-          <input 
-            v-model="freight" 
-            type="number" 
-            class="modal-input" 
+          <label class="form-label">运费</label>
+          <input
+            v-model="freight"
+            type="number"
+            class="form-input"
             placeholder="请输入运费"
             step="0.01"
           />
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmOrder">确认接单</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmOrder">确认接单</button>
         </div>
       </div>
     </div>
 
+    <!-- 支付弹窗 -->
     <div v-if="showPayModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -155,8 +186,8 @@
         </div>
         <div class="modal-body">
           <div class="pay-methods">
-            <div 
-              v-for="method in payMethods" 
+            <div
+              v-for="method in payMethods"
               :key="method.value"
               class="pay-method"
               :class="{ active: selectedPayType === method.value }"
@@ -168,45 +199,28 @@
             </div>
           </div>
           <div v-if="selectedPayType === 3" class="pay-password-section">
-            <label class="modal-label">支付密码</label>
-            <input 
-              v-model="payPassword" 
-              type="password" 
-              class="modal-input" 
+            <label class="form-label">支付密码</label>
+            <input
+              v-model="payPassword"
+              type="password"
+              class="form-input"
               placeholder="请输入支付密码"
             />
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-secondary" @click="closeModal">取消</button>
-          <button class="btn-primary" @click="confirmPay">确认支付</button>
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmPay">确认支付</button>
         </div>
       </div>
     </div>
-
-    <div class="pagination">
-      <button 
-        class="page-btn" 
-        :disabled="currentPage === 1" 
-        @click="prevPage"
-      >
-        上一页
-      </button>
-      <span class="page-info">{{ currentPage }} / {{ totalPages }}</span>
-      <button 
-        class="page-btn" 
-        :disabled="currentPage >= totalPages" 
-        @click="nextPage"
-      >
-        下一页
-      </button>
-    </div>
-  </div>
+  </AccountLayout>
 </template>
 
 <script setup>
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import AccountLayout from '../components/AccountLayout.vue'
 
 const router = useRouter()
 
@@ -639,77 +653,71 @@ onMounted(() => {
 
 <style scoped>
 .my-orders-page {
-  min-height: 100vh;
-  background: #fafafa;
-  padding-bottom: 30px;
+  min-height: 60vh;
 }
 
-.orders-header {
-  background: white;
-  padding: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #f0f0f0;
-  padding-top: calc(15px + env(safe-area-inset-top));
-}
-
-.header-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
+.toolbar-card {
+  padding: 6px;
+  margin-bottom: 16px;
 }
 
 .role-switch {
-  display: flex;
-  background: #f5f5f5;
-  border-radius: 20px;
-  padding: 3px;
+  display: inline-flex;
+  background: #f3f4f6;
+  border-radius: var(--radius);
+  padding: 4px;
 }
 
 .role-btn {
-  padding: 6px 16px;
+  padding: 8px 20px;
   border: none;
   background: transparent;
-  border-radius: 17px;
-  font-size: 13px;
-  color: #666;
-  transition: all 0.3s;
+  border-radius: calc(var(--radius) - 2px);
+  font-size: 14px;
+  color: var(--c-text-2);
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .role-btn.active {
-  background: white;
-  color: #2563eb;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background: var(--c-card);
+  color: var(--c-primary);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
 .status-tabs {
   display: flex;
-  background: white;
-  padding: 10px 15px;
-  gap: 15px;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px;
+  margin-bottom: 16px;
 }
 
 .status-tab {
-  flex-shrink: 0;
   padding: 8px 16px;
   border: none;
   background: transparent;
   font-size: 14px;
-  color: #666;
-  border-radius: 20px;
-  transition: all 0.3s;
+  color: var(--c-text-2);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.status-tab:hover {
+  background: #f5f6f8;
 }
 
 .status-tab.active {
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  font-weight: 600;
 }
 
 .tab-badge {
   display: inline-block;
-  background: #ef4444;
+  background: var(--c-danger);
   color: white;
   font-size: 11px;
   min-width: 18px;
@@ -722,29 +730,33 @@ onMounted(() => {
 }
 
 .orders-list {
-  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .order-card {
-  background: white;
-  border-radius: 12px;
-  padding: 15px;
-  margin-bottom: 15px;
-  border: 1px solid #f0f0f0;
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.order-card:hover {
+  border-color: var(--c-border-strong);
 }
 
 .order-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #f5f5f5;
+  margin-bottom: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .order-no {
   font-size: 13px;
-  color: #999;
+  color: var(--c-text-3);
 }
 
 .order-status {
@@ -753,65 +765,67 @@ onMounted(() => {
 }
 
 .status-pending {
-  color: #f59e0b;
+  color: var(--c-warning);
 }
 
 .status-wait-pay {
-  color: #ef4444;
+  color: var(--c-danger);
 }
 
 .status-wait-deliver {
-  color: #3b82f6;
+  color: var(--c-primary);
 }
 
 .status-wait-receive {
-  color: #10b981;
+  color: var(--c-success);
 }
 
 .status-completed {
-  color: #666;
+  color: var(--c-text-2);
 }
 
 .status-cancelled {
-  color: #999;
+  color: var(--c-text-3);
 }
 
-.order-product {
+.order-body {
   display: flex;
-  gap: 12px;
+  align-items: center;
+  gap: 16px;
 }
 
 .product-image {
-  width: 100px;
-  height: 100px;
-  border-radius: 8px;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius);
   object-fit: cover;
+  flex-shrink: 0;
+  background: #f0f1f3;
 }
 
 .product-info {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
 }
 
 .product-title {
   font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-weight: 600;
+  color: var(--c-text);
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  white-space: nowrap;
 }
 
 .product-desc {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  margin: 4px 0 10px;
 }
 
 .product-price {
@@ -821,100 +835,65 @@ onMounted(() => {
 }
 
 .price {
-  font-size: 18px;
-  font-weight: 600;
-  color: #ef4444;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
 .quantity {
   font-size: 13px;
-  color: #999;
+  color: var(--c-text-3);
 }
 
-.order-footer {
+.order-side {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 15px;
-  padding-top: 10px;
-  border-top: 1px solid #f5f5f5;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .total-amount {
-  font-size: 15px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-size: 14px;
+  color: var(--c-text-2);
+}
+
+.total-amount b {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--c-text);
 }
 
 .order-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
-}
-
-.action-btn {
-  padding: 6px 14px;
-  border: 1px solid #e8ecf0;
-  border-radius: 6px;
-  font-size: 13px;
-  color: #666;
-  background: white;
-}
-
-.action-btn.primary {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-}
-
-.empty-icon {
-  font-size: 64px;
-  margin-bottom: 16px;
-}
-
-.empty-state p {
-  font-size: 15px;
-  color: #999;
 }
 
 .pagination {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
-}
-
-.page-btn {
-  padding: 8px 16px;
-  border: 1px solid #e8ecf0;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #666;
-  background: white;
-}
-
-.page-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  gap: 16px;
+  padding: 20px 0;
 }
 
 .page-info {
   font-size: 14px;
-  color: #666;
+  color: var(--c-text-2);
+  min-width: 60px;
+  text-align: center;
 }
 
+/* 弹窗 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -922,118 +901,82 @@ onMounted(() => {
 }
 
 .modal-content {
-  background: white;
-  width: 100%;
-  border-radius: 12px;
+  background: var(--c-card);
+  width: 420px;
+  max-width: 90vw;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px;
-  border-bottom: 1px solid #f5f5f5;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .modal-close {
   border: none;
   background: transparent;
   font-size: 24px;
-  color: #999;
+  color: var(--c-text-3);
   padding: 0;
   width: 24px;
   height: 24px;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
 }
 
 .modal-body {
-  padding: 15px;
-}
-
-.modal-label {
-  display: block;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.modal-input {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
-  margin-bottom: 15px;
-}
-
-.modal-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  box-sizing: border-box;
-  min-height: 80px;
-  resize: none;
+  padding: 20px;
 }
 
 .modal-footer {
   display: flex;
   gap: 12px;
-  padding: 15px;
-  border-top: 1px solid #f5f5f5;
+  padding: 16px 20px;
+  border-top: 1px solid var(--c-border);
 }
 
-.btn-secondary {
+.modal-footer .btn {
   flex: 1;
-  padding: 12px;
-  background: #f5f7fa;
-  border: 1px solid #e8ecf0;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #666;
-}
-
-.btn-primary {
-  flex: 1;
-  padding: 12px;
-  background: #2563eb;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  color: white;
 }
 
 .pay-methods {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .pay-method {
   display: flex;
   align-items: center;
-  padding: 15px;
-  border: 1px solid #e8ecf0;
-  border-radius: 10px;
-  background: white;
-  transition: all 0.3s;
+  padding: 14px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  background: var(--c-card);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pay-method:hover {
+  border-color: var(--c-border-strong);
 }
 
 .pay-method.active {
-  border-color: #2563eb;
-  background: #eff6ff;
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
 }
 
 .pay-icon {
@@ -1044,7 +987,7 @@ onMounted(() => {
 .pay-label {
   flex: 1;
   font-size: 15px;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .pay-check {
@@ -1053,13 +996,13 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #2563eb;
+  background: var(--c-primary);
   color: white;
   border-radius: 50%;
   font-size: 12px;
 }
 
 .pay-password-section {
-  margin-top: 10px;
+  margin-top: 4px;
 }
 </style>

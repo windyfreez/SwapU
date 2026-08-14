@@ -1,112 +1,119 @@
 <template>
   <div class="detail-page">
-    <header class="detail-header">
-      <span class="back-btn" @click="goBack">←</span>
-      <span class="header-title">商品详情</span>
-      <span class="placeholder"></span>
-    </header>
-
-    <div v-if="loading" class="loading">
-      <span>加载中...</span>
-    </div>
-
-    <div v-else-if="product" class="product-content">
-      <div class="image-slider">
-        <div class="image-wrapper">
-          <img 
-            :src="cleanImageUrl(product.images[currentImageIndex])" 
-            :alt="product.title"
-            class="product-image"
-          />
-        </div>
-        <div class="image-indicators" v-if="product.images.length > 1">
-          <span 
-            v-for="(_, index) in product.images" 
-            :key="index"
-            class="indicator"
-            :class="{ active: currentImageIndex === index }"
-            @click="currentImageIndex = index"
-          ></span>
-        </div>
+    <div class="container">
+      <!-- 面包屑 -->
+      <div class="breadcrumb">
+        <router-link to="/">首页</router-link>
+        <span>/</span>
+        <span>商品详情</span>
       </div>
 
-      <div class="product-info">
-        <div class="price-row">
-          <span class="price">¥{{ product.price }}</span>
-          <span v-if="product.originalPrice" class="original-price">¥{{ product.originalPrice }}</span>
-        </div>
-        <h1 class="title">{{ product.title }}</h1>
-        <p class="description">{{ product.description }}</p>
-
-        <div class="condition-row">
-          <span class="condition-badge" :class="getConditionClass(product.productCondition)">
-            {{ product.productConditionDesc || getConditionDesc(product.productCondition) }}
-          </span>
-          <span class="view-count">浏览 {{ product.viewCount }} 次</span>
-        </div>
-
-        <div class="status-row" :class="{ sold: product.status === 2 }">
-          <span>{{ product.statusDesc || (product.status === 1 ? '在售' : '已售出') }}</span>
-        </div>
+      <div v-if="loading" class="loading-state">
+        <p>加载中...</p>
       </div>
 
-      <div class="seller-section">
-        <div class="seller-header">
-          <span class="section-title">👤 卖家信息</span>
-        </div>
-        <div class="seller-info" @click="showSellerDetail = true">
-          <img 
-            :src="cleanImageUrl(product.sellerInfo.avatar)"
-            :alt="product.sellerInfo.username"
-            class="seller-avatar"
-          />
-          <div class="seller-detail">
-            <span class="seller-name">{{ product.sellerInfo.username }}</span>
-            <span class="seller-score">信誉分: {{ product.sellerInfo.creditScore }}</span>
+      <div v-else-if="product" class="detail-main">
+        <!-- 左:图片画廊 -->
+        <div class="gallery card">
+          <div class="main-image">
+            <img
+              :src="cleanImageUrl(product.images[currentImageIndex])"
+              :alt="product.title"
+            />
           </div>
-          <span class="arrow">→</span>
+          <div v-if="product.images.length > 1" class="thumb-list">
+            <div
+              v-for="(img, index) in product.images"
+              :key="index"
+              class="thumb-item"
+              :class="{ active: currentImageIndex === index }"
+              @click="currentImageIndex = index"
+            >
+              <img :src="cleanImageUrl(img)" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <!-- 右:信息面板 -->
+        <div class="info-panel card">
+          <div class="price-row">
+            <span class="price">¥{{ product.price }}</span>
+            <span v-if="product.originalPrice" class="original-price">¥{{ product.originalPrice }}</span>
+            <span class="status-tag" :class="product.status === 2 ? 'sold' : 'on-sale'">
+              {{ product.statusDesc || (product.status === 1 ? '在售' : '已售出') }}
+            </span>
+          </div>
+
+          <h1 class="title">{{ product.title }}</h1>
+          <p class="description">{{ product.description }}</p>
+
+          <div class="meta-row">
+            <span class="condition-badge" :class="getConditionClass(product.productCondition)">
+              {{ product.productConditionDesc || getConditionDesc(product.productCondition) }}
+            </span>
+            <span class="view-count">浏览 {{ product.viewCount }} 次</span>
+            <span v-if="product.quantity" class="view-count">库存 {{ product.quantity }} 件</span>
+          </div>
+
+          <hr class="divider" />
+
+          <!-- 卖家卡片 -->
+          <div class="seller-block" @click="showSellerDetail = true">
+            <img
+              :src="cleanImageUrl(product.sellerInfo.avatar)"
+              :alt="product.sellerInfo.username"
+              class="seller-avatar"
+            />
+            <div class="seller-detail">
+              <span class="seller-name">{{ product.sellerInfo.username }}</span>
+              <span class="seller-score">信誉分 {{ product.sellerInfo.creditScore }}</span>
+            </div>
+            <span class="seller-arrow">›</span>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="info-rows">
+            <div class="info-row">
+              <span class="label">商品编号</span>
+              <span class="value">{{ product.id }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">发布时间</span>
+              <span class="value">{{ formatTime(product.createTime) }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">更新时间</span>
+              <span class="value">{{ formatTime(product.updateTime) }}</span>
+            </div>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="action-row">
+            <button class="btn btn-outline action-fav" :class="{ favorited: isFavorite }" @click="toggleFavorite">
+              {{ isFavorite ? '❤️ 已收藏' : '🤍 收藏' }}
+            </button>
+            <button class="btn btn-outline" @click="contactSeller">联系卖家</button>
+            <button
+              class="btn btn-primary btn-lg buy-btn"
+              :class="{ disabled: product.status === 2 }"
+              @click="buyProduct"
+            >
+              {{ product.status === 2 ? '已售出' : '立即购买' }}
+            </button>
+          </div>
         </div>
       </div>
 
-      <div class="other-info">
-        <div class="info-row">
-          <span class="label">商品编号</span>
-          <span class="value">{{ product.id }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">发布时间</span>
-          <span class="value">{{ formatTime(product.createTime) }}</span>
-        </div>
-        <div class="info-row">
-          <span class="label">更新时间</span>
-          <span class="value">{{ formatTime(product.updateTime) }}</span>
-        </div>
+      <div v-else class="empty-state">
+        <span class="empty-icon">📦</span>
+        <p>商品不存在</p>
+        <router-link to="/" class="btn btn-outline">返回首页</router-link>
       </div>
     </div>
 
-    <div v-else class="empty-state">
-      <span>商品不存在</span>
-    </div>
-
-    <footer v-if="product" class="detail-footer">
-      <div class="footer-left">
-        <span class="footer-item" @click="toggleFavorite">
-          <span class="icon">{{ isFavorite ? '❤️' : '🤍' }}</span>
-          <span class="text">收藏</span>
-        </span>
-      </div>
-      <div class="footer-right">
-        <button class="btn-secondary" @click="contactSeller">联系卖家</button>
-        <button 
-          class="btn-primary" 
-          :class="{ disabled: product.status === 2 }"
-          @click="buyProduct"
-        >
-          {{ product.status === 2 ? '已售出' : '立即购买' }}
-        </button>
-      </div>
-    </footer>
-
+    <!-- 卖家信息弹窗 -->
     <div v-if="showSellerDetail" class="modal-mask" @click="showSellerDetail = false">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
@@ -114,7 +121,7 @@
           <span class="modal-close" @click="showSellerDetail = false">×</span>
         </div>
         <div class="seller-modal-body">
-          <img 
+          <img
             :src="cleanImageUrl(product?.sellerInfo?.avatar)"
             :alt="product?.sellerInfo.username"
             class="modal-avatar"
@@ -125,7 +132,7 @@
             <p>信誉分: {{ product?.sellerInfo.creditScore }}</p>
           </div>
         </div>
-        <button class="modal-contact-btn" @click="contactSeller(); showSellerDetail = false">
+        <button class="btn btn-primary btn-block modal-contact-btn" @click="contactSeller(); showSellerDetail = false">
           联系卖家
         </button>
       </div>
@@ -182,7 +189,7 @@ const checkFavoriteStatus = async (productId, token) => {
     isFavorite.value = false
     return
   }
-  
+
   try {
     const response = await fetch(`/favorite/list?page=1&pageSize=100`, {
       headers: {
@@ -191,15 +198,9 @@ const checkFavoriteStatus = async (productId, token) => {
     })
     if (response.ok) {
       const data = await response.json()
-      console.log('收藏列表响应:', data)
       if (data.code === 200 && data.data && data.data.records) {
         const productIdStr = String(productId)
-        const isFavorited = data.data.records.some(item => {
-          console.log('比较: item.id=', item.id, 'vs productId=', productIdStr)
-          return String(item.id) === productIdStr
-        })
-        isFavorite.value = isFavorited
-        console.log('收藏状态:', isFavorited)
+        isFavorite.value = data.data.records.some(item => String(item.id) === productIdStr)
       }
     }
   } catch (error) {
@@ -236,7 +237,7 @@ const formatTime = (timeStr) => {
 
 const cleanImageUrl = (url) => {
   if (!url) return ''
-  
+
   if (typeof url === 'string') {
     url = url.trim()
     if (url.startsWith('[') || url.startsWith('{')) {
@@ -253,16 +254,12 @@ const cleanImageUrl = (url) => {
     }
     return url.replace(/[`'""]/g, '')
   }
-  
+
   if (Array.isArray(url)) {
     return url.length > 0 ? cleanImageUrl(url[0]) : ''
   }
-  
-  return String(url)
-}
 
-const goBack = () => {
-  router.back()
+  return String(url)
 }
 
 const toggleFavorite = async () => {
@@ -271,7 +268,7 @@ const toggleFavorite = async () => {
     alert('请先登录')
     return
   }
-  
+
   try {
     if (isFavorite.value) {
       const response = await fetch(`/favorite/cancel?productId=${product.value.id}`, {
@@ -280,15 +277,13 @@ const toggleFavorite = async () => {
           'token': token
         }
       })
-      
+
       if (response.ok || response.status === 204) {
         isFavorite.value = false
-        console.log('取消收藏成功')
       } else {
         alert('取消收藏失败')
       }
     } else {
-      console.log('收藏商品ID:', product.value?.id)
       const response = await fetch('/favorite/add', {
         method: 'POST',
         headers: {
@@ -299,10 +294,9 @@ const toggleFavorite = async () => {
           productId: product.value?.id
         })
       })
-      
+
       if (response.ok) {
         isFavorite.value = true
-        console.log('收藏成功')
       } else {
         alert('收藏失败')
       }
@@ -315,7 +309,7 @@ const toggleFavorite = async () => {
 
 const contactSeller = () => {
   if (!product.value?.sellerInfo) return
-  
+
   sessionStorage.setItem('chatTargetUser', JSON.stringify({
     userId: product.value.sellerInfo.id,
     username: product.value.sellerInfo.username,
@@ -324,7 +318,7 @@ const contactSeller = () => {
     productTitle: product.value.title,
     productImage: product.value.images?.[0] || ''
   }))
-  
+
   router.push({
     path: '/messages/chat',
     query: { userId: product.value.sellerInfo.id }
@@ -333,19 +327,19 @@ const contactSeller = () => {
 
 const buyProduct = () => {
   if (!product.value) return
-  
+
   if (product.value.status === 2) {
     alert('该商品已售出')
     return
   }
-  
+
   const token = localStorage.getItem('token')
   if (!token) {
     alert('请先登录')
     router.push('/login')
     return
   }
-  
+
   router.push(`/order/create/${product.value.id}`)
 }
 
@@ -356,336 +350,260 @@ onMounted(() => {
 
 <style scoped>
 .detail-page {
-  min-height: 100vh;
-  background: #f5f5f5;
-  padding-bottom: 80px;
+  min-height: 60vh;
 }
 
-.detail-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: white;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  border-bottom: 1px solid #f0f0f0;
+.detail-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 24px;
+  padding-top: 20px;
+  align-items: start;
 }
 
-.back-btn {
-  font-size: 24px;
-  color: #333;
-  width: 32px;
+/* 画廊 */
+.gallery {
+  padding: 16px;
 }
 
-.header-title {
-  font-size: 16px;
-  font-weight: 500;
-  color: #1a1a1a;
-}
-
-.placeholder {
-  width: 32px;
-}
-
-.loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 200px;
-  color: #999;
-}
-
-.image-slider {
-  background: white;
-  padding-bottom: 10px;
-}
-
-.image-wrapper {
+.main-image {
   width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--radius);
   overflow: hidden;
+  background: #f0f1f3;
 }
 
-.product-image {
+.main-image img {
   width: 100%;
-  height: 300px;
+  height: 100%;
   object-fit: cover;
 }
 
-.image-indicators {
+.thumb-list {
   display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 8px;
+  gap: 10px;
+  margin-top: 12px;
 }
 
-.indicator {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #ddd;
+.thumb-item {
+  width: 76px;
+  height: 76px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 2px solid var(--c-border);
+  cursor: pointer;
+  transition: border-color 0.2s;
 }
 
-.indicator.active {
-  background: #2563eb;
+.thumb-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
-.product-info {
-  background: white;
-  padding: 16px;
-  margin-top: 10px;
+.thumb-item.active {
+  border-color: var(--c-primary);
+}
+
+/* 信息面板 */
+.info-panel {
+  padding: 24px 26px;
 }
 
 .price-row {
   display: flex;
-  align-items: baseline;
-  gap: 10px;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
 .price {
-  font-size: 28px;
-  font-weight: 600;
-  color: #ef4444;
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--c-danger);
 }
 
 .original-price {
   font-size: 14px;
-  color: #999;
+  color: var(--c-text-3);
   text-decoration: line-through;
 }
 
+.status-tag {
+  margin-left: auto;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.status-tag.on-sale {
+  background: var(--c-success-light);
+  color: var(--c-success);
+}
+
+.status-tag.sold {
+  background: #f3f4f6;
+  color: var(--c-text-3);
+}
+
 .title {
-  font-size: 18px;
-  font-weight: 500;
-  color: #1a1a1a;
-  margin-top: 12px;
-  margin-bottom: 8px;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 10px;
+  line-height: 1.45;
 }
 
 .description {
   font-size: 14px;
-  color: #666;
-  line-height: 1.6;
+  color: var(--c-text-2);
+  line-height: 1.7;
+  margin-bottom: 16px;
 }
 
-.condition-row {
+.meta-row {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: 16px;
 }
 
 .condition-badge {
-  padding: 4px 10px;
-  border-radius: 12px;
+  padding: 3px 12px;
+  border-radius: 999px;
   font-size: 12px;
 }
 
 .condition-new {
-  background: #dbeafe;
-  color: #1d4ed8;
+  background: var(--c-primary-light);
+  color: var(--c-primary);
 }
 
 .condition-like-new {
-  background: #dcfce7;
-  color: #16a34a;
+  background: var(--c-success-light);
+  color: var(--c-success);
 }
 
 .condition-used {
-  background: #fef3c7;
-  color: #d97706;
+  background: var(--c-warning-light);
+  color: var(--c-warning);
 }
 
 .condition-worn {
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--c-danger-light);
+  color: var(--c-danger);
 }
 
 .condition-damaged {
   background: #f3f4f6;
-  color: #6b7280;
+  color: var(--c-text-2);
 }
 
 .view-count {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
 }
 
-.status-row {
-  margin-top: 12px;
-  padding: 8px;
-  background: #dcfce7;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 14px;
-  color: #16a34a;
-}
-
-.status-row.sold {
-  background: #f3f4f6;
-  color: #6b7280;
-}
-
-.seller-section {
-  background: white;
-  padding: 16px;
-  margin-top: 10px;
-}
-
-.seller-header {
-  margin-bottom: 12px;
-}
-
-.section-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
-}
-
-.seller-info {
+/* 卖家 */
+.seller-block {
   display: flex;
   align-items: center;
-  padding: 10px;
-  background: #f9fafb;
-  border-radius: 10px;
+  padding: 14px;
+  background: #fafbfc;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.seller-block:hover {
+  border-color: var(--c-border-strong);
+  background: #f5f6f8;
 }
 
 .seller-avatar {
-  width: 50px;
-  height: 50px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   object-fit: cover;
+  margin-right: 12px;
 }
 
 .seller-detail {
   flex: 1;
-  margin-left: 12px;
+  display: flex;
+  flex-direction: column;
 }
 
 .seller-name {
-  display: block;
   font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-weight: 600;
+  color: var(--c-text);
 }
 
 .seller-score {
-  display: block;
   font-size: 12px;
-  color: #999;
-  margin-top: 4px;
+  color: var(--c-warning);
+  margin-top: 2px;
 }
 
-.arrow {
-  font-size: 16px;
-  color: #bbb;
+.seller-arrow {
+  font-size: 20px;
+  color: var(--c-text-3);
 }
 
-.other-info {
-  background: white;
-  padding: 16px;
-  margin-top: 10px;
+/* 信息行 */
+.info-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
 }
 
-.info-row:last-child {
-  border-bottom: none;
+.info-row .label {
+  color: var(--c-text-3);
 }
 
-.label {
-  font-size: 14px;
-  color: #999;
+.info-row .value {
+  color: var(--c-text);
 }
 
-.value {
-  font-size: 14px;
-  color: #333;
-}
-
-.empty-state {
+/* 操作区 */
+.action-row {
   display: flex;
-  justify-content: center;
+  gap: 12px;
   align-items: center;
-  height: 200px;
-  color: #999;
 }
 
-.detail-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: white;
-  border-top: 1px solid #f0f0f0;
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+.action-fav.favorited {
+  border-color: var(--c-danger);
+  color: var(--c-danger);
+  background: var(--c-danger-light);
 }
 
-.footer-left {
-  display: flex;
-  gap: 20px;
+.buy-btn {
+  flex: 1;
 }
 
-.footer-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
+.buy-btn.disabled {
+  background: var(--c-text-3);
+  border-color: var(--c-text-3);
+  cursor: not-allowed;
 }
 
-.icon {
-  font-size: 20px;
-}
-
-.text {
-  font-size: 11px;
-  color: #666;
-}
-
-.footer-right {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-secondary {
-  padding: 10px 20px;
-  border: 1px solid #2563eb;
-  border-radius: 25px;
-  font-size: 14px;
-  color: #2563eb;
-  background: white;
-}
-
-.btn-primary {
-  padding: 10px 25px;
-  border: none;
-  border-radius: 25px;
-  font-size: 14px;
-  color: white;
-  background: #2563eb;
-}
-
-.btn-primary.disabled {
-  background: #999;
-}
-
+/* 弹窗 */
 .modal-mask {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -693,10 +611,10 @@ onMounted(() => {
 }
 
 .modal-content {
-  width: 80%;
-  max-width: 320px;
-  background: white;
-  border-radius: 16px;
+  width: 380px;
+  max-width: 90vw;
+  background: #fff;
+  border-radius: var(--radius-lg);
   overflow: hidden;
 }
 
@@ -704,26 +622,27 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-title {
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .modal-close {
-  font-size: 24px;
-  color: #999;
+  font-size: 22px;
+  color: var(--c-text-3);
   cursor: pointer;
+  line-height: 1;
 }
 
 .seller-modal-body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 24px;
+  padding: 28px 24px 20px;
 }
 
 .modal-avatar {
@@ -731,7 +650,7 @@ onMounted(() => {
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .modal-seller-info {
@@ -739,26 +658,26 @@ onMounted(() => {
 }
 
 .modal-seller-info h3 {
-  font-size: 18px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-size: 17px;
+  font-weight: 600;
   margin-bottom: 8px;
 }
 
 .modal-seller-info p {
-  font-size: 14px;
-  color: #666;
+  font-size: 13px;
+  color: var(--c-text-2);
   margin-bottom: 4px;
 }
 
 .modal-contact-btn {
-  width: calc(100% - 32px);
-  margin: 0 16px 16px;
-  padding: 12px;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  color: white;
-  background: #2563eb;
+  margin: 0 20px 20px;
+  width: calc(100% - 40px);
+}
+
+/* 窄屏降级 */
+@media (max-width: 900px) {
+  .detail-main {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

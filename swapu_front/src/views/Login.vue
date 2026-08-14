@@ -1,28 +1,28 @@
 <template>
-  <div class="login-page">
-    <div class="login-container">
-      <div class="logo-section">
-        <div class="logo">🔄</div>
-        <h1>校园二手</h1>
-        <p>让闲置物品焕发新生</p>
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="auth-logo">🔄</div>
+        <h1>SwapU 云市集</h1>
+        <p>云端集市 · 让好物触手可及</p>
       </div>
 
-      <form @submit.prevent="handleLogin" class="login-form">
+      <form @submit.prevent="handleLogin" class="auth-form">
         <div class="form-group">
-          <label>用户名</label>
-          <input 
-            type="text" 
-            v-model="form.username" 
+          <label class="form-label">用户名</label>
+          <input
+            type="text"
+            v-model="form.username"
             placeholder="请输入用户名"
             class="form-input"
           />
         </div>
 
         <div class="form-group">
-          <label>密码</label>
-          <input 
-            type="password" 
-            v-model="form.password" 
+          <label class="form-label">密码</label>
+          <input
+            type="password"
+            v-model="form.password"
             placeholder="请输入密码"
             class="form-input"
           />
@@ -33,17 +33,17 @@
             <input type="checkbox" v-model="rememberMe" />
             <span>记住我</span>
           </label>
-          <span class="forgot-pwd">忘记密码？</span>
+          <span class="forgot-pwd text-link">忘记密码？</span>
         </div>
 
-        <button type="submit" class="login-btn" :disabled="isLoading">
-          {{ isLoading ? '登录中...' : '登录' }}
+        <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isLoading">
+          {{ isLoading ? '登录中...' : '登 录' }}
         </button>
       </form>
 
-      <div class="register-link">
+      <div class="auth-footer">
         <span>还没有账号？</span>
-        <span class="link" @click="goToRegister">立即注册</span>
+        <span class="text-link" @click="goToRegister">立即注册</span>
       </div>
     </div>
   </div>
@@ -73,7 +73,7 @@ const handleLogin = async () => {
   }
 
   isLoading.value = true
-  
+
   try {
     const response = await fetch('/user/login', {
       method: 'POST',
@@ -99,7 +99,7 @@ const handleLogin = async () => {
     }
 
     const data = await response.json()
-    
+
     if (data.code === 200) {
       localStorage.setItem('token', data.data.token)
       localStorage.setItem('userInfo', JSON.stringify(data.data))
@@ -123,68 +123,45 @@ const goToRegister = () => {
 </script>
 
 <style scoped>
-.login-page {
+.auth-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
   display: flex;
   align-items: center;
   justify-content: center;
+  background: linear-gradient(160deg, #f5f6f8 0%, #e8eefb 100%);
   padding: 20px;
 }
 
-.login-container {
+.auth-card {
   width: 100%;
-  max-width: 360px;
-  background: white;
+  max-width: 420px;
+  background: #fff;
   border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  padding: 44px 40px 36px;
+  box-shadow: 0 8px 40px rgba(16, 24, 40, 0.1);
 }
 
-.logo-section {
+.auth-brand {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
-.logo {
-  font-size: 48px;
+.auth-logo {
+  font-size: 52px;
   margin-bottom: 12px;
 }
 
-.logo-section h1 {
+.auth-brand h1 {
   font-size: 24px;
-  font-weight: 600;
-  color: #1a1a1a;
+  font-weight: 700;
+  color: var(--c-text);
+  letter-spacing: 1px;
   margin-bottom: 6px;
 }
 
-.logo-section p {
+.auth-brand p {
   font-size: 13px;
-  color: #999;
-}
-
-.login-form {
-  margin-bottom: 20px;
-}
-
-.form-group {
-  margin-bottom: 18px;
-}
-
-.form-group label {
-  display: block;
-  font-size: 14px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-.form-input {
-  width: 100%;
-  padding: 14px;
-  border: 1px solid #e8ecf0;
-  border-radius: 10px;
-  font-size: 14px;
-  background: #fafafa;
+  color: var(--c-text-3);
 }
 
 .form-options {
@@ -197,42 +174,16 @@ const goToRegister = () => {
 .checkbox {
   display: flex;
   align-items: center;
+  gap: 6px;
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
+  cursor: pointer;
 }
 
-.checkbox input {
-  margin-right: 6px;
-}
-
-.forgot-pwd {
-  font-size: 13px;
-  color: #2563eb;
-}
-
-.login-btn {
-  width: 100%;
-  padding: 15px;
-  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 500;
-}
-
-.login-btn:disabled {
-  opacity: 0.7;
-}
-
-.register-link {
+.auth-footer {
   text-align: center;
   font-size: 14px;
-  color: #666;
-}
-
-.link {
-  color: #2563eb;
-  margin-left: 4px;
+  color: var(--c-text-2);
+  margin-top: 20px;
 }
 </style>

@@ -1,40 +1,39 @@
 <template>
   <div class="messages-page">
-    <header class="messages-header">
-      <h1>消息</h1>
-      <span class="edit-btn">编辑</span>
-    </header>
+    <div class="container">
+      <h1 class="page-title">消息</h1>
 
-    <div class="message-list">
-      <div
-        v-for="session in sessions"
-        :key="session.userId"
-        class="message-item"
-        @click="openChat(session)"
-      >
-        <div class="avatar">
-          <img v-if="session.avatar" :src="session.avatar" alt="头像" />
-          <span v-else>👤</span>
-        </div>
-        <div class="message-content">
-          <div class="message-header">
-            <span class="nickname">{{ session.nickname || session.username }}</span>
-            <span class="time">{{ formatTime(session.lastMessageTime) }}</span>
+      <div v-if="sessions.length > 0" class="card sessions-card">
+        <div
+          v-for="session in sessions"
+          :key="session.userId"
+          class="session-row"
+          @click="openChat(session)"
+        >
+          <div class="avatar">
+            <img v-if="session.avatar" :src="session.avatar" alt="头像" />
+            <span v-else>👤</span>
           </div>
-          <p class="message-text">{{ session.lastMessage }}</p>
-          <div v-if="session.productTitle" class="product-info">
-            <img v-if="session.productImage" :src="getFirstImage(session.productImage)" class="product-thumb" />
-            <span class="product-title">{{ session.productTitle }}</span>
+          <div class="session-content">
+            <div class="session-header">
+              <span class="nickname">{{ session.nickname || session.username }}</span>
+              <span class="time">{{ formatTime(session.lastMessageTime) }}</span>
+            </div>
+            <p class="message-text">{{ session.lastMessage }}</p>
+            <div v-if="session.productTitle" class="product-info">
+              <img v-if="session.productImage" :src="getFirstImage(session.productImage)" class="product-thumb" />
+              <span class="product-title">{{ session.productTitle }}</span>
+            </div>
           </div>
           <span v-if="session.unreadCount > 0" class="unread-badge">{{ session.unreadCount }}</span>
         </div>
       </div>
-    </div>
 
-    <div v-if="sessions.length === 0" class="empty-state">
-      <span class="empty-icon">💬</span>
-      <p>暂无消息</p>
-      <p class="empty-hint">去逛逛，发现心仪的商品吧</p>
+      <div v-else class="card empty-state">
+        <span class="empty-icon">💬</span>
+        <p>暂无消息</p>
+        <p class="empty-hint">去逛逛，发现心仪的商品吧</p>
+      </div>
     </div>
   </div>
 </template>
@@ -92,7 +91,7 @@ const mockSessions = [
     nickname: '小美同学',
     avatar: '',
     productId: 101,
-    productTitle: '二手自行车',
+    productTitle: '山地自行车',
     productImage: '',
     lastMessage: '你好，这个商品还在吗？',
     lastMessageTime: new Date().toISOString().replace('T', ' ').substr(0, 19),
@@ -231,55 +230,42 @@ onActivated(() => {
 
 <style scoped>
 .messages-page {
-  min-height: 100vh;
-  background: #fafafa;
+  min-height: 60vh;
+  padding-bottom: 40px;
 }
 
-.messages-header {
-  background: white;
-  padding: 16px 15px;
-  padding-top: calc(16px + env(safe-area-inset-top));
+.sessions-card {
+  overflow: hidden;
+}
+
+.session-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: background 0.15s;
 }
 
-.messages-header h1 {
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
+.session-row:not(:last-child) {
+  border-bottom: 1px solid var(--c-border);
 }
 
-.edit-btn {
-  font-size: 14px;
-  color: #2563eb;
-}
-
-.message-list {
-  padding: 12px 15px;
-}
-
-.message-item {
-  display: flex;
-  background: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #f0f0f0;
+.session-row:hover {
+  background: #fafbfc;
 }
 
 .avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #f5f7fa;
+  background: var(--c-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 22px;
-  margin-right: 12px;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .avatar img {
@@ -289,55 +275,56 @@ onActivated(() => {
   object-fit: cover;
 }
 
-.message-content {
+.session-content {
   flex: 1;
-  position: relative;
+  min-width: 0;
 }
 
-.message-header {
+.session-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .nickname {
   font-size: 15px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-weight: 600;
+  color: var(--c-text);
 }
 
 .time {
   font-size: 12px;
-  color: #bbb;
+  color: var(--c-text-3);
 }
 
 .message-text {
   font-size: 13px;
-  color: #666;
+  color: var(--c-text-2);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin: 0;
+  margin: 0 0 4px;
 }
 
 .product-info {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  margin-top: 6px;
-  padding: 4px 8px;
-  background: #f5f5f5;
-  border-radius: 4px;
+  gap: 6px;
+  padding: 3px 10px;
+  background: #f3f4f6;
+  border-radius: var(--radius);
   font-size: 12px;
-  color: #666;
+  color: var(--c-text-2);
+  max-width: 100%;
 }
 
 .product-thumb {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   border-radius: 4px;
-  margin-right: 6px;
   object-fit: cover;
+  flex-shrink: 0;
 }
 
 .product-title {
@@ -347,37 +334,20 @@ onActivated(() => {
 }
 
 .unread-badge {
-  position: absolute;
-  right: 0;
-  top: 18px;
-  background: #2563eb;
+  background: var(--c-primary);
   color: white;
-  font-size: 11px;
-  padding: 2px 8px;
+  font-size: 12px;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  padding: 0 6px;
   border-radius: 10px;
-}
-
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 20px;
-}
-
-.empty-icon {
-  font-size: 56px;
-  margin-bottom: 16px;
-}
-
-.empty-state p {
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
 .empty-hint {
-  font-size: 14px !important;
-  color: #999 !important;
+  font-size: 13px;
+  color: var(--c-text-3);
 }
 </style>

@@ -1,52 +1,59 @@
 <template>
-  <div class="chat-room">
-    <header class="chat-header">
-      <span class="back-btn" @click="goBack">‹</span>
-      <div class="user-info" @click="showOtherUserInfo">
-        <div class="avatar">
-          <img v-if="targetUser.avatar" :src="targetUser.avatar" alt="头像" />
-          <span v-else>👤</span>
-        </div>
-        <div class="user-detail">
-          <span class="nickname">{{ targetUser.nickname }}</span>
-          <span v-if="targetUser.productTitle" class="product-context">咨询: {{ targetUser.productTitle }}</span>
-        </div>
-      </div>
-      <span class="more-btn">⋯</span>
-    </header>
-
-    <div class="chat-messages" ref="messagesContainer">
-      <div
-        v-for="msg in messages"
-        :key="msg.messageId"
-        class="message-wrapper"
-        :class="{ 'is-mine': isMyMessage(msg) }"
-      >
-        <div class="avatar-small" @click="isMyMessage(msg) ? showMyInfo() : showOtherUserInfo()">
-          <img v-if="getAvatar(msg)" :src="getAvatar(msg)" alt="头像" />
-          <span v-else>👤</span>
-        </div>
-        <div class="message-content">
-          <span v-if="!isMyMessage(msg)" class="sender-name">{{ msg.fromUserNickname }}</span>
-          <div class="message-bubble">
-            {{ msg.content }}
+  <div class="chat-page">
+    <div class="container">
+      <div class="card chat-panel">
+        <!-- 顶部栏 -->
+        <div class="chat-header">
+          <router-link to="/messages" class="back-link">← 返回消息</router-link>
+          <div class="user-info" @click="showOtherUserInfo">
+            <div class="avatar">
+              <img v-if="targetUser.avatar" :src="targetUser.avatar" alt="头像" />
+              <span v-else>👤</span>
+            </div>
+            <div class="user-detail">
+              <span class="nickname">{{ targetUser.nickname }}</span>
+              <span v-if="targetUser.productTitle" class="product-context">咨询: {{ targetUser.productTitle }}</span>
+            </div>
           </div>
-          <span class="message-time">{{ formatTime(msg.createTime) }}</span>
+        </div>
+
+        <!-- 消息滚动区 -->
+        <div class="chat-messages" ref="messagesContainer">
+          <div
+            v-for="msg in messages"
+            :key="msg.messageId"
+            class="message-wrapper"
+            :class="{ 'is-mine': isMyMessage(msg) }"
+          >
+            <div class="avatar-small" @click="isMyMessage(msg) ? showMyInfo() : showOtherUserInfo()">
+              <img v-if="getAvatar(msg)" :src="getAvatar(msg)" alt="头像" />
+              <span v-else>👤</span>
+            </div>
+            <div class="message-content">
+              <span v-if="!isMyMessage(msg)" class="sender-name">{{ msg.fromUserNickname }}</span>
+              <div class="message-bubble">
+                {{ msg.content }}
+              </div>
+              <span class="message-time">{{ formatTime(msg.createTime) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 输入栏 -->
+        <div class="chat-input">
+          <input
+            type="text"
+            v-model="inputMessage"
+            placeholder="输入消息..."
+            class="input-field"
+            @keyup.enter="sendMessage"
+          />
+          <button class="btn btn-primary send-btn" @click="sendMessage">发送</button>
         </div>
       </div>
     </div>
 
-    <div class="chat-input">
-      <input
-        type="text"
-        v-model="inputMessage"
-        placeholder="输入消息..."
-        class="input-field"
-        @keyup.enter="sendMessage"
-      />
-      <button class="send-btn" @click="sendMessage">发送</button>
-    </div>
-
+    <!-- 用户信息弹窗 -->
     <div v-if="showUserInfoModal" class="modal-overlay" @click="closeModal">
       <div class="user-info-modal" @click.stop>
         <div class="modal-header">
@@ -575,49 +582,59 @@ const fetchUserInfoById = async (userId) => {
 </script>
 
 <style scoped>
-.chat-room {
-  min-height: 100vh;
-  background: #f5f5f5;
+.chat-page {
+  padding: 20px 0 40px;
+}
+
+.chat-panel {
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 260px);
+  min-height: 480px;
+  overflow: hidden;
 }
 
+/* 顶部栏 */
 .chat-header {
-  background: white;
-  padding: 16px 15px;
-  padding-top: calc(16px + env(safe-area-inset-top));
   display: flex;
   align-items: center;
-  border-bottom: 1px solid #f0f0f0;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
 }
 
-.back-btn {
-  font-size: 24px;
-  color: #333;
-  margin-right: 12px;
+.back-link {
+  font-size: 14px;
+  color: var(--c-text-2);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.back-link:hover {
+  color: var(--c-primary);
 }
 
 .user-info {
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: center;
-}
-
-.user-detail {
-  display: flex;
-  flex-direction: column;
+  cursor: pointer;
 }
 
 .avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #f5f7fa;
+  background: var(--c-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
   margin-right: 10px;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .avatar img {
@@ -627,32 +644,37 @@ const fetchUserInfoById = async (userId) => {
   object-fit: cover;
 }
 
+.user-detail {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
 .nickname {
   font-size: 16px;
-  font-weight: 500;
-  color: #1a1a1a;
+  font-weight: 600;
+  color: var(--c-text);
 }
 
 .product-context {
   font-size: 12px;
-  color: #666;
-  margin-top: 2px;
+  color: var(--c-text-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.more-btn {
-  font-size: 18px;
-  color: #666;
-}
-
+/* 消息区 */
 .chat-messages {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   overflow-y: auto;
+  background: #fafbfc;
 }
 
 .message-wrapper {
   display: flex;
-  margin-bottom: 15px;
+  margin-bottom: 16px;
 }
 
 .message-wrapper:not(.is-mine) {
@@ -666,11 +688,12 @@ const fetchUserInfoById = async (userId) => {
 .message-wrapper.is-mine .avatar-small {
   order: 2;
   margin-left: 10px;
+  margin-right: 0;
 }
 
 .message-wrapper.is-mine .message-content {
   order: 1;
-  margin-right: 0;
+  align-items: flex-end;
 }
 
 .message-wrapper:not(.is-mine) .avatar-small {
@@ -681,12 +704,14 @@ const fetchUserInfoById = async (userId) => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #f5f7fa;
+  background: var(--c-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 16px;
   flex-shrink: 0;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .avatar-small img {
@@ -697,77 +722,86 @@ const fetchUserInfoById = async (userId) => {
 }
 
 .message-content {
-  max-width: 70%;
+  max-width: 60%;
+  display: flex;
+  flex-direction: column;
 }
 
 .sender-name {
   font-size: 12px;
-  color: #999;
+  color: var(--c-text-3);
   margin-bottom: 4px;
-  display: block;
 }
 
 .message-bubble {
-  background: white;
+  background: var(--c-card);
   padding: 10px 14px;
-  border-radius: 18px;
+  border-radius: var(--radius);
   font-size: 14px;
-  color: #333;
+  color: var(--c-text);
   word-break: break-all;
-  border: 1px solid #e8ecf0;
+  border: 1px solid var(--c-border);
+  border-top-left-radius: 4px;
 }
 
 .is-mine .message-bubble {
-  background: #2563eb;
+  background: var(--c-primary);
   color: white;
   border: none;
+  border-top-right-radius: 4px;
+  border-top-left-radius: var(--radius);
 }
 
 .message-time {
   font-size: 11px;
-  color: #bbb;
+  color: var(--c-text-3);
   margin-top: 4px;
-  display: block;
 }
 
 .is-mine .message-time {
   text-align: right;
 }
 
+/* 输入栏 */
 .chat-input {
-  background: white;
-  padding: 12px 15px;
-  padding-bottom: calc(12px + env(safe-area-inset-bottom));
   display: flex;
   gap: 12px;
-  border-top: 1px solid #f0f0f0;
+  padding: 14px 20px;
+  border-top: 1px solid var(--c-border);
+  flex-shrink: 0;
+  background: var(--c-card);
 }
 
 .input-field {
   flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #e8ecf0;
-  border-radius: 24px;
+  padding: 10px 16px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
   font-size: 14px;
-  background: #fafafa;
+  background: #fafbfc;
+  color: var(--c-text);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: var(--c-primary);
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .send-btn {
-  padding: 12px 24px;
-  background: #2563eb;
-  color: white;
-  border: none;
-  border-radius: 24px;
-  font-size: 14px;
+  flex-shrink: 0;
 }
 
+/* 弹窗 */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -775,35 +809,37 @@ const fetchUserInfoById = async (userId) => {
 }
 
 .user-info-modal {
-  background: white;
-  width: 85%;
-  max-width: 320px;
-  border-radius: 16px;
+  background: var(--c-card);
+  width: 380px;
+  max-width: 90vw;
+  border-radius: var(--radius-lg);
   overflow: hidden;
+  box-shadow: var(--shadow-md);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px;
-  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .modal-title {
   font-size: 16px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
 }
 
 .modal-close {
   font-size: 24px;
-  color: #999;
+  color: var(--c-text-3);
   line-height: 1;
+  cursor: pointer;
 }
 
 .modal-content {
-  padding: 20px;
+  padding: 24px 20px;
   text-align: center;
 }
 
@@ -811,12 +847,13 @@ const fetchUserInfoById = async (userId) => {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: #f5f7fa;
+  background: var(--c-primary-light);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 36px;
   margin: 0 auto 16px;
+  overflow: hidden;
 }
 
 .user-avatar-large img {
@@ -829,13 +866,13 @@ const fetchUserInfoById = async (userId) => {
 .user-detail h2 {
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--c-text);
   margin-bottom: 12px;
 }
 
 .user-detail p {
   font-size: 14px;
-  color: #666;
+  color: var(--c-text-2);
   margin-bottom: 8px;
 }
 </style>
