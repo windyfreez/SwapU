@@ -47,7 +47,7 @@ knife4j:
   enable: true
 
 #JWT配置
-sky:
+swapu:
   jwt:
     #管理端
     admin-secret-key: your_admin_secret_key
@@ -60,7 +60,8 @@ sky:
 
   alioss:
     endpoint: your_oss_endpoint
-    access-key-id: your_access_key_id
-    access-key-secret: your_access_key_secret
+    # 密钥通过环境变量注入(必须设置,否则上传功能不可用)
+    access-key-id: ${ALIYUN_ACCESS_KEY_ID}
+    access-key-secret: ${ALIYUN_ACCESS_KEY_SECRET}
     bucket-name: your_bucket_name
 
