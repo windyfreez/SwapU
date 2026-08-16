@@ -26,6 +26,15 @@ public interface ProductMapper {
     Product getProductById(Long id);
 
     /**
+     * 统计当前用户指定状态的商品数量(1-在售 2-已售)
+     * @param userId
+     * @param status
+     * @return
+     */
+    @Select("select count(*) from product where user_id = #{userId} and status = #{status}")
+    Integer countByUserIdAndStatus(Long userId, Integer status);
+
+    /**
      * 修改商品信息
      * @param product
      */

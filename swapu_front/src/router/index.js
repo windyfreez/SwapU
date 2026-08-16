@@ -17,6 +17,7 @@ import CreateOrder from '../views/CreateOrder.vue'
 import MyWallet from '../views/MyWallet.vue'
 import Settings from '../views/Settings.vue'
 import MyAddress from '../views/MyAddress.vue'
+import MyFootprints from '../views/MyFootprints.vue'
 
 const routes = [
   { path: '/', component: Home },
@@ -33,6 +34,7 @@ const routes = [
   { path: '/my-wallet', component: MyWallet },
   { path: '/settings', component: Settings },
   { path: '/my-address', component: MyAddress },
+  { path: '/my-footprints', component: MyFootprints },
   { path: '/product/edit/:id', component: EditProduct },
   { path: '/login', component: Login },
   { path: '/register', component: Register },

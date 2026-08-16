@@ -11,8 +11,10 @@ import com.itsean.campus_second_hand.entity.Product;
 import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.entity.result.PageResult;
 import com.itsean.campus_second_hand.exception.OrderException;
+import com.itsean.campus_second_hand.mapper.FavoriteMapper;
 import com.itsean.campus_second_hand.mapper.OrderMapper;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
+import com.itsean.campus_second_hand.mapper.UserBehaviorLogMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.OrderService;
 import com.itsean.campus_second_hand.service.ProductService;
@@ -41,6 +43,10 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private FavoriteMapper favoriteMapper;
+    @Autowired
+    private UserBehaviorLogMapper userBehaviorLogMapper;
 
     /**
      * 创建订单
@@ -397,6 +403,11 @@ public class OrderServiceImpl implements OrderService {
         Integer sellCompleted = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_ALREADY_RECEIVE,currentUserId);
         BigDecimal totalCostAmount = orderMapper.sumCostAmountByUserId(currentUserId);
         BigDecimal totalSellAmount = orderMapper.sumSellAmountByUserId(currentUserId);
+        // 商品与行为统计:在售/已售/我的收藏/足迹
+        Integer publishCount = productMapper.countByUserIdAndStatus(currentUserId, NumberConstant.PRODUCT_STATUS_SELLING);
+        Integer soldCount = productMapper.countByUserIdAndStatus(currentUserId, NumberConstant.PRODUCT_STATUS_SOLD_OUT);
+        Integer favoriteCount = favoriteMapper.countByUserId(currentUserId);
+        Integer footprintCount = userBehaviorLogMapper.countByUserId(currentUserId);
         OrderStatisticsVO orderStatisticsVO = OrderStatisticsVO.builder()
                 .waitPay(waitPay)
                 .waitReceive(waitReceive)
@@ -405,6 +416,10 @@ public class OrderServiceImpl implements OrderService {
                 .sellCompleted(sellCompleted)
                 .totalCostAmount(totalCostAmount)
                 .totalSellAmount(totalSellAmount)
+                .publishCount(publishCount)
+                .soldCount(soldCount)
+                .favoriteCount(favoriteCount)
+                .footprintCount(footprintCount)
                 .build();
         return orderStatisticsVO;
     }

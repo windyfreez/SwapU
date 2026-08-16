@@ -12,7 +12,7 @@
     </template>
 
     <template v-else>
-      <!-- 用户信息卡 -->
+      <!-- 用户信息卡 + 统计(可点击跳转) -->
       <div class="card profile-card">
         <div class="profile-main">
           <div class="avatar-large">
@@ -28,19 +28,24 @@
         </div>
 
         <div class="stats-row">
-          <div class="stat-item">
-            <span class="stat-value">{{ userInfo.publishCount || 0 }}</span>
+          <div class="stat-item link" @click="goToMyProducts">
+            <span class="stat-value">{{ orderStats.publishCount }}</span>
             <span class="stat-label">在售</span>
           </div>
           <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ userInfo.soldCount || 0 }}</span>
+          <div class="stat-item link" @click="goToMyProducts">
+            <span class="stat-value">{{ orderStats.soldCount }}</span>
             <span class="stat-label">已售</span>
           </div>
           <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value">{{ userInfo.favoriteCount || 0 }}</span>
+          <div class="stat-item link" @click="goToMyFavorites">
+            <span class="stat-value">{{ orderStats.favoriteCount }}</span>
             <span class="stat-label">收藏</span>
+          </div>
+          <div class="stat-divider"></div>
+          <div class="stat-item link" @click="goToMyFootprints">
+            <span class="stat-value">{{ orderStats.footprintCount }}</span>
+            <span class="stat-label">足迹</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
@@ -50,37 +55,60 @@
         </div>
       </div>
 
-      <!-- 快捷入口 -->
-      <div class="quick-grid">
-        <div class="card quick-item" @click="goToMyProducts">
-          <span class="quick-icon">📦</span>
-          <span class="quick-text">我的发布</span>
-          <span class="quick-arrow">›</span>
+      <!-- 内容预览:最近足迹 / 在售商品 -->
+      <div class="preview-grid">
+        <div class="card preview-panel">
+          <div class="preview-header">
+            <h3>👣 最近足迹</h3>
+            <router-link to="/my-footprints" class="more-link">查看更多 ›</router-link>
+          </div>
+          <div v-if="footprintPreview.length > 0" class="preview-list">
+            <div
+              v-for="item in footprintPreview"
+              :key="'fp-' + item.id"
+              class="preview-item"
+              @click="goToDetail(item.id)"
+            >
+              <div class="preview-thumb">
+                <img :src="getFirstImage(item.images)" :alt="item.title" />
+              </div>
+              <div class="preview-info">
+                <span class="preview-title">{{ item.title || '商品' + item.id }}</span>
+                <span class="preview-price">¥{{ item.price }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="preview-empty">
+            <span>暂无浏览记录</span>
+            <router-link to="/" class="text-link">去逛逛</router-link>
+          </div>
         </div>
-        <div class="card quick-item" @click="goToMyFavorites">
-          <span class="quick-icon">❤️</span>
-          <span class="quick-text">我的收藏</span>
-          <span class="quick-arrow">›</span>
-        </div>
-        <div class="card quick-item" @click="goToMyOrders">
-          <span class="quick-icon">🛒</span>
-          <span class="quick-text">我的订单</span>
-          <span class="quick-arrow">›</span>
-        </div>
-        <div class="card quick-item" @click="goToMyWallet">
-          <span class="quick-icon">💰</span>
-          <span class="quick-text">我的钱包</span>
-          <span class="quick-arrow">›</span>
-        </div>
-        <div class="card quick-item" @click="goToMyAddress">
-          <span class="quick-icon">📍</span>
-          <span class="quick-text">收货地址</span>
-          <span class="quick-arrow">›</span>
-        </div>
-        <div class="card quick-item" @click="goToSettings">
-          <span class="quick-icon">⚙️</span>
-          <span class="quick-text">设置</span>
-          <span class="quick-arrow">›</span>
+
+        <div class="card preview-panel">
+          <div class="preview-header">
+            <h3>📦 在售商品</h3>
+            <router-link to="/my-products" class="more-link">查看更多 ›</router-link>
+          </div>
+          <div v-if="onSalePreview.length > 0" class="preview-list">
+            <div
+              v-for="item in onSalePreview"
+              :key="'sale-' + item.id"
+              class="preview-item"
+              @click="goToDetail(item.id)"
+            >
+              <div class="preview-thumb">
+                <img :src="getFirstImage(item.images)" :alt="item.title" />
+              </div>
+              <div class="preview-info">
+                <span class="preview-title">{{ item.title || '商品' + item.id }}</span>
+                <span class="preview-price">¥{{ item.price }}</span>
+              </div>
+            </div>
+          </div>
+          <div v-else class="preview-empty">
+            <span>暂无在售商品</span>
+            <router-link to="/sell" class="text-link">去发布</router-link>
+          </div>
         </div>
       </div>
     </template>
@@ -94,6 +122,17 @@ import AccountLayout from '../components/AccountLayout.vue'
 
 const router = useRouter()
 const isLoggedIn = ref(false)
+const footprintPreview = ref([])
+const onSalePreview = ref([])
+
+// 统计数字(来自后端 /order/statistics)
+const orderStats = reactive({
+  publishCount: 0,
+  soldCount: 0,
+  favoriteCount: 0,
+  footprintCount: 0
+})
+
 const userInfo = reactive({
   id: '',
   username: '',
@@ -115,10 +154,100 @@ const goToRegister = () => router.push('/register')
 const goToEditProfile = () => router.push('/profile/edit')
 const goToMyProducts = () => router.push('/my-products')
 const goToMyFavorites = () => router.push('/my-favorites')
-const goToMyOrders = () => router.push('/my-orders')
-const goToMyWallet = () => router.push('/my-wallet')
-const goToMyAddress = () => router.push('/my-address')
-const goToSettings = () => router.push('/settings')
+const goToMyFootprints = () => router.push('/my-footprints')
+const goToDetail = (id) => router.push(`/product/${id}`)
+
+const getFirstImage = (images) => {
+  if (!images) return ''
+
+  if (typeof images === 'string') {
+    images = images.trim()
+    if (images.startsWith('[') || images.startsWith('{')) {
+      try {
+        const parsed = JSON.parse(images)
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return getFirstImage(parsed[0])
+        }
+        return parsed
+      } catch {
+        return images.replace(/[`'""]/g, '')
+      }
+    }
+    return images.replace(/[`'""]/g, '')
+  }
+
+  if (Array.isArray(images) && images.length > 0) {
+    return getFirstImage(images[0])
+  }
+
+  return String(images || '')
+}
+
+// 最近足迹预览(取前4条;总数由 /order/statistics 提供)
+const fetchFootprintPreview = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  try {
+    const response = await fetch('/view-history/list?pageNum=1&pageSize=4', {
+      headers: {
+        'token': token
+      }
+    })
+    if (!response.ok) return
+    const data = await response.json()
+    if (data.code === 200 && data.data) {
+      footprintPreview.value = data.data.records || []
+    }
+  } catch (error) {
+    console.error('获取足迹预览失败:', error)
+  }
+}
+
+// 统计:在售/已售/我的收藏/足迹(后端 OrderController /order/statistics)
+const fetchOrderStatistics = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  try {
+    const response = await fetch('/order/statistics', {
+      headers: {
+        'token': token
+      }
+    })
+    if (!response.ok) return
+    const data = await response.json()
+    if (data.code === 200 && data.data) {
+      orderStats.publishCount = data.data.publishCount || 0
+      orderStats.soldCount = data.data.soldCount || 0
+      orderStats.favoriteCount = data.data.favoriteCount || 0
+      orderStats.footprintCount = data.data.footprintCount || 0
+    }
+  } catch (error) {
+    console.error('获取统计信息失败:', error)
+  }
+}
+
+// 在售商品预览(取前4条)
+const fetchOnSalePreview = async () => {
+  const token = localStorage.getItem('token')
+  if (!token) return
+
+  try {
+    const response = await fetch('/product/my-products?page=1&pageSize=4&status=1', {
+      headers: {
+        'token': token
+      }
+    })
+    if (!response.ok) return
+    const data = await response.json()
+    if (data.code === 200 && data.data) {
+      onSalePreview.value = data.data.records || []
+    }
+  } catch (error) {
+    console.error('获取在售商品预览失败:', error)
+  }
+}
 
 const loadUserInfo = async () => {
   const token = localStorage.getItem('token')
@@ -188,6 +317,9 @@ onMounted(() => {
     }
   }
   loadUserInfo()
+  fetchOrderStatistics()
+  fetchFootprintPreview()
+  fetchOnSalePreview()
 })
 </script>
 
@@ -213,6 +345,7 @@ onMounted(() => {
   gap: 14px;
 }
 
+/* 用户信息卡 */
 .profile-card {
   padding: 28px 30px 0;
 }
@@ -274,10 +407,25 @@ onMounted(() => {
   padding: 18px 0;
 }
 
+.stat-item.link {
+  cursor: pointer;
+  transition: background 0.15s;
+  border-radius: var(--radius);
+}
+
+.stat-item.link:hover {
+  background: #f5f6f8;
+}
+
+.stat-item.link:hover .stat-value {
+  color: var(--c-primary);
+}
+
 .stat-value {
   font-size: 22px;
   font-weight: 700;
   color: var(--c-text);
+  transition: color 0.15s;
 }
 
 .stat-value.credit {
@@ -296,41 +444,111 @@ onMounted(() => {
   background: var(--c-border);
 }
 
-.quick-grid {
+/* 内容预览 */
+.preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 16px;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
   margin-top: 20px;
 }
 
-.quick-item {
+.preview-panel {
+  overflow: hidden;
+}
+
+.preview-header {
   display: flex;
   align-items: center;
-  padding: 18px 20px;
-  cursor: pointer;
-  transition: all 0.2s;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--c-border);
 }
 
-.quick-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  border-color: var(--c-border-strong);
-}
-
-.quick-icon {
-  font-size: 22px;
-  margin-right: 14px;
-}
-
-.quick-text {
-  flex: 1;
+.preview-header h3 {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--c-text);
 }
 
-.quick-arrow {
-  font-size: 18px;
+.more-link {
+  font-size: 13px;
+  color: var(--c-primary);
+  cursor: pointer;
+}
+
+.more-link:hover {
+  color: var(--c-primary-hover);
+}
+
+.preview-list {
+  padding: 8px 10px;
+}
+
+.preview-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.preview-item:hover {
+  background: #f5f6f8;
+}
+
+.preview-thumb {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #f0f1f3;
+  flex-shrink: 0;
+}
+
+.preview-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.preview-title {
+  font-size: 13px;
+  color: var(--c-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--c-danger);
+}
+
+.preview-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 34px 16px;
+  font-size: 13px;
   color: var(--c-text-3);
+}
+
+/* 窄屏降级 */
+@media (max-width: 1100px) {
+  .preview-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>

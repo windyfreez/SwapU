@@ -4,95 +4,30 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="推荐算法数据处理代码commit">
-      <change beforePath="$PROJECT_DIR$/.idea/claudeCodeEditorTabs.xml" beforeDir="false" />
+    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="前端页面优化/适配PC端页面优化commit">
+      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/ViewController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ViewServiceImpl.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ViewService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/aspect/BehaviorAspect.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/aspect/BehaviorAspect.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/JwtClaimsConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/JwtClaimsConstant.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/MessageConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/MessageConstant.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/NumberConstant.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/constant/NumberConstant.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/context/BaseContext.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/context/BaseContext.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/AccountRepeatException.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/AccountRepeatException.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/BaseException.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/BaseException.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/ChatMessageException.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/ChatMessageException.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/OrderException.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/exception/OrderException.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/properties/AliOssProperties.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/properties/AliOssProperties.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/properties/JwtProperties.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/properties/JwtProperties.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/AliOssUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/AliOssUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/JwtUtil.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_common/target/classes/com/itsean/common/utils/JwtUtil.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/App.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/assets/base.css" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/assets/base.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/assets/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/assets/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/components/TabBar.vue" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/ChatRoom.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/ChatRoom.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/CreateOrder.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/CreateOrder.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/EditProduct.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/EditProduct.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/EditProfile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/EditProfile.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Home.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Login.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Messages.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Messages.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyAddress.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyAddress.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyFavorites.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyFavorites.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyOrders.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyOrders.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyProducts.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyProducts.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyWallet.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyWallet.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/OrderDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/OrderDetail.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/ProductDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/ProductDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/FavoriteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/FavoriteMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ProductMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/UserBehaviorLogMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/UserBehaviorLogMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/OrderServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/OrderServiceImpl.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderStatisticsVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderStatisticsVO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133049.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133057.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133103.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133109.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133124.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133137.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133459.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133629.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133729.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133745.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133750.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/router/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Profile.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Register.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Register.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Sell.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Sell.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Settings.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Settings.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_front/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/vite.config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/PageResult.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/PageResult.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/Result.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/Result.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatHistoryQueryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatHistoryQueryDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatMessageDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatMessageDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatSessionQueryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ChatSessionQueryDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/FavoriteDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/FavoriteDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/FavoritePageQueryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/FavoritePageQueryDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/MarkReadDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/MarkReadDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderCancelDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderCancelDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderConfirmDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderConfirmDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderDeliverDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderDeliverDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderPageQueryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderPageQueryDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderPayDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderPayDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderReceiveDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/OrderReceiveDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/PasswordDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/PasswordDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ProductDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ProductDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ProductListPageQueryDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/ProductListPageQueryDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/UserDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/UserDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/UserLoginDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/UserLoginDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/UserRegisterDTO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/dto/UserRegisterDTO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/AddressBook$AddressBookBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/AddressBook$AddressBookBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/AddressBook.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/AddressBook.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Admin.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Admin.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Category.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Category.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/ChatMessage.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/ChatMessage.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Order.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Order.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Product.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/Product.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/User.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/entity/User.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ChatMessageVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ChatMessageVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ChatResponseVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ChatResponseVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ChatSessionVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ChatSessionVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/FavoriteVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/FavoriteVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderCancelVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderCancelVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderConfirmVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderConfirmVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderDeliverVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderDeliverVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderDetailVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderDetailVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderPageVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderPageVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderPayVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderPayVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderReceiveVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderReceiveVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderStatisticsVO$OrderStatisticsVOBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderStatisticsVO$OrderStatisticsVOBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderStatisticsVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderStatisticsVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/OrderVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ProductDetailVO$SellerInfo.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ProductDetailVO$SellerInfo.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ProductDetailVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ProductDetailVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ProductVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/ProductVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/UserLoginVO$UserLoginVOBuilder.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/UserLoginVO$UserLoginVOBuilder.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/UserLoginVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/UserLoginVO.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/UserRegisterVO.class" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_pojo/target/classes/com/itsean/pojo/vo/UserRegisterVO.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,8 +68,8 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Exception" />
-        <option value="Class" />
         <option value="Interface" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -639,6 +574,11 @@
       <workItem from="1786684632460" duration="1035000" />
       <workItem from="1786711409074" duration="704000" />
       <workItem from="1786712843518" duration="841000" />
+      <workItem from="1786715203857" duration="1303000" />
+      <workItem from="1786767532787" duration="2161000" />
+      <workItem from="1786799871864" duration="2899000" />
+      <workItem from="1786809064872" duration="2543000" />
+      <workItem from="1786855634450" duration="3929000" />
     </task>
     <task id="LOCAL-00001" summary="用户模块代码开发">
       <option name="closed" value="true" />
@@ -880,7 +820,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786612824476</updated>
     </task>
-    <option name="localTasksCounter" value="31" />
+    <task id="LOCAL-00031" summary="前端页面优化/适配PC端页面优化commit">
+      <option name="closed" value="true" />
+      <created>1786715267106</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1786715267106</updated>
+    </task>
+    <option name="localTasksCounter" value="32" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -947,7 +895,8 @@
     <MESSAGE value="优化热门商品redis缓存结构" />
     <MESSAGE value="项目结构优化" />
     <MESSAGE value="推荐算法数据处理代码commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="推荐算法数据处理代码commit" />
+    <MESSAGE value="前端页面优化/适配PC端页面优化commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="前端页面优化/适配PC端页面优化commit" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

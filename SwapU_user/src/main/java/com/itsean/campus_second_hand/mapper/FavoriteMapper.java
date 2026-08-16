@@ -6,6 +6,7 @@ import com.itsean.campus_second_hand.entity.Product;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -34,4 +35,12 @@ public interface FavoriteMapper {
      * @return
      */
     List<Product> pageQuery(FavoritePageQueryDTO favoritePageQueryDTO, Long userId);
+
+    /**
+     * 统计当前用户收藏的商品数量
+     * @param userId
+     * @return
+     */
+    @Select("select count(*) from favorite where user_id = #{userId}")
+    Integer countByUserId(Long userId);
 }

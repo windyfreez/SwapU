@@ -2,6 +2,7 @@ package com.itsean.campus_second_hand.mapper;
 
 import com.itsean.pojo.entity.UserBehaviorLog;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -13,4 +14,20 @@ public interface UserBehaviorLogMapper {
      * @param batchList
      */
     void addBehavior(List<UserBehaviorLog> batchList);
+
+    /**
+     * 查询用户浏览行为列表
+     * @param currentId
+     * @return
+     */
+    @Select("select * from user_behavior_log where user_id = #{currentId} and behavior_type = 1")
+    List<UserBehaviorLog> batchList(Long currentId);
+
+    /**
+     * 统计当前用户浏览记录总数(足迹)
+     * @param userId
+     * @return
+     */
+    @Select("select count(*) from user_behavior_log where user_id = #{userId} and behavior_type = 1")
+    Integer countByUserId(Long userId);
 }
