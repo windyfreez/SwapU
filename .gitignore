@@ -1,0 +1,19 @@
+# ===== 构建产物 =====
+target/
+dist/
+node_modules/
+
+# ===== IDE =====
+.idea/
+*.iml
+.vscode/
+
+# ===== 日志 =====
+*.log
+npm-debug.log*
+
+# ===== 敏感配置 =====
+# 实际 application.yml 含数据库/Redis/OSS 等明文凭据,一律不入库;
+# 以各模块 resources 下的 application.yml.example 为模板复制并自行填写
+**/application.yml
+**/application-*.yml
