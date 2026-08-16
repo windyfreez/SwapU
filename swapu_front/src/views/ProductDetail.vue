@@ -371,7 +371,7 @@ onMounted(() => {
   aspect-ratio: 4 / 3;
   border-radius: var(--radius);
   overflow: hidden;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
 }
 
 .main-image img {
@@ -443,7 +443,7 @@ onMounted(() => {
 }
 
 .status-tag.sold {
-  background: #f3f4f6;
+  background: var(--c-hover);
   color: var(--c-text-3);
 }
 
@@ -495,7 +495,7 @@ onMounted(() => {
 }
 
 .condition-damaged {
-  background: #f3f4f6;
+  background: var(--c-hover);
   color: var(--c-text-2);
 }
 
@@ -509,7 +509,7 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   cursor: pointer;
@@ -518,7 +518,7 @@ onMounted(() => {
 
 .seller-block:hover {
   border-color: var(--c-border-strong);
-  background: #f5f6f8;
+  background: var(--c-hover);
 }
 
 .seller-avatar {
@@ -613,7 +613,7 @@ onMounted(() => {
 .modal-content {
   width: 380px;
   max-width: 90vw;
-  background: #fff;
+  background: var(--c-card);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }

@@ -669,7 +669,7 @@ const fetchUserInfoById = async (userId) => {
   flex: 1;
   padding: 20px;
   overflow-y: auto;
-  background: #fafbfc;
+  background: var(--c-input-bg);
 }
 
 .message-wrapper {
@@ -778,7 +778,7 @@ const fetchUserInfoById = async (userId) => {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   font-size: 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   color: var(--c-text);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -786,7 +786,7 @@ const fetchUserInfoById = async (userId) => {
 .input-field:focus {
   outline: none;
   border-color: var(--c-primary);
-  background: #fff;
+  background: var(--c-card);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 

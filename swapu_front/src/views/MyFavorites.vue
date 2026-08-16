@@ -200,7 +200,7 @@ onMounted(() => {
 .item-image {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
   overflow: hidden;
 }
 

@@ -419,7 +419,7 @@ onMounted(() => {
   max-width: 90vw;
   max-height: 90vh;
   overflow-y: auto;
-  background: #fff;
+  background: var(--c-card);
   border-radius: var(--radius-lg);
 }
 
@@ -467,7 +467,7 @@ onMounted(() => {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   font-size: 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   box-sizing: border-box;
   color: var(--c-text);
   margin-bottom: 16px;
@@ -478,7 +478,7 @@ onMounted(() => {
 .region-input:focus {
   outline: none;
   border-color: var(--c-primary);
-  background: #fff;
+  background: var(--c-card);
 }
 
 .modal-textarea {
@@ -487,7 +487,7 @@ onMounted(() => {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   font-size: 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   box-sizing: border-box;
   color: var(--c-text);
   margin-bottom: 16px;
@@ -507,7 +507,7 @@ onMounted(() => {
   border-radius: var(--radius);
   font-size: 14px;
   color: var(--c-text-2);
-  background: #fff;
+  background: var(--c-card);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -532,7 +532,7 @@ onMounted(() => {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   font-size: 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   box-sizing: border-box;
   color: var(--c-text);
 }
@@ -567,7 +567,7 @@ onMounted(() => {
 }
 
 .btn-cancel {
-  background: #fff;
+  background: var(--c-card);
   border: 1px solid var(--c-border);
   color: var(--c-text-2);
 }

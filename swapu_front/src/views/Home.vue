@@ -436,7 +436,7 @@ const goToDetail = (item) => {
 }
 
 .category-item:hover {
-  background: #f5f6f8;
+  background: var(--c-hover);
 }
 
 .category-icon {
@@ -476,7 +476,7 @@ const goToDetail = (item) => {
 }
 
 .goods-card {
-  background: #fff;
+  background: var(--c-card);
   border: 1px solid var(--c-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -493,7 +493,7 @@ const goToDetail = (item) => {
 .goods-image {
   width: 100%;
   aspect-ratio: 4 / 3;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
   overflow: hidden;
 }
 
@@ -576,13 +576,13 @@ const goToDetail = (item) => {
   padding: 7px 10px;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fafbfc;
+  background: var(--c-input-bg);
 }
 
 .filter-input:focus {
   outline: none;
   border-color: var(--c-primary);
-  background: #fff;
+  background: var(--c-card);
 }
 
 .filter-sep {
@@ -593,7 +593,7 @@ const goToDetail = (item) => {
   padding: 7px 10px;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fafbfc;
+  background: var(--c-input-bg);
   min-width: 130px;
 }
 
@@ -630,7 +630,7 @@ const goToDetail = (item) => {
   padding: 6px 10px;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
 }
 
 .page-nav {
@@ -647,7 +647,7 @@ const goToDetail = (item) => {
   justify-content: center;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
   font-size: 16px;
   color: var(--c-text-2);
   transition: all 0.2s;

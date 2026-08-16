@@ -39,7 +39,7 @@ const showChrome = computed(() => !['/login', '/register'].includes(route.path))
 .app-footer {
   margin-top: 48px;
   border-top: 1px solid var(--c-border);
-  background: #fff;
+  background: var(--c-card);
   padding: 22px 0;
 }
 

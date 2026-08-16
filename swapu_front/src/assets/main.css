@@ -54,7 +54,7 @@
 
 .btn:hover {
   border-color: var(--c-border-strong);
-  background: #fafbfc;
+  background: var(--c-hover);
 }
 
 .btn-primary {
@@ -137,7 +137,7 @@
   padding: 10px 14px;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fafbfc;
+  background: var(--c-input-bg);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -146,12 +146,12 @@
 .form-textarea:focus {
   outline: none;
   border-color: var(--c-primary);
-  background: #fff;
+  background: var(--c-card);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .form-input:disabled {
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
   color: var(--c-text-3);
 }
 
@@ -220,7 +220,7 @@
 }
 
 .badge-gray {
-  background: #f3f4f6;
+  background: var(--c-hover);
   color: var(--c-text-2);
 }
 

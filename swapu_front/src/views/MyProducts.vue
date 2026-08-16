@@ -340,7 +340,7 @@ onMounted(() => {
 }
 
 .filter-tab:hover {
-  background: #f5f6f8;
+  background: var(--c-hover);
   color: var(--c-text);
 }
 
@@ -383,7 +383,7 @@ onMounted(() => {
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
 }
 
 .product-image img {

@@ -414,7 +414,7 @@ onMounted(() => {
 }
 
 .stat-item.link:hover {
-  background: #f5f6f8;
+  background: var(--c-hover);
 }
 
 .stat-item.link:hover .stat-value {
@@ -495,7 +495,7 @@ onMounted(() => {
 }
 
 .preview-item:hover {
-  background: #f5f6f8;
+  background: var(--c-hover);
 }
 
 .preview-thumb {
@@ -503,7 +503,7 @@ onMounted(() => {
   height: 52px;
   border-radius: var(--radius);
   overflow: hidden;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
   flex-shrink: 0;
 }
 

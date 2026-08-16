@@ -344,7 +344,7 @@ onMounted(() => {
   justify-content: center;
   flex-shrink: 0;
   margin-top: 2px;
-  background: #fff;
+  background: var(--c-card);
 }
 
 .address-item.active .address-radio {
@@ -418,7 +418,7 @@ onMounted(() => {
   border-radius: var(--radius);
   object-fit: cover;
   flex-shrink: 0;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
 }
 
 .product-info {
@@ -498,13 +498,13 @@ onMounted(() => {
   border-radius: var(--radius);
   font-size: 16px;
   color: var(--c-text);
-  background: #fafbfc;
+  background: var(--c-input-bg);
 }
 
 .qty-input:focus {
   outline: none;
   border-color: var(--c-primary);
-  background: #fff;
+  background: var(--c-card);
 }
 
 .message-textarea {

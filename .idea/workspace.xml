@@ -4,30 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="前端页面优化/适配PC端页面优化commit">
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/controller/user/ViewController.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/ViewServiceImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/ViewService.java" afterDir="false" />
+    <list default="true" id="e2a647b0-539d-4a91-84da-06742da9e301" name="Changes" comment="浏览历史接口/数据统计接口开发commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/FavoriteMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/FavoriteMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ProductMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/ProductMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/UserBehaviorLogMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/mapper/UserBehaviorLogMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/OrderServiceImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/service/Impl/OrderServiceImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderStatisticsVO.java" beforeDir="false" afterPath="$PROJECT_DIR$/SwapU_user/src/main/java/com/itsean/campus_second_hand/vo/OrderStatisticsVO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133049.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133057.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133103.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133109.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133124.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133137.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133459.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133629.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133729.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133745.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/screenshot/屏幕截图 2026-07-31 133750.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/src/router/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/router/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/App.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/App.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/assets/base.css" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/assets/base.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/assets/main.css" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/assets/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/ChatRoom.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/ChatRoom.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/CreateOrder.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/CreateOrder.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/EditProduct.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/EditProduct.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Home.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Home.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Login.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Login.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Messages.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Messages.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyAddress.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyAddress.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyFavorites.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyFavorites.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyOrders.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyOrders.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyProducts.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyProducts.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/MyWallet.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/MyWallet.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/OrderDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/OrderDetail.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/ProductDetail.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/ProductDetail.vue" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Profile.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Profile.vue" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/swapu_front/vite.config.js" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/vite.config.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Register.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Register.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Sell.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Sell.vue" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/swapu_front/src/views/Settings.vue" beforeDir="false" afterPath="$PROJECT_DIR$/swapu_front/src/views/Settings.vue" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -578,7 +577,7 @@
       <workItem from="1786767532787" duration="2161000" />
       <workItem from="1786799871864" duration="2899000" />
       <workItem from="1786809064872" duration="2543000" />
-      <workItem from="1786855634450" duration="3929000" />
+      <workItem from="1786855634450" duration="4826000" />
     </task>
     <task id="LOCAL-00001" summary="用户模块代码开发">
       <option name="closed" value="true" />
@@ -828,7 +827,15 @@
       <option name="project" value="LOCAL" />
       <updated>1786715267106</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary="浏览历史接口/数据统计接口开发commit">
+      <option name="closed" value="true" />
+      <created>1786859631442</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1786859631442</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -871,7 +878,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="用户模块代码开发" />
     <MESSAGE value="商品模块代码开发" />
     <MESSAGE value="分页查找全部商品功能开发" />
     <MESSAGE value="收藏商品功能代码" />
@@ -896,7 +902,8 @@
     <MESSAGE value="项目结构优化" />
     <MESSAGE value="推荐算法数据处理代码commit" />
     <MESSAGE value="前端页面优化/适配PC端页面优化commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="前端页面优化/适配PC端页面优化commit" />
+    <MESSAGE value="浏览历史接口/数据统计接口开发commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="浏览历史接口/数据统计接口开发commit" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

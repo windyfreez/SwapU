@@ -383,7 +383,7 @@ onMounted(() => {
   padding: 12px 16px;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
@@ -406,7 +406,7 @@ onMounted(() => {
   gap: 8px;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
   padding: 0 14px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
@@ -447,7 +447,7 @@ onMounted(() => {
   padding: 11px 16px;
   text-align: center;
   border-radius: 999px;
-  background: #fff;
+  background: var(--c-card);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
   font-size: 14px;
   color: var(--c-text-2);
@@ -457,7 +457,7 @@ onMounted(() => {
 }
 
 .option-item:hover {
-  background: #f0f3fa;
+  background: var(--c-primary-light);
   color: var(--c-text);
 }
 
@@ -480,7 +480,7 @@ onMounted(() => {
   height: 40px;
   border: none;
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.06);
   font-size: 20px;
   color: var(--c-primary);
@@ -503,7 +503,7 @@ onMounted(() => {
   text-align: center;
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
   font-size: 15px;
   font-weight: 600;
   color: var(--c-text);
@@ -524,14 +524,14 @@ onMounted(() => {
   border-radius: var(--radius);
   color: var(--c-text-2);
   cursor: pointer;
-  background: #fff;
+  background: var(--c-card);
   transition: all 0.2s;
 }
 
 .upload-area:hover {
   border-color: var(--c-primary);
   color: var(--c-primary);
-  background: #fbfcff;
+  background: var(--c-card);
 }
 
 .upload-icon {

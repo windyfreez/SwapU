@@ -174,7 +174,7 @@ onMounted(() => {
   padding: 0 36px;
   border: none;
   border-radius: var(--radius);
-  background: #fff;
+  background: var(--c-card);
   color: var(--c-primary);
   font-size: 15px;
   font-weight: 600;
@@ -182,7 +182,7 @@ onMounted(() => {
 }
 
 .recharge-btn:hover {
-  background: #f0f4ff;
+  background: var(--c-primary-light);
   color: var(--c-primary-hover);
 }
 
@@ -235,7 +235,7 @@ onMounted(() => {
 .modal-content {
   width: 420px;
   max-width: 90vw;
-  background: #fff;
+  background: var(--c-card);
   border-radius: var(--radius-lg);
   overflow: hidden;
 }
@@ -286,7 +286,7 @@ onMounted(() => {
   border-radius: var(--radius);
   font-size: 14px;
   color: var(--c-text-2);
-  background: #fff;
+  background: var(--c-card);
   cursor: pointer;
   transition: all 0.15s;
 }
@@ -308,7 +308,7 @@ onMounted(() => {
   border: 1px solid var(--c-border);
   border-radius: var(--radius);
   font-size: 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   color: var(--c-text);
   box-sizing: border-box;
 }
@@ -316,7 +316,7 @@ onMounted(() => {
 .amount-input:focus {
   outline: none;
   border-color: var(--c-primary);
-  background: #fff;
+  background: var(--c-card);
 }
 
 .modal-footer {

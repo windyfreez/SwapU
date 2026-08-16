@@ -663,7 +663,7 @@ onMounted(() => {
 
 .role-switch {
   display: inline-flex;
-  background: #f3f4f6;
+  background: var(--c-hover);
   border-radius: var(--radius);
   padding: 4px;
 }
@@ -706,7 +706,7 @@ onMounted(() => {
 }
 
 .status-tab:hover {
-  background: #f5f6f8;
+  background: var(--c-hover);
 }
 
 .status-tab.active {
@@ -800,7 +800,7 @@ onMounted(() => {
   border-radius: var(--radius);
   object-fit: cover;
   flex-shrink: 0;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
 }
 
 .product-info {

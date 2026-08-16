@@ -252,7 +252,7 @@ onActivated(() => {
 }
 
 .session-row:hover {
-  background: #fafbfc;
+  background: var(--c-input-bg);
 }
 
 .avatar {
@@ -312,7 +312,7 @@ onActivated(() => {
   align-items: center;
   gap: 6px;
   padding: 3px 10px;
-  background: #f3f4f6;
+  background: var(--c-hover);
   border-radius: var(--radius);
   font-size: 12px;
   color: var(--c-text-2);

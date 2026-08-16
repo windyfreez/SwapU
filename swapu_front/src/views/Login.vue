@@ -128,14 +128,14 @@ const goToRegister = () => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(160deg, #f5f6f8 0%, #e8eefb 100%);
+  background: linear-gradient(160deg, var(--c-hover) 0%, var(--c-primary-light) 100%);
   padding: 20px;
 }
 
 .auth-card {
   width: 100%;
   max-width: 420px;
-  background: #fff;
+  background: var(--c-card);
   border-radius: 16px;
   padding: 44px 40px 36px;
   box-shadow: 0 8px 40px rgba(16, 24, 40, 0.1);

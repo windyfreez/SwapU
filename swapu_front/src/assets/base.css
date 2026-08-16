@@ -24,6 +24,9 @@
   --c-border-strong: #d1d5db;
   --c-bg: #f5f6f8;
   --c-card: #ffffff;
+  --c-hover: #f5f6f8;
+  --c-input-bg: #fafbfc;
+  --c-disabled-bg: #f0f1f3;
 
   /* 圆角 / 阴影 */
   --radius: 8px;
@@ -34,6 +37,37 @@
   /* 布局 */
   --nav-height: 64px;
   --container-width: 1200px;
+}
+
+/* ============================================
+   深色主题
+   通过 <html data-theme="dark"> 启用,
+   切换按钮位于导航栏,偏好保存在 localStorage('theme')
+   ============================================ */
+[data-theme='dark'] {
+  /* 状态色浅底在深色下压暗 */
+  --c-primary-light: #1e3a5f;
+  --c-success-light: #14532d;
+  --c-warning-light: #451a03;
+  --c-danger-light: #450a0a;
+
+  /* 文字 / 边框 */
+  --c-text: #e5e7eb;
+  --c-text-2: #9ca3af;
+  --c-text-3: #6b7280;
+  --c-border: #374151;
+  --c-border-strong: #4b5563;
+
+  /* 表面色 */
+  --c-bg: #0f172a;
+  --c-card: #1e293b;
+  --c-hover: #334155;
+  --c-input-bg: #111827;
+  --c-disabled-bg: #111827;
+
+  /* 阴影压暗 */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.45);
 }
 
 *,

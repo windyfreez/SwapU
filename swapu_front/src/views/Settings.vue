@@ -69,7 +69,7 @@ onMounted(() => {
 }
 
 .menu-item:hover {
-  background: #f5f6f8;
+  background: var(--c-hover);
 }
 
 .menu-item + .menu-item {

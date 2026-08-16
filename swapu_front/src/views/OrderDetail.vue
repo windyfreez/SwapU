@@ -714,8 +714,8 @@ onMounted(() => {
 /* 状态条 */
 .status-card {
   padding: 24px 28px;
-  background: linear-gradient(120deg, #eff6ff 0%, #dbeafe 100%);
-  border: 1px solid #bfdbfe;
+  background: linear-gradient(120deg, var(--c-primary-light) 0%, var(--c-primary-dark) 100%);
+  border: 1px solid var(--c-primary);
 }
 
 .status-badge {
@@ -724,7 +724,7 @@ onMounted(() => {
   border-radius: 999px;
   font-size: 15px;
   font-weight: 600;
-  background: #fff;
+  background: var(--c-card);
   margin-bottom: 10px;
 }
 
@@ -789,7 +789,7 @@ onMounted(() => {
   border-radius: var(--radius);
   object-fit: cover;
   flex-shrink: 0;
-  background: #f0f1f3;
+  background: var(--c-disabled-bg);
 }
 
 .product-detail {
@@ -896,7 +896,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 10px;
   padding: 12px 14px;
-  background: #fafbfc;
+  background: var(--c-input-bg);
   border-radius: var(--radius);
 }
 
