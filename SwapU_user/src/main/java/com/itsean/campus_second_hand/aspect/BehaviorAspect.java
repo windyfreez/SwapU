@@ -66,6 +66,10 @@ public class BehaviorAspect {
 
             // userId：当前登录用户
             Long userId = BaseContext.getCurrentId();//BaseContext.getCurrentId()为null是因为拦截器未拦截该接口
+            if(userId == null) {
+                log.warn("游客未登录，跳过行为埋点 method={}", methodName);
+                return;
+            }
             // productId：按方法签名从入参提取
             Long productId = extractProductId(methodName, args);
             if (productId == null) {

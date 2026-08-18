@@ -3,6 +3,7 @@ package com.itsean.campus_second_hand.config;
 import com.itsean.campus_second_hand.constant.JwtClaimsConstant;
 import com.itsean.campus_second_hand.context.BaseContext;
 import com.itsean.campus_second_hand.interceptor.JwtTokenUserInterceptor;
+import com.itsean.campus_second_hand.interceptor.UserContextInterceptor;
 import com.itsean.campus_second_hand.properties.JwtProperties;
 import com.itsean.campus_second_hand.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
@@ -33,6 +34,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
     private JwtTokenUserInterceptor jwtTokenUserInterceptor;
+    @Autowired
+    private UserContextInterceptor userContextInterceptor;
     @Autowired
     private JwtProperties jwtProperties;
 
@@ -87,52 +90,23 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
-        log.info("当前线程的ID:"+Thread.currentThread().getId());
-
-        if (!(handler instanceof HandlerMethod)) {
-            return true;
-        }
-
-        String token = request.getHeader(jwtProperties.getUserTokenName());
-
-        if (token == null || token.isEmpty()) {
-            log.warn("请求头中未携带token，路径:{}", request.getRequestURI());
-            response.setStatus(401);
-            return false;
-        }
-
-        try {
-            log.info("jwt校验:{}", token);
-            Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
-            Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
-            log.info("当前用户id：{}", userId);
-            BaseContext.setCurrentId(userId);
-            return true;
-        } catch (Exception ex) {
-            log.error("JWT解析失败:{}", ex.getMessage());
-            response.setStatus(401);
-            return false;
-        }
-    }
-
-
     /**
      * 注册自定义拦截器
      * @param registry
      */
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
-
+        registry.addInterceptor(userContextInterceptor)
+                .addPathPatterns("/**");
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/**")
+                //排除以下接口保证游客也可以访问分类、热门商品、全部商品和商品细节
                 .excludePathPatterns("/user/login", "/user/register")
                 .excludePathPatterns("/category/list")
+                .excludePathPatterns("/product/detail/**")
+                .excludePathPatterns("/product/list")
                 .excludePathPatterns("/product/hot")
                 .excludePathPatterns("/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/swagger-ui.html/**");
-
     }
-
 
 }

@@ -1,6 +1,5 @@
 package com.itsean.campus_second_hand.service.Impl;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.itsean.campus_second_hand.context.BaseContext;
@@ -14,7 +13,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.awt.image.BandCombineOp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,13 +36,12 @@ public class ViewServiceImpl implements ViewService {
         Long currentId = BaseContext.getCurrentId();
         log.info("当前ID:{}", currentId);
 
-        // 1. 查询用户的行为日志（已被 PageHelper 分页拦截）
         List<UserBehaviorLog> behaviorLogList = userBehaviorLogMapper.batchList(currentId);
 
-        // 2. 用 PageInfo 获取分页的统计信息（如总记录数 total）
+        //用 PageInfo 获取分页的统计信息
         PageInfo<UserBehaviorLog> pageInfo = new PageInfo<>(behaviorLogList);
 
-        // 3. 将行为日志列表转换为 Product 列表
+        //将行为日志列表转换为 Product 列表
         List<Product> productList = new ArrayList<>();
         for (UserBehaviorLog behaviorLog : behaviorLogList) {
             Product product = productMapper.getProductById(behaviorLog.getProductId());
@@ -53,7 +50,7 @@ public class ViewServiceImpl implements ViewService {
             }
         }
 
-        // 4. 使用 PageInfo 的 total 和转换后的 productList 构造返回结果
+        //使用 PageInfo 的 total 和转换后的 productList 构造返回结果
         return new PageResult(pageInfo.getTotal(), productList);
     }
 }

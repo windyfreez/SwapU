@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static com.itsean.campus_second_hand.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
 
@@ -38,15 +39,16 @@ public class HotProductTask {
                 return;
             }
             String redisKey = StringConstant.HOT_PRODUCTS_REDIS_KEY;
-            stringRedisTemplate.delete(redisKey);
-
-            if (!hotProducts.isEmpty()) {
-                hotProducts.forEach(hotProduct -> {
-                    String key = redisKey + hotProduct.getId();
-                    stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(hotProduct));
-                });
-                log.info("热门商品刷新完成，共 {} 个商品", hotProducts.size());
+            Set<String> oldKeys = stringRedisTemplate.keys(redisKey + "*");
+            if (oldKeys != null && !oldKeys.isEmpty()) {
+                stringRedisTemplate.delete(oldKeys);
             }
+
+            hotProducts.forEach(hotProduct -> {
+                String key = redisKey + hotProduct.getId();
+                stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(hotProduct));
+            });
+            log.info("热门商品刷新完成，共 {} 个商品", hotProducts.size());
 
         } catch (Exception e) {
             log.error("刷新热门商品失败", e);

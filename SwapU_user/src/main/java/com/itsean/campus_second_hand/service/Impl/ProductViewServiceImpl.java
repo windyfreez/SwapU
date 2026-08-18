@@ -1,5 +1,6 @@
 package com.itsean.campus_second_hand.service.Impl;
 
+import com.itsean.campus_second_hand.context.BaseContext;
 import com.itsean.campus_second_hand.service.ProductViewService;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,10 @@ public class ProductViewServiceImpl implements ProductViewService {
      */
     @Override
     public void incrementViewCount(Long productId) {
+        Long currentId = BaseContext.getCurrentId();
+        if(currentId == null){
+            return;//游客的访问量不作记录
+        }
         String key = PRODUCT_VIEW_PREFIX + productId;
         stringRedisTemplate.opsForValue().increment(key, 1);
     }
