@@ -138,5 +138,16 @@ public class ProductController {
         return productService.top20List();
     }
 
+    /**
+     * 获取个性化推荐商品
+     * @param limit
+     * @return
+     */
+    @ApiOperation("获取个性化推荐商品")
+    @GetMapping("/recommend")
+    public Result recommend(@RequestParam(required = false, defaultValue = "20") Integer limit) {
+        return productService.recommend(limit);
+    }
+
 
 }

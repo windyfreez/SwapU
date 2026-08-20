@@ -74,4 +74,10 @@ public interface ProductMapper {
      * @return
      */
     List<Product> selectHotProducts(@Param("limit") int limit);
+
+    List<Product> selectRecommendProducts(@Param("categoryIds") List<Long> categoryIds,
+                                           @Param("limit") int limit,
+                                           @Param("userId") Long userId);
+
+    List<Product> selectNewProducts(@Param("limit") int limit, @Param("userId") Long userId);
 }

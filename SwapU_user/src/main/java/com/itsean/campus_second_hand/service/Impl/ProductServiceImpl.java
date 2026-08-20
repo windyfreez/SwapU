@@ -33,6 +33,10 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Comparator;
 import java.util.stream.Collectors;
 
 import static com.itsean.campus_second_hand.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
@@ -289,6 +293,58 @@ public class ProductServiceImpl implements ProductService {
             stringRedisTemplate.opsForValue().set(littleKey, JSONUtil.toJsonStr(hotProduct));
         });
         return Result.success(hotProductList);
+    }
+
+    /**
+     * 推荐算法
+     * @param limit
+     * @return
+     */
+    @Override
+    public Result recommend(Integer limit) {
+        int size = limit == null ? 20 : Math.max(1, Math.min(limit, 50));
+        Long userId = BaseContext.getCurrentId();
+        Map<Object, Object> profile = userId == null ? Collections.emptyMap() :
+                stringRedisTemplate.opsForHash().entries(StringConstant.USER_PROFILE_REDIS_KEY_PREFIX + userId);
+
+        List<Long> categoryIds = profile.entrySet().stream()
+                .filter(e -> !"_updatedAt".equals(String.valueOf(e.getKey())))
+                .sorted((a, b) -> Double.compare(parseScore(b.getValue()), parseScore(a.getValue())))
+                .limit(5).map(e -> Long.valueOf(String.valueOf(e.getKey()))).collect(Collectors.toList());
+
+        Map<Long, Product> products = new LinkedHashMap<>();
+        Map<Long, Double> scores = new HashMap<>();
+        if (!categoryIds.isEmpty()) {
+            for (Product p : productMapper.selectRecommendProducts(categoryIds, size * 3, userId)) {
+                products.putIfAbsent(p.getId(), p);
+                scores.merge(p.getId(), 0.6, Double::sum);
+            }
+        }
+        for (Product p : productMapper.selectHotProducts(size * 2)) {
+            if (userId == null || !userId.equals(p.getUserId())) {
+                products.putIfAbsent(p.getId(), p);
+                scores.merge(p.getId(), categoryIds.isEmpty() ? 0.7 : 0.3, Double::sum);
+            }
+        }
+        for (Product p : productMapper.selectNewProducts(size * 2, userId)) {
+            products.putIfAbsent(p.getId(), p);
+            scores.merge(p.getId(), categoryIds.isEmpty() ? 0.3 : 0.2, Double::sum);
+        }
+        List<Product> result = products.values().stream()
+                .filter(p -> p.getStatus() != null && p.getStatus() == 1)
+                .sorted(Comparator.comparingDouble((Product p) -> scores.getOrDefault(p.getId(), 0D)).reversed()
+                        .thenComparing(Product::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder())))
+                .limit(size).collect(Collectors.toList());
+        return Result.success(result);
+    }
+
+    private double parseScore(Object value) {
+        try {
+            return Double.parseDouble(String.valueOf(value));
+        }
+        catch (Exception e) {
+            return 0D;
+        }
     }
 
 }

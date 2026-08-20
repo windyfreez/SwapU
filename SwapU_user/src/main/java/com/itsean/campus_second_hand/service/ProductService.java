@@ -67,4 +67,11 @@ public interface ProductService {
      * @return
      */
     Result top20List();
+
+    /**
+     * 推荐接口
+     * @param limit
+     * @return
+     */
+    Result recommend(Integer limit);
 }

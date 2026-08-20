@@ -158,4 +158,20 @@
             LIMIT #{limit}
     </select>
 
+    <select id="selectRecommendProducts" resultMap="ProductResultMap">
+        SELECT * FROM product WHERE status = 1
+        <if test="userId != null">AND user_id != #{userId}</if>
+        AND category_id IN
+        <foreach collection="categoryIds" item="categoryId" open="(" separator="," close=")">
+            #{categoryId}
+        </foreach>
+        ORDER BY view_count DESC, create_time DESC LIMIT #{limit}
+    </select>
+
+    <select id="selectNewProducts" resultMap="ProductResultMap">
+        SELECT * FROM product WHERE status = 1
+        <if test="userId != null">AND user_id != #{userId}</if>
+        ORDER BY create_time DESC LIMIT #{limit}
+    </select>
+
 </mapper>

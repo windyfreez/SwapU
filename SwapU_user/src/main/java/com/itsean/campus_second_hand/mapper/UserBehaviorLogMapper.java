@@ -30,4 +30,7 @@ public interface UserBehaviorLogMapper {
      */
     @Select("select count(*) from user_behavior_log where user_id = #{userId} and behavior_type = 1")
     Integer countByUserId(Long userId);
+
+    @Select("select * from user_behavior_log where create_time >= DATE_SUB(NOW(), INTERVAL 90 DAY)")
+    List<UserBehaviorLog> listRecentBehaviors();
 }
