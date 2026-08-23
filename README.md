@@ -1,4 +1,7 @@
 <div align="center">
+
+  <img width="666" height="666" alt="logo" src="https://github.com/user-attachments/assets/0649d632-c079-4d02-932f-1431019b4145" />
+
   
   <h1>SwapU 云市集</h1>
   <p><b>一个采用前后端分离架构设计的云端市集平台</b></p>
