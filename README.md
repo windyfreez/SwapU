@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img width="666" height="666" alt="logo" src="https://github.com/user-attachments/assets/0649d632-c079-4d02-932f-1431019b4145" />
+  <img width="166" height="166" alt="logo" src="https://github.com/user-attachments/assets/0649d632-c079-4d02-932f-1431019b4145" />
 
   
   <h1>SwapU 云市集</h1>
