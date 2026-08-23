@@ -95,4 +95,22 @@ public class ChatServiceImpl implements ChatService {
         chatMapper.markMessagesAsRead(currentUserId, fromUserId);
         log.info("用户{}标记来自用户{}的消息为已读", currentUserId, fromUserId);
     }
+
+    /**
+     * 系统发提醒消息
+     * @param chatMessageDTO
+     */
+    @Override
+    public void systemSendMessage(ChatMessageDTO chatMessageDTO) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setFromUserId(33L);
+        chatMessage.setToUserId(chatMessageDTO.getToUserId());
+        chatMessage.setProductId(chatMessageDTO.getProductId());
+        chatMessage.setMessageType(chatMessageDTO.getMessageType() != null ? chatMessageDTO.getMessageType() : 1);
+        chatMessage.setMessage(chatMessageDTO.getContent());
+        chatMessage.setIsRead(0);
+        chatMessage.setCreateTime(LocalDateTime.now());
+        chatMapper.insertMessage(chatMessage);
+
+    }
 }

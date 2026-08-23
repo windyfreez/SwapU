@@ -83,4 +83,10 @@ public class ChatController {
         chatService.markMessagesAsRead(markReadDTO.getFromUserId());
         return Result.success("已标记已读");
     }
+
+    @PostMapping("/system/send")
+    public Result systemSendMessage(ChatMessageDTO chatMessageDTO){
+        chatService.systemSendMessage(chatMessageDTO);
+        return Result.success("系统发送提醒消息成功");
+    }
 }

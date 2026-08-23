@@ -5,6 +5,8 @@ import com.github.pagehelper.PageHelper;
 import com.itsean.campus_second_hand.constant.MessageConstant;
 import com.itsean.campus_second_hand.constant.NumberConstant;
 import com.itsean.campus_second_hand.context.BaseContext;
+import com.itsean.campus_second_hand.controller.user.ChatController;
+import com.itsean.campus_second_hand.dto.*;
 import com.itsean.campus_second_hand.dto.*;
 import com.itsean.campus_second_hand.entity.Order;
 import com.itsean.campus_second_hand.entity.Product;
@@ -47,6 +49,8 @@ public class OrderServiceImpl implements OrderService {
     private FavoriteMapper favoriteMapper;
     @Autowired
     private UserBehaviorLogMapper userBehaviorLogMapper;
+    @Autowired
+    private ChatController chatController;
 
     /**
      * 创建订单
@@ -92,18 +96,19 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //补全其他属性
+        Long sellerId = productDetail.getSellerInfo().getId();
+        Long buyerId = BaseContext.getCurrentId();
         order.setAddressId(orderDTO.getAddressId());
         order.setStatus(Order.ORDER_STATUS_WAIT_ACCEPT);
         order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
         order.setExpireTime(LocalDateTime.now().plusMinutes(30));
         order.setCreateTime(LocalDateTime.now());
         if(!BaseContext.getCurrentId().equals(productDetail.getSellerInfo().getId())){
-            order.setBuyerId(BaseContext.getCurrentId());
-            order.setSellerId(productDetail.getSellerInfo().getId());
+            order.setBuyerId(buyerId);
+            order.setSellerId(sellerId);
         }else{
             throw new OrderException(MessageConstant.CANT_BUY_YOURSELF_PRODUCT);
         }
-
 
         //实体类存入数据库
         Product product = new Product();
@@ -112,6 +117,14 @@ public class OrderServiceImpl implements OrderService {
         BeanUtils.copyProperties(order,orderVO);
         orderMapper.add(order);
 
+        //系统消息提醒卖家确认订单
+        com.itsean.pojo.dto.ChatMessageDTO chatMessageDTO = new com.itsean.pojo.dto.ChatMessageDTO();
+        String productName = productDetail.getTitle();
+        chatMessageDTO.setToUserId(sellerId);
+        chatMessageDTO.setMessageType(1);
+        chatMessageDTO.setContent("有人拍下您的“" + productName + "”，请尽快确认订单。");
+        chatMessageDTO.setProductId(productId);
+        chatController.systemSendMessage(chatMessageDTO);
         return orderVO;
     }
 

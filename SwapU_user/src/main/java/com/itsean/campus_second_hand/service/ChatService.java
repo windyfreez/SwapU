@@ -36,4 +36,10 @@ public interface ChatService {
      * @param fromUserId
      */
     void markMessagesAsRead(Long fromUserId);
+
+    /**
+     * 系统发提醒消息
+     * @param chatMessageDTO
+     */
+    void systemSendMessage(ChatMessageDTO chatMessageDTO);
 }
