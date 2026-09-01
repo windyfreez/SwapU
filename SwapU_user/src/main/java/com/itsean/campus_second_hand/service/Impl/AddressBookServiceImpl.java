@@ -1,4 +1,4 @@
-package com.itsean.campus_second_hand.service.Impl;
+package com.itsean.campus_second_hand.service.impl;
 
 import com.itsean.campus_second_hand.context.BaseContext;
 import com.itsean.campus_second_hand.entity.AddressBook;

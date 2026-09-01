@@ -1,4 +1,4 @@
-package com.itsean.swapu_admin.service.Impl;
+package com.itsean.swapu_admin.service.impl;
 
 import com.itsean.swapu_admin.service.ProductViewService;
 import org.springframework.data.redis.core.StringRedisTemplate;

@@ -1,4 +1,4 @@
-package com.itsean.campus_second_hand.service.Impl;
+package com.itsean.campus_second_hand.service.impl;
 
 import cn.hutool.json.JSON;
 import cn.hutool.json.JSONUtil;

@@ -1,4 +1,4 @@
-package com.itsean.campus_second_hand.service.Impl;
+package com.itsean.campus_second_hand.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;

@@ -1,4 +1,4 @@
-package com.itsean.swapu_admin.service.Impl;
+package com.itsean.swapu_admin.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;

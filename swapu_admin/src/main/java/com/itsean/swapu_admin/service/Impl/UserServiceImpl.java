@@ -1,4 +1,4 @@
-package com.itsean.swapu_admin.service.Impl;
+package com.itsean.swapu_admin.service.impl;
 
 import com.itsean.swapu_admin.constant.MessageConstant;
 import com.itsean.swapu_admin.constant.NumberConstant;

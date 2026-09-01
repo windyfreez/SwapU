@@ -1,4 +1,4 @@
-package com.itsean.campus_second_hand.service.Impl;
+package com.itsean.campus_second_hand.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
@@ -77,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
         BigDecimal unitPrice = productDetail.getPrice();
         Integer needQuantity = orderDTO.getQuantity();
         Integer stockQuantity = productDetail.getQuantity();
+
         //判断库存是否充足
         if (stockQuantity < needQuantity) {
             throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
