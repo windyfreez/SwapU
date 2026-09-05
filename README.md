@@ -405,18 +405,27 @@ erDiagram
 ### 用户管理模块
 
 用户管理模块负责系统用户的身份认证与基础信息维护，是平台运行的基础模块。系统支持用户注册、登录、密码修改以及个人信息更新等功能，并通过 JWT 实现用户身份认证与权限校验。同时，用户可查看个人资料以及管理自己的收藏商品，为后续商品浏览和交易活动提供支持。
+<img width="946" height="454" alt="屏幕截图 2026-09-05 132349" src="https://github.com/user-attachments/assets/f54afbcd-6c2c-4ed7-9f15-0d3641e66533" />
+<img width="943" height="440" alt="屏幕截图 2026-09-05 132338" src="https://github.com/user-attachments/assets/a4daf817-5f5a-4c0d-92bb-abd65d875e2d" />
 
 ### 商品管理模块
 
 商品管理模块负责闲置商品信息的发布、维护与展示。系统提供商品分类查询、商品发布、商品编辑、商品下架、商品删除以及商品详情查看等功能，并支持分页查询和热门商品推荐。通过规范化管理商品信息，提高了商品展示效果和用户检索效率，为买卖双方提供便捷的交易环境。
+<img width="946" height="444" alt="屏幕截图 2026-09-05 132331" src="https://github.com/user-attachments/assets/a2cf5a51-2b52-4416-b1fb-c10b7aebec12" />
+<img width="1895" height="905" alt="屏幕截图 2026-09-05 131908" src="https://github.com/user-attachments/assets/e524ef55-0146-429a-a325-1c7088891601" />
+<img width="1892" height="899" alt="屏幕截图 2026-09-05 131938" src="https://github.com/user-attachments/assets/ed50d18f-6ce2-4ad3-8fcc-9b7c5192c367" />
 
 ### 订单管理模块
 
 订单管理模块用于实现交易流程的标准化管理。买家可在线创建订单、支付订单或取消订单；卖家可对订单进行确认接单和发货操作；买家在收到商品后可确认收货，从而完成整个交易流程。系统还支持订单详情查询、订单分页查询以及订单统计分析等功能，实现交易全过程的可追溯管理。
+<img width="947" height="452" alt="屏幕截图 2026-09-05 132318" src="https://github.com/user-attachments/assets/b75badfa-0cdd-45ca-863d-f2a68085de1b" />
+
 
 ### 即时通讯模块
 
 即时通讯模块基于 WebSocket 技术实现买卖双方的实时消息交互。系统支持会话列表查询、历史消息查询、消息发送以及消息已读状态同步等功能。聊天消息在数据库中进行持久化存储，确保用户能够随时查看历史沟通记录，提高交易沟通效率和用户体验。
+<img width="1907" height="900" alt="屏幕截图 2026-09-05 132001" src="https://github.com/user-attachments/assets/ab1bd1b2-a418-4313-b0f6-257a57acbf62" />
+
 
 ### 辅助服务模块
 
