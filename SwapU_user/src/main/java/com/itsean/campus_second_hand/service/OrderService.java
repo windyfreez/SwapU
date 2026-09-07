@@ -77,4 +77,13 @@ public interface OrderService {
      * @return
      */
     OrderStatisticsVO getOrderStatistics();
+
+    /**
+     * 超时取消订单：条件取消并回补库存，已支付订单（余额支付）同步退款
+     * @param order
+     * @param reason
+     * @param needRefund
+     * @return 是否真正取消了订单
+     */
+    boolean cancelTimeoutOrder(Order order, String reason, boolean needRefund);
 }

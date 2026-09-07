@@ -338,6 +338,15 @@ public class ProductServiceImpl implements ProductService {
         return Result.success(result);
     }
 
+    /**
+     * 失效热门商品缓存（库存变更后调用，避免回显旧库存/已售罄商品）
+     * @param productId
+     */
+    @Override
+    public void evictHotCache(Long productId) {
+        stringRedisTemplate.delete(HOT_PRODUCTS_REDIS_KEY + productId);
+    }
+
     private double parseScore(Object value) {
         try {
             return Double.parseDouble(String.valueOf(value));

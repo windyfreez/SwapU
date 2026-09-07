@@ -31,6 +31,7 @@ public class MessageConstant {
 
     //4.商品类信息提示
     public static final String CANT_SEARCH_HOT_PRODUCTS = "未查询到热门商品数据";
+    public static final String PRODUCT_NOT_EXIST = "商品不存在或已下架";
 
     //5.商品类型信息提示
     public static final String CATEGORY_NOT_EXIST = "商品类型不存在";

@@ -77,7 +77,7 @@ public class SystemMessageAspect {
         }else if(methodName.equals("payOrder")) {
             //2.支付订单后：发给卖家，催发货
             chatMessageDTO.setToUserId(sellerId);
-            chatMessageDTO.setContent("您的“" + productTitle + "”买家已接单，请尽快发货。");
+            chatMessageDTO.setContent("您的“" + productTitle + "”买家已支付，请尽快发货。");
         }else if(methodName.equals("deliverOrder")) {
             //2.订单发货后：发给买家，催收货
             chatMessageDTO.setToUserId(buyerId);

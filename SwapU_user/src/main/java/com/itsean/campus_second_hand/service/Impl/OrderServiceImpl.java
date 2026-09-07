@@ -20,7 +20,9 @@ import com.itsean.campus_second_hand.mapper.UserBehaviorLogMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.OrderService;
 import com.itsean.campus_second_hand.service.ProductService;
+import com.itsean.campus_second_hand.service.StockService;
 import com.itsean.campus_second_hand.vo.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,9 +36,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+@Slf4j
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    @Autowired
+    private StockService stockService;
     @Autowired
     private ProductService productService;
     @Autowired
@@ -62,70 +67,93 @@ public class OrderServiceImpl implements OrderService {
     public OrderVO createOrder(OrderDTO orderDTO) {
         Order order = new Order();
         OrderVO orderVO = new OrderVO();
-        BeanUtils.copyProperties(orderDTO,order);
+        BeanUtils.copyProperties(orderDTO, order);
 
-        //获取商品信息并且更改商品状态
         Long productId = orderDTO.getProductId();
-        ProductDetailVO productDetail = productService.getProductById(productId);
-
-        //补全商品标题和封面图属性
-        order.setProductImage(productDetail.getImages().get(0));
-        order.setProductTitle(productDetail.getTitle());
-        order.setOrderNo(generateOrderNo());
-
-        //计算商品价格并补充属性
-        BigDecimal unitPrice = productDetail.getPrice();
         Integer needQuantity = orderDTO.getQuantity();
-        Integer stockQuantity = productDetail.getQuantity();
 
-        //判断库存是否充足
-        if (stockQuantity < needQuantity) {
-            throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
-        }else{
-            order.setQuantity(needQuantity);
-            productDetail.setQuantity(stockQuantity - needQuantity);
+        //1.读 DB 实时库存（绕开热门商品缓存，避免扣减基于脏快照）
+        Product product = productMapper.getProductById(productId);
+        if (product == null) {
+            throw new OrderException(MessageConstant.PRODUCT_NOT_EXIST);
         }
-        order.setUnitPrice(unitPrice);
-        order.setAmount(unitPrice.multiply(new BigDecimal(needQuantity)));
-        productDetail.setQuantity(stockQuantity - needQuantity);
-        //扣减商品库存，更改商品状态
-        if(stockQuantity == needQuantity){
-            productDetail.setStatus(NumberConstant.PRODUCT_STATUS_SOLD_OUT);
-        }else{
-            //还有库存，还可以出售
-            productDetail.setStatus(NumberConstant.PRODUCT_STATUS_SELLING);
-        }
+        Integer stockQuantity = product.getQuantity();
 
-        //补全其他属性
-        Long sellerId = productDetail.getSellerInfo().getId();
+        //2.前置校验不能购买自己的商品
+        Long sellerId = product.getUserId();
         Long buyerId = BaseContext.getCurrentId();
-        order.setAddressId(orderDTO.getAddressId());
-        order.setStatus(Order.ORDER_STATUS_WAIT_ACCEPT);
-        order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
-        order.setExpireTime(LocalDateTime.now().plusMinutes(30));
-        order.setCreateTime(LocalDateTime.now());
-        if(!BaseContext.getCurrentId().equals(productDetail.getSellerInfo().getId())){
-            order.setBuyerId(buyerId);
-            order.setSellerId(sellerId);
-        }else{
+        if (buyerId.equals(sellerId)) {
             throw new OrderException(MessageConstant.CANT_BUY_YOURSELF_PRODUCT);
         }
 
-        //实体类存入数据库
-        Product product = new Product();
-        BeanUtils.copyProperties(productDetail,product);
-        productMapper.update(product);
-        BeanUtils.copyProperties(order,orderVO);
-        orderMapper.add(order);
+        //3.Redis 预扣（尽力而为，异常降级为纯 DB 扣减）
+        boolean redisDeducted = false;
+        try {
+            stockService.initIfAbsent(productId, stockQuantity);
+            if (!stockService.preDeduct(productId, needQuantity)) {
+                throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
+            }
+            redisDeducted = true;
+        } catch (OrderException e) {
+            throw e;
+        } catch (Exception e) {
+            log.warn("Redis 预扣库存异常，降级为纯 DB 扣减, productId={}", productId, e);
+        }
 
-        //系统消息提醒卖家确认订单
-        com.itsean.pojo.dto.ChatMessageDTO chatMessageDTO = new com.itsean.pojo.dto.ChatMessageDTO();
-        String productName = productDetail.getTitle();
-        chatMessageDTO.setToUserId(sellerId);
-        chatMessageDTO.setMessageType(1);
-        chatMessageDTO.setContent("有人拍下您的“" + productName + "”，请尽快确认订单。");
-        chatMessageDTO.setProductId(productId);
-        chatController.systemSendMessage(chatMessageDTO);
+        //4.DB 原子扣减 + 写订单，任何失败回滚 Redis 预扣
+        try {
+            int affected = productMapper.deductStock(productId, needQuantity, LocalDateTime.now());
+            if (affected != 1) {
+                throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
+            }
+
+            //降级路径下 Redis 未预扣，扣减成功后同步 Redis 为最新值
+            if (!redisDeducted) {
+                try {
+                    stockService.syncStock(productId, stockQuantity - needQuantity);
+                } catch (Exception e) {
+                    log.warn("Redis 库存同步异常，交由对账任务兜底, productId={}", productId, e);
+                }
+            }
+
+            //补全订单属性（从 DB 实体取数，而非缓存快照）
+            order.setProductImage(product.getImages().get(0));
+            order.setProductTitle(product.getTitle());
+            order.setOrderNo(generateOrderNo());
+            order.setQuantity(needQuantity);
+            order.setUnitPrice(product.getPrice());
+            order.setAmount(product.getPrice().multiply(new BigDecimal(needQuantity)));
+            order.setAddressId(orderDTO.getAddressId());
+            order.setBuyerId(buyerId);
+            order.setSellerId(sellerId);
+            order.setStatus(Order.ORDER_STATUS_WAIT_ACCEPT);
+            order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
+            order.setExpireTime(LocalDateTime.now().plusMinutes(30));
+            order.setCreateTime(LocalDateTime.now());
+            orderMapper.add(order);
+
+            //库存变更后穿透热门商品缓存，避免回显旧库存/已售罄商品
+            try {
+                productService.evictHotCache(productId);
+            } catch (Exception e) {
+                log.warn("热门商品缓存失效异常, productId={}", productId, e);
+            }
+
+            //系统消息提醒卖家确认订单
+            com.itsean.pojo.dto.ChatMessageDTO chatMessageDTO = new com.itsean.pojo.dto.ChatMessageDTO();
+            chatMessageDTO.setToUserId(sellerId);
+            chatMessageDTO.setMessageType(1);
+            chatMessageDTO.setContent("有人拍下您的“" + product.getTitle() + "”，请尽快确认订单。");
+            chatMessageDTO.setProductId(productId);
+            chatController.systemSendMessage(chatMessageDTO);
+        } catch (RuntimeException e) {
+            if (redisDeducted) {
+                stockService.rollbackPreDeduct(productId, needQuantity);
+            }
+            throw e;
+        }
+
+        BeanUtils.copyProperties(order, orderVO);
         return orderVO;
     }
 
@@ -180,29 +208,99 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 取消订单
+     * 取消订单（待确认/待支付），回补库存
      * @param orderCancelDTO
      * @return
      */
     @Override
+    @Transactional
     public OrderCancelVO cancelOrder(OrderCancelDTO orderCancelDTO) {
         String orderNo = orderCancelDTO.getOrderNo();
         Order order = orderMapper.getOrderByOrderNo(orderNo);
-        OrderCancelVO orderCancelVO = new OrderCancelVO();
 
-        //判断订单状态，待确认订单和待支付订单可以取消
-        if (order.getStatus() == Order.ORDER_STATUS_WAIT_ACCEPT || order.getStatus() == Order.ORDER_STATUS_WAIT_PAY) {
-            order.setStatusDesc(Order.ORDER_STATUS_CANCEL_DESC);
-            order.setStatus(Order.ORDER_STATUS_CANCEL);
-            order.setCancelReason(orderCancelDTO.getCancelReason());
-            order.setCancelTime(LocalDateTime.now());
-            orderMapper.update(order);
-        }else{
+        //待确认、待支付订单可以取消
+        if (order.getStatus() != Order.ORDER_STATUS_WAIT_ACCEPT
+                && order.getStatus() != Order.ORDER_STATUS_WAIT_PAY) {
             throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL);
         }
 
-        BeanUtils.copyProperties(order,orderCancelVO);
+        //条件取消 + 回补库存（未支付，不退款）
+        if (!doCancel(order, orderCancelDTO.getCancelReason(), false)) {
+            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL);
+        }
+
+        OrderCancelVO orderCancelVO = new OrderCancelVO();
+        orderCancelVO.setOrderNo(orderNo);
+        orderCancelVO.setStatus(Order.ORDER_STATUS_CANCEL);
+        orderCancelVO.setStatusDesc(Order.ORDER_STATUS_CANCEL_DESC);
+        orderCancelVO.setCancelReason(orderCancelDTO.getCancelReason());
+        orderCancelVO.setCancelTime(LocalDateTime.now());
         return orderCancelVO;
+    }
+
+    /**
+     * 超时取消订单：条件取消并回补库存，已支付订单（余额支付）同步退款
+     * @param order
+     * @param reason
+     * @param needRefund
+     * @return 是否真正取消了订单
+     */
+    @Override
+    @Transactional
+    public boolean cancelTimeoutOrder(Order order, String reason, boolean needRefund) {
+        return doCancel(order, reason, needRefund);
+    }
+
+    /**
+     * 取消订单核心逻辑：条件翻转状态（幂等）→ 回补库存 → 可选退款
+     * @param order
+     * @param reason
+     * @param needRefund
+     * @return 是否真正取消了订单
+     */
+    private boolean doCancel(Order order, String reason, boolean needRefund) {
+        //条件取消：仅当订单仍处于预期状态时取消，影响行数==1 才继续，保证幂等
+        int affected = orderMapper.cancelIfCancellable(order.getOrderNo(), order.getStatus(),
+                Order.ORDER_STATUS_CANCEL, LocalDateTime.now(), reason);
+        if (affected != 1) {
+            return false;
+        }
+
+        //回补 DB 库存 + 状态回滚（已售出→售卖中）
+        productMapper.restoreStock(order.getProductId(), order.getQuantity(), LocalDateTime.now());
+
+        //回补 Redis 库存（尽力而为）
+        try {
+            stockService.restore(order.getProductId(), order.getQuantity());
+        } catch (Exception e) {
+            log.warn("Redis 库存回补异常，交由对账任务兜底, productId={}", order.getProductId(), e);
+        }
+
+        //穿透热门商品缓存（售罄恢复可售后重新回源）
+        try {
+            productService.evictHotCache(order.getProductId());
+        } catch (Exception e) {
+            log.warn("热门商品缓存失效异常, productId={}", order.getProductId(), e);
+        }
+
+        //已支付订单（余额支付）退款
+        if (needRefund && Order.PAY_TYPE_BALANCE.equals(order.getPayType())) {
+            refundBalance(order);
+        }
+        return true;
+    }
+
+    /**
+     * 余额退款：买家加回，卖家扣回（允许卖家余额为负）
+     * @param order
+     */
+    private void refundBalance(Order order) {
+        User buyer = userMapper.findById(order.getBuyerId());
+        User seller = userMapper.findById(order.getSellerId());
+        buyer.setBalance(buyer.getBalance().add(order.getTotalAmount()));
+        seller.setBalance(seller.getBalance().subtract(order.getTotalAmount()));
+        userMapper.update(buyer);
+        userMapper.update(seller);
     }
 
     /**

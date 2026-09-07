@@ -5,6 +5,7 @@ import com.itsean.campus_second_hand.entity.Order;
 import com.itsean.campus_second_hand.vo.OrderPageVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
@@ -84,4 +85,19 @@ public interface OrderMapper {
      */
     @Select("select * from orders where status = #{status} and expire_time < #{time}")
     List<Order> cancelOvertimeOrder(Integer status, LocalDateTime time);
+
+    /**
+     * 条件取消订单（仅当订单仍处于预期状态时取消），返回影响行数，用于幂等回补
+     * @param orderNo
+     * @param expectStatus
+     * @param cancelStatus
+     * @param cancelTime
+     * @param cancelReason
+     * @return
+     */
+    int cancelIfCancellable(@Param("orderNo") String orderNo,
+                            @Param("expectStatus") Integer expectStatus,
+                            @Param("cancelStatus") Integer cancelStatus,
+                            @Param("cancelTime") LocalDateTime cancelTime,
+                            @Param("cancelReason") String cancelReason);
 }

@@ -56,7 +56,13 @@
         order by create_time desc
     </select>
 
-
-
+    <update id="cancelIfCancellable">
+        update orders
+        set status = #{cancelStatus},
+            cancel_time = #{cancelTime},
+            cancel_reason = #{cancelReason}
+        where order_no = #{orderNo}
+          and status = #{expectStatus}
+    </update>
 
 </mapper>

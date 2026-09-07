@@ -152,7 +152,7 @@
     <select id="selectHotProducts" resultMap="ProductResultMap">
         SELECT id, title, price, images, view_count,
                user_id, description, category_id, original_price,
-               product_condition, status, is_top, create_time, update_time
+               product_condition, status, is_top, create_time, update_time, quantity
         FROM product WHERE status = 1
         ORDER BY view_count DESC
             LIMIT #{limit}
@@ -173,5 +173,21 @@
         <if test="userId != null">AND user_id != #{userId}</if>
         ORDER BY create_time DESC LIMIT #{limit}
     </select>
+
+    <update id="deductStock">
+        UPDATE product
+        SET quantity = quantity - #{needQuantity},
+            status = CASE WHEN quantity - #{needQuantity} = 0 THEN 2 ELSE 1 END,
+            update_time = #{updateTime}
+        WHERE id = #{id} AND status = 1 AND quantity &gt;= #{needQuantity}
+    </update>
+
+    <update id="restoreStock">
+        UPDATE product
+        SET quantity = quantity + #{quantity},
+            status = CASE WHEN status = 2 THEN 1 ELSE status END,
+            update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
 
 </mapper>

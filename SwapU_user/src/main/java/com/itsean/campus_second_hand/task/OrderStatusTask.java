@@ -4,6 +4,7 @@ import com.itsean.campus_second_hand.entity.Order;
 import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.mapper.OrderMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
+import com.itsean.campus_second_hand.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -27,6 +28,8 @@ public class OrderStatusTask {
     private OrderMapper orderMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private OrderService orderService;
 
     /**
      * 超时未确认订单取消
@@ -42,13 +45,11 @@ public class OrderStatusTask {
 
         if(orderList != null && !orderList.isEmpty()){
             for (Order order : orderList) {
-                order.setStatus(Order.ORDER_STATUS_CANCEL);
-                order.setCancelTime(LocalDateTime.now());
-                order.setCancelReason(ORDER_CONFIRM_TIMEOUT);
-                orderMapper.update(order);
-
-                //超时未确认订单信誉分扣除
-                setCreditScore(order.getSellerId(), ORDER_CONFIRM_TIMEOUT);
+                //条件取消 + 回补库存（未支付不退款），成功才扣信誉分
+                if (orderService.cancelTimeoutOrder(order, ORDER_CONFIRM_TIMEOUT, false)) {
+                    //超时未确认订单信誉分扣除
+                    setCreditScore(order.getSellerId(), ORDER_CONFIRM_TIMEOUT);
+                }
             }
         }
     }
@@ -67,13 +68,11 @@ public class OrderStatusTask {
 
         if(orderList != null && !orderList.isEmpty()){
             for (Order order : orderList) {
-                order.setStatus(Order.ORDER_STATUS_CANCEL);
-                order.setCancelTime(LocalDateTime.now());
-                order.setCancelReason(ORDER_PAY_TIMEOUT);
-                orderMapper.update(order);
-
-                //超时未支付订单信誉分扣除
-                setCreditScore(order.getBuyerId(), ORDER_PAY_TIMEOUT);
+                //条件取消 + 回补库存（未支付不退款），成功才扣信誉分
+                if (orderService.cancelTimeoutOrder(order, ORDER_PAY_TIMEOUT, false)) {
+                    //超时未支付订单信誉分扣除
+                    setCreditScore(order.getBuyerId(), ORDER_PAY_TIMEOUT);
+                }
             }
         }
     }
@@ -89,13 +88,11 @@ public class OrderStatusTask {
         List<Order> orderList = orderMapper.cancelOvertimeOrder(Order.ORDER_STATUS_WAIT_DELIVER,time);
         if(orderList != null && !orderList.isEmpty()){
             for (Order order : orderList) {
-                order.setStatus(Order.ORDER_STATUS_CANCEL);
-                order.setCancelTime(LocalDateTime.now());
-                order.setCancelReason(ORDER_DELIVER_TIMEOUT);
-                orderMapper.update(order);
-
-                //一周内未发货订单信誉分扣除
-                setCreditScore(order.getSellerId(), ORDER_DELIVER_TIMEOUT);
+                //条件取消 + 回补库存 + 退款（已支付），成功才扣信誉分
+                if (orderService.cancelTimeoutOrder(order, ORDER_DELIVER_TIMEOUT, true)) {
+                    //一周内未发货订单信誉分扣除
+                    setCreditScore(order.getSellerId(), ORDER_DELIVER_TIMEOUT);
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ import com.itsean.campus_second_hand.dto.ProductListPageQueryDTO;
 import com.itsean.campus_second_hand.entity.Product;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -80,4 +81,29 @@ public interface ProductMapper {
                                            @Param("userId") Long userId);
 
     List<Product> selectNewProducts(@Param("limit") int limit, @Param("userId") Long userId);
+
+    /**
+     * 原子扣减库存（防超卖），返回影响行数
+     * @param id
+     * @param needQuantity
+     * @param updateTime
+     * @return
+     */
+    int deductStock(@Param("id") Long id, @Param("needQuantity") Integer needQuantity, @Param("updateTime") LocalDateTime updateTime);
+
+    /**
+     * 回补库存（取消订单时）
+     * @param id
+     * @param quantity
+     * @param updateTime
+     * @return
+     */
+    int restoreStock(@Param("id") Long id, @Param("quantity") Integer quantity, @Param("updateTime") LocalDateTime updateTime);
+
+    /**
+     * 查询所有上架商品的库存（用于库存对账）
+     * @return
+     */
+    @Select("select id, quantity from product where status = 1")
+    List<Product> selectSellingProductStock();
 }

@@ -74,4 +74,10 @@ public interface ProductService {
      * @return
      */
     Result recommend(Integer limit);
+
+    /**
+     * 失效热门商品缓存（库存变更后调用）
+     * @param productId
+     */
+    void evictHotCache(Long productId);
 }
