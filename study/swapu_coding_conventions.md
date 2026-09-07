@@ -40,8 +40,6 @@ aspect                 # AOP 切面（行为埋点）
 | Mapper 方法 | 语义化动词 | `checkRepeatByPhone`、`findByUsername`、`getOrderByOrderNo` |
 | 数据库 | 表/列一律 snake_case，实体驼峰 | `user_id` ↔ `userId` |
 
-> ✅ 已修正：`CatrgoryServiceImpl` → `CategoryServiceImpl`；包名 `service.Impl` → `service.impl`（用户端+管理端已统一小写）。
-
 ## 3. 注解使用规范
 
 - **Lombok**：实体/DTO/VO 用 `@Data`（必要时 `@Builder`、`@AllArgsConstructor`、`@NoArgsConstructor`）；需要日志的类一律 `@Slf4j`。
