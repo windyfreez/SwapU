@@ -34,4 +34,10 @@ public class MessageConstant {
 
     //5.商品类型信息提示
     public static final String CATEGORY_NOT_EXIST = "商品类型不存在";
+
+    //6.评论类信息提示
+    public static final String COMMENT_NOT_EXIST = "评论不存在";
+    public static final String CANT_DELETE_OTHERS_COMMENT = "只能删除自己发出的评论";
+    public static final String CANT_COMMENT_YOURSELF = "不能给自己评论";
+    public static final String COMMENT_CONTENT_EMPTY = "评论内容不能为空";
 }

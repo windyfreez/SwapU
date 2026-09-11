@@ -9,9 +9,11 @@ import com.itsean.campus_second_hand.dto.UserLoginDTO;
 import com.itsean.campus_second_hand.dto.UserRegisterDTO;
 import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.exception.AccountRepeatException;
+import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.UserService;
 import com.itsean.campus_second_hand.vo.UserRegisterVO;
+import com.itsean.pojo.vo.UserProfileVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private ProductMapper productMapper;
 
     /**
      * 新用户注册
@@ -163,5 +167,27 @@ public class UserServiceImpl implements UserService {
     public User getUserById(Long id) {
         User user = userMapper.findById(id);
         return user;
+    }
+
+    /**
+     * 根据id查询某个用户的公开主页信息
+     * @param id
+     * @return
+     */
+    @Override
+    public UserProfileVO getUserProfile(Long id) {
+        User user = userMapper.findById(id);
+        if (user == null) {
+            throw new AccountRepeatException(MessageConstant.USER_NOT_EXIST);
+        }
+
+        UserProfileVO userProfileVO = new UserProfileVO();
+        //只拷贝公开字段，手机号、邮箱、密码等隐私信息不对外暴露
+        BeanUtils.copyProperties(user, userProfileVO);
+        //补全在售与已售出的商品个数
+        userProfileVO.setSellingCount(productMapper.countByUserIdAndStatus(id, NumberConstant.PRODUCT_STATUS_SELLING));
+        userProfileVO.setSoldCount(productMapper.countByUserIdAndStatus(id, NumberConstant.PRODUCT_STATUS_SOLD_OUT));
+
+        return userProfileVO;
     }
 }

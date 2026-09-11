@@ -57,6 +57,14 @@ public interface ProductService {
     PageResult allPageQuery(ProductListPageQueryDTO productListPageQueryDTO);
 
     /**
+     * 分页查询某个用户主页可见的商品
+     * @param userId
+     * @param productListPageQueryDTO
+     * @return
+     */
+    PageResult userPageQuery(Long userId, ProductListPageQueryDTO productListPageQueryDTO);
+
+    /**
      * 上架商品
      * @param id
      */

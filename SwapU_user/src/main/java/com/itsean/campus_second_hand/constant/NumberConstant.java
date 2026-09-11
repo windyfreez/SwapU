@@ -22,5 +22,8 @@ public class NumberConstant {
     // 分区随机排序相关常量
     public static final int ZONE_COUNT = 3;
     public static final int MAX_RANDOM_PICK_PER_ZONE = 5;
+    //分页缺省值常量
+    public static final int DEFAULT_PAGE = 1;//默认页码
+    public static final int DEFAULT_PAGE_SIZE = 10;//默认每页记录数
 
 }

@@ -57,8 +57,8 @@
 
           <hr class="divider" />
 
-          <!-- 卖家卡片 -->
-          <div class="seller-block" @click="showSellerDetail = true">
+          <!-- 卖家卡片：点击进入卖家个人主页 -->
+          <div class="seller-block" @click="goToSellerHome">
             <img
               :src="cleanImageUrl(product.sellerInfo.avatar)"
               :alt="product.sellerInfo.username"
@@ -112,31 +112,6 @@
         <router-link to="/" class="btn btn-outline">返回首页</router-link>
       </div>
     </div>
-
-    <!-- 卖家信息弹窗 -->
-    <div v-if="showSellerDetail" class="modal-mask" @click="showSellerDetail = false">
-      <div class="modal-content" @click.stop>
-        <div class="modal-header">
-          <span class="modal-title">卖家信息</span>
-          <span class="modal-close" @click="showSellerDetail = false">×</span>
-        </div>
-        <div class="seller-modal-body">
-          <img
-            :src="cleanImageUrl(product?.sellerInfo?.avatar)"
-            :alt="product?.sellerInfo.username"
-            class="modal-avatar"
-          />
-          <div class="modal-seller-info">
-            <h3>{{ product?.sellerInfo.username }}</h3>
-            <p>用户ID: {{ product?.sellerInfo.id }}</p>
-            <p>信誉分: {{ product?.sellerInfo.creditScore }}</p>
-          </div>
-        </div>
-        <button class="btn btn-primary btn-block modal-contact-btn" @click="contactSeller(); showSellerDetail = false">
-          联系卖家
-        </button>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -150,7 +125,6 @@ const router = useRouter()
 const loading = ref(true)
 const product = ref(null)
 const currentImageIndex = ref(0)
-const showSellerDetail = ref(false)
 const isFavorite = ref(false)
 
 const fetchProductDetail = async () => {
@@ -305,6 +279,12 @@ const toggleFavorite = async () => {
     console.error('收藏操作失败:', error)
     alert('操作失败，请稍后重试')
   }
+}
+
+// 点击卖家头像进入其个人主页
+const goToSellerHome = () => {
+  if (!product.value?.sellerInfo?.id) return
+  router.push(`/user-home/${product.value.sellerInfo.id}`)
 }
 
 const contactSeller = () => {
@@ -594,84 +574,6 @@ onMounted(() => {
   background: var(--c-text-3);
   border-color: var(--c-text-3);
   cursor: not-allowed;
-}
-
-/* 弹窗 */
-.modal-mask {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.modal-content {
-  width: 380px;
-  max-width: 90vw;
-  background: var(--c-card);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 20px;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.modal-title {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.modal-close {
-  font-size: 22px;
-  color: var(--c-text-3);
-  cursor: pointer;
-  line-height: 1;
-}
-
-.seller-modal-body {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 28px 24px 20px;
-}
-
-.modal-avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 14px;
-}
-
-.modal-seller-info {
-  text-align: center;
-}
-
-.modal-seller-info h3 {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.modal-seller-info p {
-  font-size: 13px;
-  color: var(--c-text-2);
-  margin-bottom: 4px;
-}
-
-.modal-contact-btn {
-  margin: 0 20px 20px;
-  width: calc(100% - 40px);
 }
 
 /* 窄屏降级 */

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.campus_second_hand.mapper.CommentMapper">
+
+    <resultMap id="CommentVOResultMap" type="com.itsean.pojo.vo.CommentVO">
+        <id property="id" column="id"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="senderName" column="sender_name"/>
+        <result property="senderAvatar" column="sender_avatar"/>
+        <result property="receiverId" column="receiver_id"/>
+        <result property="receiverName" column="receiver_name"/>
+        <result property="receiverAvatar" column="receiver_avatar"/>
+        <result property="image" column="image"/>
+        <result property="content" column="content"/>
+        <result property="sendTime" column="send_time"/>
+        <result property="status" column="status"/>
+        <result property="commentType" column="comment_type"/>
+    </resultMap>
+
+    <sql id="commentColumns">
+        c.id, c.sender_id, c.receiver_id, c.image, c.content, c.send_time, c.status, c.comment_type,
+        su.username as sender_name, su.avatar as sender_avatar,
+        ru.username as receiver_name, ru.avatar as receiver_avatar
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into comment (sender_id, receiver_id, image, content, send_time, status, comment_type)
+        values (#{senderId}, #{receiverId}, #{image}, #{content}, #{sendTime}, #{status}, #{commentType})
+    </insert>
+
+    <select id="pageQueryBySenderId" resultMap="CommentVOResultMap">
+        select
+        <include refid="commentColumns"/>
+        from comment c
+        left join user su on c.sender_id = su.id
+        left join user ru on c.receiver_id = ru.id
+        where c.sender_id = #{senderId}
+        order by c.send_time desc
+    </select>
+
+    <select id="pageQueryByReceiverId" resultMap="CommentVOResultMap">
+        select
+        <include refid="commentColumns"/>
+        from comment c
+        left join user su on c.sender_id = su.id
+        left join user ru on c.receiver_id = ru.id
+        where c.receiver_id = #{receiverId}
+        and c.status = #{status}
+        order by c.send_time desc
+    </select>
+</mapper>

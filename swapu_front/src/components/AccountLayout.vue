@@ -60,6 +60,7 @@ const menu = [
   { key: 'favorites', label: '我的收藏', icon: '❤️', to: '/my-favorites' },
   { key: 'footprints', label: '我的足迹', icon: '👣', to: '/my-footprints' },
   { key: 'orders', label: '我的订单', icon: '🛒', to: '/my-orders' },
+  { key: 'comments', label: '我的评价', icon: '💬', to: '/my-comments' },
   { key: 'wallet', label: '我的钱包', icon: '💰', to: '/my-wallet' },
   { key: 'address', label: '收货地址', icon: '📍', to: '/my-address' },
   { key: 'profile', label: '编辑资料', icon: '✏️', to: '/profile/edit' },

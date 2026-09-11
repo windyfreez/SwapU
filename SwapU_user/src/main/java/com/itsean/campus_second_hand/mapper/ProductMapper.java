@@ -64,6 +64,13 @@ public interface ProductMapper {
     List<Product> allPageQuery(ProductListPageQueryDTO productListPageQueryDTO);
 
     /**
+     * 分页查询某个用户主页可见的商品（仅在售与已售出）
+     * @param productListPageQueryDTO
+     * @return
+     */
+    List<Product> pageQueryByUserId(ProductListPageQueryDTO productListPageQueryDTO);
+
+    /**
      * 批量更新浏览量
      * @param list
      */

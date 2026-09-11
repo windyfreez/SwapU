@@ -6,6 +6,7 @@ import com.itsean.campus_second_hand.dto.UserLoginDTO;
 import com.itsean.campus_second_hand.dto.UserRegisterDTO;
 import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.vo.UserRegisterVO;
+import com.itsean.pojo.vo.UserProfileVO;
 
 public interface UserService {
 
@@ -47,4 +48,11 @@ public interface UserService {
      * @return
      */
     User getUserById(Long id);
+
+    /**
+     * 根据id查询某个用户的公开主页信息
+     * @param id
+     * @return
+     */
+    UserProfileVO getUserProfile(Long id);
 }

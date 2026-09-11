@@ -1,20 +1,6 @@
 <template>
   <div class="home-page">
     <div class="container">
-      <!-- 分类导航 -->
-      <div class="category-bar card">
-        <div
-          v-for="cat in categories"
-          :key="cat.id"
-          class="category-item"
-          :class="{ active: activeCategory === cat.id }"
-          @click="activeCategory = cat.id"
-        >
-          <span class="category-icon">{{ cat.icon }}</span>
-          <span class="category-name">{{ cat.name }}</span>
-        </div>
-      </div>
-
       <!-- 热门商品 -->
       <section class="section">
         <div class="section-header">
@@ -74,6 +60,20 @@
           </div>
           <button class="btn btn-primary" @click="handleSearch">搜索</button>
           <button class="btn" @click="handleReset">重置</button>
+        </div>
+
+        <!-- 分类导航:紧贴它实际过滤的「精选推荐」商品列表 -->
+        <div class="category-bar card">
+          <div
+            v-for="cat in categories"
+            :key="cat.id"
+            class="category-item"
+            :class="{ active: activeCategory === cat.id }"
+            @click="activeCategory = cat.id"
+          >
+            <span class="category-icon">{{ cat.icon }}</span>
+            <span class="category-name">{{ cat.name }}</span>
+          </div>
         </div>
 
         <div class="goods-grid">
@@ -415,7 +415,7 @@ const goToDetail = (item) => {
   padding-top: 20px;
 }
 
-/* 分类栏 */
+/* 分类栏:位于「精选推荐」筛选栏下方,与它实际过滤的商品列表紧邻 */
 .category-bar {
   display: flex;
   flex-wrap: wrap;

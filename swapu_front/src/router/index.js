@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import Recommend from '../views/Recommend.vue'
 import Sell from '../views/Sell.vue'
 import Messages from '../views/Messages.vue'
 import Profile from '../views/Profile.vue'
@@ -18,9 +19,12 @@ import MyWallet from '../views/MyWallet.vue'
 import Settings from '../views/Settings.vue'
 import MyAddress from '../views/MyAddress.vue'
 import MyFootprints from '../views/MyFootprints.vue'
+import UserHome from '../views/UserHome.vue'
+import MyComments from '../views/MyComments.vue'
 
 const routes = [
   { path: '/', component: Home },
+  { path: '/recommend', component: Recommend },
   { path: '/sell', component: Sell },
   { path: '/messages', component: Messages },
   { path: '/messages/chat', component: ChatRoom },
@@ -35,6 +39,8 @@ const routes = [
   { path: '/settings', component: Settings },
   { path: '/my-address', component: MyAddress },
   { path: '/my-footprints', component: MyFootprints },
+  { path: '/my-comments', component: MyComments },
+  { path: '/user-home/:id', component: UserHome },
   { path: '/product/edit/:id', component: EditProduct },
   { path: '/login', component: Login },
   { path: '/register', component: Register },

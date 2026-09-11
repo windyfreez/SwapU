@@ -149,6 +149,20 @@
 
 
 
+    <select id="pageQueryByUserId" resultMap="ProductResultMap">
+        SELECT * FROM product
+        <where>
+            <if test="userId != null">
+                AND user_id = #{userId}
+            </if>
+            AND status IN (1, 2)
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY create_time DESC
+    </select>
+
     <select id="selectHotProducts" resultMap="ProductResultMap">
         SELECT id, title, price, images, view_count,
                user_id, description, category_id, original_price,

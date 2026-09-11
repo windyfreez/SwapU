@@ -8,6 +8,7 @@
 
       <nav class="nav-links">
         <router-link to="/" class="nav-link" exact-active-class="active">首页</router-link>
+        <router-link to="/recommend" class="nav-link" active-class="active">推荐</router-link>
         <router-link to="/sell" class="nav-link" active-class="active">发布</router-link>
         <router-link to="/messages" class="nav-link" active-class="active">消息</router-link>
         <router-link to="/profile" class="nav-link" active-class="active">我的</router-link>
@@ -24,14 +25,13 @@
       </div>
 
       <div class="nav-user">
-        <!-- 主题切换:浅色 / 深色 -->
+        <!-- 主题切换:浅色 / 深色,按钮与导航栏同色,只保留边框 -->
         <button
-          class="theme-toggle"
+          class="btn theme-toggle"
           :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
           @click="toggleTheme"
         >
-          <span v-if="isDark">☀️</span>
-          <span v-else>🌙</span>
+          <span class="theme-text">{{ isDark ? '深色模式' : '浅色模式' }}</span>
         </button>
         <template v-if="loggedIn">
           <div class="user-menu" ref="menuRef" @click="menuOpen = !menuOpen">
@@ -90,6 +90,7 @@ const menuItems = [
   { to: '/my-favorites', icon: '❤️', label: '我的收藏' },
   { to: '/my-footprints', icon: '👣', label: '我的足迹' },
   { to: '/my-orders', icon: '🛒', label: '我的订单' },
+  { to: '/my-comments', icon: '💬', label: '我的评价' },
   { to: '/my-wallet', icon: '💰', label: '我的钱包' },
   { to: '/my-address', icon: '📍', label: '收货地址' },
   { to: '/profile/edit', icon: '✏️', label: '编辑资料' },
@@ -283,25 +284,22 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* 主题切换按钮 */
-.theme-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 34px;
+/* 主题切换按钮:与导航栏同色——背景透明,直接露出导航栏渐变,只保留一圈边框
+   描边、文字、悬停配色对齐导航栏既有风格(.nav-link / .user-menu / .nav-search) */
+.navbar .theme-toggle {
   height: 34px;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 16px;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
+  padding: 0 14px;
+  font-size: 13px;
   flex-shrink: 0;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.45);
+  color: #fff;
 }
 
-.theme-toggle:hover {
-  background: #fff;
-  transform: scale(1.08);
+/* 覆盖全局 .btn:hover 的浅色底,避免悬停时变回白底卡片 */
+.navbar .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.85);
 }
 
 .login-link {
@@ -424,6 +422,11 @@ onUnmounted(() => {
 @media (max-width: 900px) {
   .nav-search {
     display: none;
+  }
+
+  /* 按钮只有文字,窄屏不再隐藏(隐藏会变成空边框),只压缩内边距 */
+  .navbar .theme-toggle {
+    padding: 0 10px;
   }
 
   .nav-link {

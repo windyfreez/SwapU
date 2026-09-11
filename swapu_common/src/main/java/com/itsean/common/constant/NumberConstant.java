@@ -22,5 +22,12 @@ public class NumberConstant {
     // 分区随机排序相关常量
     public static final int ZONE_COUNT = 3;
     public static final int MAX_RANDOM_PICK_PER_ZONE = 5;
+    //评论审核状态常量
+    public static final int COMMENT_STATUS_CHECKING = 0;//审核中
+    public static final int COMMENT_STATUS_APPROVED = 1;//过审
+    public static final int COMMENT_STATUS_VIOLATION = 2;//违禁
+    //评论类型常量
+    public static final int COMMENT_TYPE_BAD = 0;//差评
+    public static final int COMMENT_TYPE_GOOD = 1;//好评
 
 }

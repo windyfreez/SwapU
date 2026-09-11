@@ -128,6 +128,20 @@ public class ProductController {
     }
 
     /**
+     * 分页获取某个用户主页的商品（在售与已售出）
+     * @param userId
+     * @param productListPageQueryDTO
+     * @return
+     */
+    @ApiOperation("分页获取某个用户主页的商品")
+    @GetMapping("/user/{userId}")
+    public Result<PageResult> userProducts(@PathVariable Long userId, ProductListPageQueryDTO productListPageQueryDTO){
+        log.info("分页获取用户{}主页的商品：{}",userId,productListPageQueryDTO);
+        PageResult pageResult = productService.userPageQuery(userId, productListPageQueryDTO);
+        return Result.success(pageResult);
+    }
+
+    /**
      * 获取top20热门商品
      * @return
      */

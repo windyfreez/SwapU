@@ -12,6 +12,7 @@ import com.itsean.campus_second_hand.service.UserService;
 import com.itsean.campus_second_hand.utils.JwtUtil;
 import com.itsean.campus_second_hand.vo.UserLoginVO;
 import com.itsean.campus_second_hand.vo.UserRegisterVO;
+import com.itsean.pojo.vo.UserProfileVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -123,6 +124,19 @@ public class   UserController {
     	log.info("根据id获取用户信息：{}",id);
     	User user = userService.getUserById(id);
     	return Result.success(user);
+    }
+
+    /**
+     * 根据id获取某个用户的公开主页信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}/profile")
+    @ApiOperation("根据id获取某个用户的公开主页信息")
+    public Result<UserProfileVO> getUserProfile(@PathVariable Long id){
+        log.info("根据id获取用户公开主页信息：{}",id);
+        UserProfileVO userProfileVO = userService.getUserProfile(id);
+        return Result.success(userProfileVO);
     }
 
 

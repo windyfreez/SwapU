@@ -100,12 +100,20 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .addPathPatterns("/**");
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/**")
-                //排除以下接口保证游客也可以访问分类、热门商品、全部商品和商品细节
+                //排除以下接口保证游客也可以访问分类、热门商品、全部商品、推荐商品和商品细节
                 .excludePathPatterns("/user/login", "/user/register")
                 .excludePathPatterns("/category/list")
                 .excludePathPatterns("/product/detail/**")
                 .excludePathPatterns("/product/list")
                 .excludePathPatterns("/product/hot")
+                .excludePathPatterns("/product/recommend")
+                //某个用户收到的过审评论属于公开信息，游客也可以查看
+                .excludePathPatterns("/comment/received/**")
+                //他人主页的用户信息与商品列表属于公开信息，游客也可以查看
+                .excludePathPatterns("/user/*/profile")
+                .excludePathPatterns("/product/user/**")
+                //错误页不再校验令牌，避免404/500被拦截器改写成"未登录"，掩盖真实错误
+                .excludePathPatterns("/error")
                 .excludePathPatterns("/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/swagger-ui.html/**");
     }
 

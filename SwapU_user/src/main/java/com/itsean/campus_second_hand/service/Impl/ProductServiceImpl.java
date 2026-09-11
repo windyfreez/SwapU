@@ -210,6 +210,50 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
+     * 分页查询某个用户主页可见的商品
+     * @param userId
+     * @param productListPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult userPageQuery(Long userId, ProductListPageQueryDTO productListPageQueryDTO) {
+        log.info("查询用户{}主页的商品：{}", userId, productListPageQueryDTO);
+
+        //主页只展示在售与已售出的商品，其余状态（审核中、已下架）不对外展示
+        Integer status = productListPageQueryDTO.getStatus();
+        if (status == null
+                || (status != NumberConstant.PRODUCT_STATUS_SELLING
+                && status != NumberConstant.PRODUCT_STATUS_SOLD_OUT)) {
+            productListPageQueryDTO.setStatus(null);
+        }
+        productListPageQueryDTO.setUserId(userId);
+
+        //分页参数缺省时补默认值，避免 PageHelper 拆箱空指针
+        if (productListPageQueryDTO.getPage() == null) {
+            productListPageQueryDTO.setPage(NumberConstant.DEFAULT_PAGE);
+        }
+        if (productListPageQueryDTO.getPageSize() == null) {
+            productListPageQueryDTO.setPageSize(NumberConstant.DEFAULT_PAGE_SIZE);
+        }
+
+        PageHelper.startPage(productListPageQueryDTO.getPage(), productListPageQueryDTO.getPageSize());
+
+        List<Product> products = productMapper.pageQueryByUserId(productListPageQueryDTO);
+
+        //分页查询时只需要展示封面图而非所有图片
+        products.forEach(product -> {
+            List<String> images = product.getImages();
+            if (images != null && !images.isEmpty()) {
+                product.setImages(Collections.singletonList(images.get(0)));
+            }
+        });
+
+        Page<Product> page = (Page<Product>) products;
+
+        return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    /**
      * 分页查询所有商品
      * @param productListPageQueryDTO
      * @return
@@ -312,26 +356,32 @@ public class ProductServiceImpl implements ProductService {
                 .sorted((a, b) -> Double.compare(parseScore(b.getValue()), parseScore(a.getValue())))
                 .limit(5).map(e -> Long.valueOf(String.valueOf(e.getKey()))).collect(Collectors.toList());
 
-        Map<Long, Product> products = new LinkedHashMap<>();
-        Map<Long, Double> scores = new HashMap<>();
+        Map<Long, Product> products = new LinkedHashMap<>();//商品候选集
+        Map<Long, Double> scores = new HashMap<>();//召回结果打分
         if (!categoryIds.isEmpty()) {
+            //根据Redis中的用户行为画像Hash在用户感兴趣的分类中召回一定量商品
             for (Product p : productMapper.selectRecommendProducts(categoryIds, size * 3, userId)) {
                 products.putIfAbsent(p.getId(), p);
+                //每个商品召回一次，加相应的召回分数
                 scores.merge(p.getId(), 0.6, Double::sum);
             }
         }
+        //在热门商品中召回一定量的商品
         for (Product p : productMapper.selectHotProducts(size * 2)) {
             if (userId == null || !userId.equals(p.getUserId())) {
                 products.putIfAbsent(p.getId(), p);
                 scores.merge(p.getId(), categoryIds.isEmpty() ? 0.7 : 0.3, Double::sum);
             }
         }
+        //在新上架的商品中召回一定量的商品
         for (Product p : productMapper.selectNewProducts(size * 2, userId)) {
             products.putIfAbsent(p.getId(), p);
             scores.merge(p.getId(), categoryIds.isEmpty() ? 0.3 : 0.2, Double::sum);
         }
+
         List<Product> result = products.values().stream()
                 .filter(p -> p.getStatus() != null && p.getStatus() == 1)
+                //根据召回结果累加分来给候选集商品进行排序
                 .sorted(Comparator.comparingDouble((Product p) -> scores.getOrDefault(p.getId(), 0D)).reversed()
                         .thenComparing(Product::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder())))
                 .limit(size).collect(Collectors.toList());

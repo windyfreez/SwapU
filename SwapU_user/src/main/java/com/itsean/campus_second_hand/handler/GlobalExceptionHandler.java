@@ -23,6 +23,17 @@ public class GlobalExceptionHandler {
         return Result.error(ex.getMessage());
     }
 
+    /**
+     * 处理公共模块业务异常（如评论业务校验失败）
+     * @param ex
+     * @return
+     */
+    @ExceptionHandler(com.itsean.common.exception.BaseException.class)
+    public Result handleCommonBaseException(com.itsean.common.exception.BaseException ex) {
+        log.error("业务异常: {}", ex.getMessage());
+        return Result.error(ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public Result handleException(Exception ex) {
         log.error("系统异常: {}", ex.getMessage());
