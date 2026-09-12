@@ -27,7 +27,13 @@ public class SystemMessageAspect {
     @Pointcut("execution(* com.itsean.campus_second_hand.controller.user.OrderController.payOrder(..)) ||" +
             "execution(* com.itsean.campus_second_hand.controller.user.OrderController.deliverOrder(..)) ||" +
             "execution(* com.itsean.campus_second_hand.controller.user.OrderController.receiveOrder(..)) ||" +
-            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.confirmOrder(..))")
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.confirmOrder(..)) ||" +
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.applyRefund(..)) ||" +
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.approveRefund(..)) ||" +
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.rejectRefund(..)) ||" +
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.cancelOrder(..)) ||" +
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.approveCancel(..)) ||" +
+            "execution(* com.itsean.campus_second_hand.controller.user.OrderController.rejectCancel(..))")
     public void orderControllerPointCut() {}
 
     @AfterReturning(
@@ -40,22 +46,9 @@ public class SystemMessageAspect {
         Object[] args = joinPoint.getArgs();
         String methodName = joinPoint.getSignature().getName();
 
-        String orderNo = null;
-
-        for(Object arg : args) {
-            if (arg == null) {
-                continue;
-            }
-            try {
-                Field field = arg.getClass().getDeclaredField("orderNo");
-                field.setAccessible(true);
-                orderNo = (String) field.get(arg);
-                break;
-
-            } catch (NoSuchFieldException | IllegalAccessException e) {
-                // 当前参数没有 orderNo，继续找下一个参数
-            }
-        }
+        //从拦截方法参数中取出订单编号与拒绝原因
+        String orderNo = extractStringArg(args, "orderNo");
+        String rejectReason = extractStringArg(args, "rejectReason");
         //从拦截方法参数中取出orderNo，并从数据库取出详细信息
         Order order = orderMapper.getOrderByOrderNo(orderNo);
         log.info("订单信息：{}",order);
@@ -86,8 +79,73 @@ public class SystemMessageAspect {
             //2.订单收货后：发给卖家，通知流程完成
             chatMessageDTO.setToUserId(sellerId);
             chatMessageDTO.setContent("买家已经收到您的“" + productTitle + "”！");
+        }else if(methodName.equals("applyRefund")) {
+            //3.买家申请退货退款后：发给卖家，提醒审核是否同意退货
+            chatMessageDTO.setToUserId(sellerId);
+            chatMessageDTO.setContent("买家对您的“" + productTitle + "”申请了退货退款，请您及时审核是否同意退货。");
+        }else if(methodName.equals("approveRefund")) {
+            //4.卖家同意退货退款后：发给买家，告知退款成功
+            chatMessageDTO.setToUserId(buyerId);
+            chatMessageDTO.setContent("您申请的“" + productTitle + "”退货退款已审核通过，退款成功。");
+        }else if(methodName.equals("rejectRefund")) {
+            //5.卖家拒绝退货退款后：发给买家
+            chatMessageDTO.setToUserId(buyerId);
+            chatMessageDTO.setContent("卖家拒绝了您对“" + productTitle + "”的退货退款申请" + buildReasonSuffix(rejectReason) + "。");
+        }else if(methodName.equals("cancelOrder")) {
+            //6.取消订单：待接单买家直接取消则告知卖家；待支付买家申请取消则提醒卖家审核
+            chatMessageDTO.setToUserId(sellerId);
+            if(Order.ORDER_STATUS_CANCEL.equals(order.getStatus())) {
+                chatMessageDTO.setContent("买家已取消订单：“" + productTitle + "”。");
+            }else{
+                chatMessageDTO.setContent("买家申请取消“" + productTitle + "”订单，请您及时审核是否同意。");
+            }
+        }else if(methodName.equals("approveCancel")) {
+            //7.卖家同意取消订单后：发给买家
+            chatMessageDTO.setToUserId(buyerId);
+            chatMessageDTO.setContent("卖家已同意取消“" + productTitle + "”订单，订单已取消。");
+        }else if(methodName.equals("rejectCancel")) {
+            //8.卖家拒绝取消订单后：发给买家
+            chatMessageDTO.setToUserId(buyerId);
+            chatMessageDTO.setContent("卖家拒绝了您取消“" + productTitle + "”订单的申请，订单继续有效" + buildReasonSuffix(rejectReason) + "。");
         }
         chatMessageDTO.setProductId(productId);
         chatController.systemSendMessage(chatMessageDTO);
+    }
+
+    /**
+     * 从方法入参中按字段名取值（参数没有该字段或取不到值时返回 null）
+     * @param args
+     * @param fieldName
+     * @return
+     */
+    private String extractStringArg(Object[] args, String fieldName) {
+        for (Object arg : args) {
+            if (arg == null) {
+                continue;
+            }
+            try {
+                Field field = arg.getClass().getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Object value = field.get(arg);
+                if (value != null) {
+                    return value.toString();
+                }
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                // 当前参数没有该字段，继续找下一个参数
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 拼装拒绝原因，没有原因时返回空串
+     * @param rejectReason
+     * @return
+     */
+    private String buildReasonSuffix(String rejectReason) {
+        if (rejectReason == null || rejectReason.trim().isEmpty()) {
+            return "";
+        }
+        return "，拒绝原因：" + rejectReason;
     }
 }

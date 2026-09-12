@@ -265,3 +265,427 @@
     padding: 0 16px;
   }
 }
+
+/* ============================================
+   电脑版 / 手机版 显示模式
+   由 utils/layout.js 写入 <html data-layout="desktop|mobile">
+   用户可在导航栏切换：自动 / 电脑版 / 手机版
+   说明：所有覆盖都带 html[data-layout='mobile'] 前缀，
+   权重 (0,2,1) 高于各页面 scoped 样式 (.xxx[data-v-xxx] = (0,2,0))，
+   因此能真正覆盖页面内部样式；通用类名(如 .avatar/.user-avatar)一律加页面父类限定，避免误伤他处
+   ============================================ */
+
+/* ---------- 通用 ---------- */
+/* 容器收窄成手机宽度,在桌面浏览器上也能预览手机版效果 */
+html[data-layout='mobile'] .container {
+  max-width: 720px;
+  padding: 0 12px;
+}
+
+/* iOS 上字号小于 16px 的输入框会触发页面自动放大,统一调到 16px */
+html[data-layout='mobile'] .form-input,
+html[data-layout='mobile'] .form-select,
+html[data-layout='mobile'] .form-textarea {
+  font-size: 16px;
+}
+
+/* 手机版省掉面包屑,把首屏空间留给内容 */
+html[data-layout='mobile'] .breadcrumb {
+  display: none;
+}
+
+html[data-layout='mobile'] .page-title {
+  font-size: 19px;
+  margin-bottom: 14px;
+}
+
+/* ---------- 账户中心外壳 ---------- */
+html[data-layout='mobile'] .account-layout {
+  flex-direction: column;
+  padding-top: 14px;
+  gap: 14px;
+}
+
+html[data-layout='mobile'] .account-sidebar {
+  width: 100%;
+  position: static;
+}
+
+html[data-layout='mobile'] .account-sidebar .user-card {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  padding: 16px;
+  margin-bottom: 12px;
+}
+
+html[data-layout='mobile'] .account-sidebar .user-avatar {
+  margin: 0 14px 0 0;
+  width: 52px;
+  height: 52px;
+  font-size: 24px;
+}
+
+html[data-layout='mobile'] .account-sidebar .side-menu {
+  display: flex;
+  overflow-x: auto;
+  padding: 6px;
+  gap: 4px;
+}
+
+html[data-layout='mobile'] .account-sidebar .side-link {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ---------- 首页 / 推荐:商品网格与筛选栏 ---------- */
+html[data-layout='mobile'] .goods-grid,
+html[data-layout='mobile'] .recommend-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+html[data-layout='mobile'] .goods-info {
+  padding: 10px 10px 12px;
+}
+
+html[data-layout='mobile'] .goods-title {
+  font-size: 13px;
+}
+
+html[data-layout='mobile'] .goods-price {
+  font-size: 15px;
+}
+
+/* 筛选栏由横排改为竖排,输入框铺满一行 */
+html[data-layout='mobile'] .filter-bar {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+html[data-layout='mobile'] .filter-item {
+  justify-content: space-between;
+}
+
+html[data-layout='mobile'] .filter-input {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+html[data-layout='mobile'] .filter-select {
+  flex: 1;
+  min-width: 0;
+}
+
+html[data-layout='mobile'] .category-bar {
+  gap: 2px;
+  padding: 10px 8px;
+  margin-bottom: 16px;
+}
+
+html[data-layout='mobile'] .category-item {
+  padding: 7px 12px;
+}
+
+/* ---------- 商品详情 ---------- */
+html[data-layout='mobile'] .detail-main {
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: 1fr;
+  gap: 14px;
+  padding-top: 14px;
+}
+
+html[data-layout='mobile'] .info-panel {
+  padding: 16px 14px;
+}
+
+/* 价格与标题字号加大:限定在商品详情的右侧信息面板内,
+   避免影响订单列表/订单详情/下单页里同样叫 .price 的小字价格 */
+html[data-layout='mobile'] .info-panel .title {
+  font-size: 18px;
+}
+
+html[data-layout='mobile'] .info-panel .price {
+  font-size: 26px;
+}
+
+/* 操作区:收藏/联系卖家一行,立即购买整行 */
+html[data-layout='mobile'] .action-row {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .action-row .buy-btn {
+  flex: 1 1 100%;
+}
+
+/* ---------- 他人主页 / 我的评价 ---------- */
+html[data-layout='mobile'] .profile-card {
+  flex-direction: column;
+  text-align: center;
+  gap: 14px;
+  padding: 20px 16px;
+}
+
+html[data-layout='mobile'] .profile-stats {
+  justify-content: center;
+  gap: 24px;
+}
+
+html[data-layout='mobile'] .section-card {
+  padding: 16px 14px 18px;
+}
+
+html[data-layout='mobile'] .section-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .comment-time {
+  margin-left: 0;
+  width: 100%;
+}
+
+html[data-layout='mobile'] .comment-list {
+  padding: 0 14px;
+}
+
+html[data-layout='mobile'] .comments-card {
+  padding-bottom: 6px;
+}
+
+/* ---------- 我的订单 ---------- */
+html[data-layout='mobile'] .order-card {
+  padding: 14px;
+}
+
+/* 商品图 + 信息一行,金额与按钮换到下一行铺满 */
+html[data-layout='mobile'] .order-body {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+html[data-layout='mobile'] .order-side {
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+html[data-layout='mobile'] .order-actions {
+  justify-content: flex-end;
+}
+
+html[data-layout='mobile'] .order-header {
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+}
+
+/* 状态 tab 横向滚动,避免 10 个 tab 折成三四行 */
+html[data-layout='mobile'] .status-tabs {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+html[data-layout='mobile'] .status-tab {
+  flex-shrink: 0;
+}
+
+/* ---------- 订单详情 ---------- */
+/* 商品/买家/卖家等两列信息统一改为竖向堆叠 */
+html[data-layout='mobile'] .info-cols {
+  display: flex;
+  flex-direction: column;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+html[data-layout='mobile'] .product-card {
+  flex-direction: column;
+  align-items: flex-start;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+/* 只作用于订单详情里的商品图,订单列表的 88px 缩略图不受影响 */
+html[data-layout='mobile'] .product-card .product-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+
+html[data-layout='mobile'] .address-info {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .timeline-item {
+  gap: 10px;
+}
+
+/* 操作按钮自动平分一行;只有一个按钮时占满整行 */
+html[data-layout='mobile'] .action-card {
+  flex-wrap: wrap;
+  padding: 14px;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .action-card .btn {
+  flex: 1;
+  min-width: 110px;
+}
+
+/* ---------- 消息列表 / 聊天室 ---------- */
+html[data-layout='mobile'] .sessions-card {
+  padding: 0 12px;
+}
+
+html[data-layout='mobile'] .session-row {
+  padding: 12px 0;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .session-row .product-thumb {
+  width: 40px;
+  height: 40px;
+}
+
+html[data-layout='mobile'] .chat-page {
+  padding: 12px 0 16px;
+}
+
+/* 聊天面板高度改为跟随动态视口(dvh),避免手机上地址栏导致输入框被挡 */
+html[data-layout='mobile'] .chat-panel {
+  height: calc(100vh - 200px);
+  height: calc(100dvh - 200px);
+  min-height: 360px;
+}
+
+html[data-layout='mobile'] .chat-header {
+  padding: 12px 14px;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .chat-messages {
+  padding: 14px;
+}
+
+html[data-layout='mobile'] .chat-input {
+  padding: 10px 12px;
+}
+
+html[data-layout='mobile'] .message-bubble {
+  max-width: 78%;
+}
+
+/* ---------- 发布 / 编辑商品:表单页 ---------- */
+html[data-layout='mobile'] .price-row,
+html[data-layout='mobile'] .price-line {
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .option-list {
+  gap: 8px;
+}
+
+html[data-layout='mobile'] .upload-area {
+  padding: 22px 12px;
+}
+
+html[data-layout='mobile'] .preview-images,
+html[data-layout='mobile'] .image-list {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+/* 提交按钮竖排并铺满,方便单手点 */
+html[data-layout='mobile'] .form-actions {
+  flex-direction: column;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .form-actions .btn {
+  width: 100%;
+}
+
+/* ---------- 其余账户页 ---------- */
+html[data-layout='mobile'] .favorites-grid,
+html[data-layout='mobile'] .footprint-grid {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+html[data-layout='mobile'] .favorite-card {
+  flex-direction: column;
+  grid-template-columns: 1fr;
+}
+
+html[data-layout='mobile'] .favorite-card .item-image {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+}
+
+html[data-layout='mobile'] .products-list .product-item {
+  flex-wrap: wrap;
+}
+
+html[data-layout='mobile'] .product-actions {
+  width: 100%;
+  justify-content: flex-end;
+}
+
+html[data-layout='mobile'] .address-grid {
+  grid-template-columns: 1fr;
+}
+
+html[data-layout='mobile'] .region-inputs {
+  flex-direction: column;
+  gap: 10px;
+}
+
+html[data-layout='mobile'] .preview-grid {
+  grid-template-columns: 1fr;
+}
+
+html[data-layout='mobile'] .stats-row {
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+html[data-layout='mobile'] .create-order-page .order-content {
+  flex-direction: column;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+html[data-layout='mobile'] .address-item {
+  flex-wrap: wrap;
+}
+
+html[data-layout='mobile'] .auth-card {
+  margin: 0 16px;
+  padding: 24px 18px;
+}
+
+html[data-layout='mobile'] .form-grid {
+  grid-template-columns: 1fr;
+}
+
+/* ---------- 强制电脑版兜底 ---------- */
+/* 小屏手机 + 手动选择电脑版:不压缩布局,靠横向滚动/双指缩放查看 */
+@media (max-width: 768px) {
+  html[data-layout='desktop'] body {
+    min-width: 1080px;
+  }
+}

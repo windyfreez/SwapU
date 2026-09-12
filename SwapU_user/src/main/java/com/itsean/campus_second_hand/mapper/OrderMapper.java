@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -100,4 +101,30 @@ public interface OrderMapper {
                             @Param("cancelStatus") Integer cancelStatus,
                             @Param("cancelTime") LocalDateTime cancelTime,
                             @Param("cancelReason") String cancelReason);
+
+    /**
+     * 条件流转订单状态（仅当订单仍处于预期状态时才更新），返回影响行数，用于幂等
+     * @param orderNo
+     * @param expectStatus
+     * @param targetStatus
+     * @return
+     */
+    @Update("update orders set status = #{targetStatus} where order_no = #{orderNo} and status = #{expectStatus}")
+    int updateStatusIfMatch(@Param("orderNo") String orderNo,
+                            @Param("expectStatus") Integer expectStatus,
+                            @Param("targetStatus") Integer targetStatus);
+
+    /**
+     * 条件流转订单状态并记录取消原因（reason 传 null 表示清空原因），返回影响行数，用于幂等
+     * @param orderNo
+     * @param expectStatus
+     * @param targetStatus
+     * @param reason
+     * @return
+     */
+    @Update("update orders set status = #{targetStatus}, cancel_reason = #{reason} where order_no = #{orderNo} and status = #{expectStatus}")
+    int updateStatusAndReasonIfMatch(@Param("orderNo") String orderNo,
+                                     @Param("expectStatus") Integer expectStatus,
+                                     @Param("targetStatus") Integer targetStatus,
+                                     @Param("reason") String reason);
 }

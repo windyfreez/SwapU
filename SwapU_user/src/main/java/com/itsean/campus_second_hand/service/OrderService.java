@@ -38,6 +38,41 @@ public interface OrderService {
     OrderCancelVO cancelOrder(OrderCancelDTO orderCancelDTO);
 
     /**
+     * 买家申请退货退款（仅待发货订单，提交后等待卖家审核）
+     * @param orderRefundApplyDTO
+     * @return
+     */
+    OrderRefundVO applyRefund(OrderRefundApplyDTO orderRefundApplyDTO);
+
+    /**
+     * 卖家审核同意退货退款（按支付方式退款）
+     * @param orderRefundApproveDTO
+     * @return
+     */
+    OrderRefundVO approveRefund(OrderRefundApproveDTO orderRefundApproveDTO);
+
+    /**
+     * 卖家拒绝退货退款（订单回到待发货）
+     * @param orderRefundRejectDTO
+     * @return
+     */
+    OrderRefundVO rejectRefund(OrderRefundRejectDTO orderRefundRejectDTO);
+
+    /**
+     * 卖家同意取消订单（待支付订单买家申请取消后）
+     * @param orderCancelApproveDTO
+     * @return
+     */
+    OrderCancelVO approveCancel(OrderCancelApproveDTO orderCancelApproveDTO);
+
+    /**
+     * 卖家拒绝取消订单（订单回到待支付）
+     * @param orderCancelRejectDTO
+     * @return
+     */
+    OrderCancelVO rejectCancel(OrderCancelRejectDTO orderCancelRejectDTO);
+
+    /**
      * 支付订单
      * @param orderPayDTO
      * @return

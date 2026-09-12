@@ -73,6 +73,32 @@ public class OrderController {
     }
 
     /**
+     * 卖家同意取消订单
+     * @param orderCancelApproveDTO
+     * @return
+     */
+    @PostMapping("/cancel/approve")
+    @ApiOperation("卖家同意取消订单")
+    public Result<OrderCancelVO> approveCancel(@RequestBody OrderCancelApproveDTO orderCancelApproveDTO){
+        log.info("卖家同意取消订单:{}",orderCancelApproveDTO);
+        OrderCancelVO orderCancelVO = orderService.approveCancel(orderCancelApproveDTO);
+        return Result.success(orderCancelVO);
+    }
+
+    /**
+     * 卖家拒绝取消订单
+     * @param orderCancelRejectDTO
+     * @return
+     */
+    @PostMapping("/cancel/reject")
+    @ApiOperation("卖家拒绝取消订单")
+    public Result<OrderCancelVO> rejectCancel(@RequestBody OrderCancelRejectDTO orderCancelRejectDTO){
+        log.info("卖家拒绝取消订单:{}",orderCancelRejectDTO);
+        OrderCancelVO orderCancelVO = orderService.rejectCancel(orderCancelRejectDTO);
+        return Result.success(orderCancelVO);
+    }
+
+    /**
      * 支付订单
      * @param orderPayDTO
      * @return
@@ -109,6 +135,45 @@ public class OrderController {
         log.info("确认收货:{}",orderReceiveDTO);
         OrderReceiveVO orderReceiveVO = orderService.receiveOrder(orderReceiveDTO);
         return Result.success(orderReceiveVO);
+    }
+
+    /**
+     * 买家申请退货退款（仅待发货订单）
+     * @param orderRefundApplyDTO
+     * @return
+     */
+    @PostMapping("/refund/apply")
+    @ApiOperation("申请退货退款")
+    public Result<OrderRefundVO> applyRefund(@RequestBody OrderRefundApplyDTO orderRefundApplyDTO){
+        log.info("申请退货退款:{}",orderRefundApplyDTO);
+        OrderRefundVO orderRefundVO = orderService.applyRefund(orderRefundApplyDTO);
+        return Result.success(orderRefundVO);
+    }
+
+    /**
+     * 卖家同意退货退款
+     * @param orderRefundApproveDTO
+     * @return
+     */
+    @PostMapping("/refund/approve")
+    @ApiOperation("卖家同意退货退款")
+    public Result<OrderRefundVO> approveRefund(@RequestBody OrderRefundApproveDTO orderRefundApproveDTO){
+        log.info("卖家同意退货退款:{}",orderRefundApproveDTO);
+        OrderRefundVO orderRefundVO = orderService.approveRefund(orderRefundApproveDTO);
+        return Result.success(orderRefundVO);
+    }
+
+    /**
+     * 卖家拒绝退货退款
+     * @param orderRefundRejectDTO
+     * @return
+     */
+    @PostMapping("/refund/reject")
+    @ApiOperation("卖家拒绝退货退款")
+    public Result<OrderRefundVO> rejectRefund(@RequestBody OrderRefundRejectDTO orderRefundRejectDTO){
+        log.info("卖家拒绝退货退款:{}",orderRefundRejectDTO);
+        OrderRefundVO orderRefundVO = orderService.rejectRefund(orderRefundRejectDTO);
+        return Result.success(orderRefundVO);
     }
 
     /**

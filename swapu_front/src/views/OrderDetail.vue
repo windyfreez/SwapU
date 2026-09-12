@@ -14,7 +14,7 @@
         <!-- 状态条 -->
         <div class="card status-card">
           <div class="status-badge" :class="getStatusClass(order.status)">
-            {{ order.statusDesc }}
+            {{ getStatusText(order) }}
           </div>
           <div class="order-no">订单号: {{ order.orderNo }}</div>
           <div class="create-time">下单时间: {{ formatTime(order.createTime) }}</div>
@@ -152,11 +152,25 @@
 
         <!-- 操作按钮 -->
         <div class="card action-card">
+          <!-- 卖家操作 -->
           <button v-if="isSeller && order.status === 1" class="btn btn-primary" @click="handleConfirm">确认接单</button>
-          <button v-if="isBuyer && order.status === 2" class="btn btn-primary" @click="handlePay">去支付</button>
-          <button v-if="isBuyer && order.status === 2" class="btn btn-outline" @click="handleCancel">取消订单</button>
           <button v-if="isSeller && order.status === 3" class="btn btn-primary" @click="handleDeliver">确认发货</button>
+          <template v-if="isSeller && order.status === 7">
+            <button class="btn btn-primary" @click="handleAudit('refund', 'approve')">同意退货</button>
+            <button class="btn btn-outline" @click="handleAudit('refund', 'reject')">拒绝退货</button>
+          </template>
+          <template v-if="isSeller && order.status === 9">
+            <button class="btn btn-primary" @click="handleAudit('cancel', 'approve')">同意取消</button>
+            <button class="btn btn-outline" @click="handleAudit('cancel', 'reject')">拒绝取消</button>
+          </template>
+
+          <!-- 买家操作 -->
+          <button v-if="isBuyer && order.status === 1" class="btn btn-outline" @click="handleCancel">取消订单</button>
+          <button v-if="isBuyer && order.status === 2" class="btn btn-primary" @click="handlePay">去支付</button>
+          <button v-if="isBuyer && order.status === 2" class="btn btn-outline" @click="handleCancel">申请取消</button>
+          <button v-if="isBuyer && order.status === 3" class="btn btn-outline" @click="handleRefundApply">申请退货退款</button>
           <button v-if="isBuyer && order.status === 4" class="btn btn-primary" @click="handleConfirm">确认收货</button>
+          <span v-if="isBuyer && isWaitingAudit(order.status)" class="order-hint">等待卖家审核</span>
         </div>
       </div>
 
@@ -166,14 +180,17 @@
       </div>
     </div>
 
-    <!-- 取消订单弹窗 -->
+    <!-- 取消/申请取消订单弹窗 -->
     <div v-if="showCancelModal" class="modal-overlay" @click="closeModal">
       <div class="modal-content" @click.stop>
         <div class="modal-header">
-          <span class="modal-title">取消订单</span>
+          <span class="modal-title">{{ cancelTitle }}</span>
           <button class="modal-close" @click="closeModal">×</button>
         </div>
         <div class="modal-body">
+          <p v-if="order && order.status === 2" class="audit-tip">
+            待支付订单需要卖家同意后才能取消，提交后订单会变为“取消申请中”。
+          </p>
           <label class="form-label">取消原因</label>
           <textarea
             v-model="cancelReason"
@@ -183,7 +200,61 @@
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline" @click="closeModal">取消</button>
-          <button class="btn btn-primary" @click="confirmCancel">确认取消</button>
+          <button class="btn btn-primary" @click="confirmCancel">
+            {{ order && order.status === 2 ? '提交申请' : '确认取消' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 申请退货退款弹窗 -->
+    <div v-if="showRefundModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <span class="modal-title">申请退货退款</span>
+          <button class="modal-close" @click="closeModal">×</button>
+        </div>
+        <div class="modal-body">
+          <p class="audit-tip">
+            只有待发货订单可以申请退货退款，提交后需卖家审核同意，退款将按原支付方式退回。
+          </p>
+          <label class="form-label">退货原因</label>
+          <textarea
+            v-model="refundReason"
+            class="form-textarea"
+            placeholder="请说明退货原因，会随系统消息发给卖家"
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmRefundApply">提交申请</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 卖家审核弹窗（同意/拒绝 退货或取消） -->
+    <div v-if="showAuditModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <div class="modal-header">
+          <span class="modal-title">{{ auditTitle }}</span>
+          <button class="modal-close" @click="closeModal">×</button>
+        </div>
+        <div class="modal-body">
+          <p v-if="auditAction === 'approve'" class="audit-tip">{{ auditApproveTip }}</p>
+          <template v-else>
+            <label class="form-label">拒绝原因</label>
+            <textarea
+              v-model="auditReason"
+              class="form-textarea"
+              placeholder="请填写拒绝原因，会通过系统消息告知买家"
+            ></textarea>
+          </template>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline" @click="closeModal">取消</button>
+          <button class="btn btn-primary" @click="confirmAudit">
+            {{ auditAction === 'approve' ? '确认同意' : '确认拒绝' }}
+          </button>
         </div>
       </div>
     </div>
@@ -287,6 +358,15 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { getStatusText, getStatusClass, isWaitingAudit } from '../utils/orderStatus'
+import {
+  applyRefund,
+  approveRefund,
+  rejectRefund,
+  applyCancel,
+  approveCancel,
+  rejectCancel
+} from '../utils/orderRefund'
 
 const router = useRouter()
 const route = useRoute()
@@ -302,6 +382,34 @@ const logisticsNo = ref('')
 const freight = ref('')
 const selectedPayType = ref(3)
 const payPassword = ref('')
+// 退货退款申请弹窗
+const showRefundModal = ref(false)
+const refundReason = ref('')
+// 卖家审核弹窗（同意/拒绝 退货或取消）
+const showAuditModal = ref(false)
+const auditType = ref('refund')// refund-退货 cancel-取消
+const auditAction = ref('approve')// approve-同意 reject-拒绝
+const auditReason = ref('')
+
+// 取消弹窗标题：待支付是“申请取消”，待接单是直接取消
+const cancelTitle = computed(() =>
+  order.value && order.value.status === 2 ? '申请取消订单' : '取消订单'
+)
+
+const auditTitle = computed(() => {
+  const isRefund = auditType.value === 'refund'
+  if (auditAction.value === 'approve') {
+    return isRefund ? '同意退货退款' : '同意取消订单'
+  }
+  return isRefund ? '拒绝退货退款' : '拒绝取消订单'
+})
+
+const auditApproveTip = computed(() => {
+  if (auditType.value === 'refund') {
+    return '同意后将按原支付方式退款（余额支付原路退回买家，微信/支付宝暂不接入），并把商品重新上架。'
+  }
+  return '同意后订单将被取消，商品库存会一并回补。'
+})
 
 const buyerInfo = ref(null)
 const sellerInfo = ref(null)
@@ -322,18 +430,6 @@ const isBuyer = computed(() => {
 const isSeller = computed(() => {
   return order.value && currentUserId.value && order.value.sellerId === currentUserId.value
 })
-
-const getStatusClass = (status) => {
-  const classes = {
-    1: 'status-pending',
-    2: 'status-wait-pay',
-    3: 'status-wait-deliver',
-    4: 'status-wait-receive',
-    5: 'status-completed',
-    6: 'status-cancelled'
-  }
-  return classes[status] || ''
-}
 
 const getFirstImage = (images) => {
   if (!images) return ''
@@ -566,44 +662,81 @@ const closeModal = () => {
   showCancelModal.value = false
   showDeliverModal.value = false
   showConfirmModal.value = false
+  showRefundModal.value = false
+  showAuditModal.value = false
   cancelReason.value = ''
+  refundReason.value = ''
+  auditReason.value = ''
   logisticsCompany.value = ''
   logisticsNo.value = ''
   freight.value = ''
 }
 
+// 买家：待接单直接取消，待支付提交申请等待卖家审核
 const confirmCancel = async () => {
-  const token = localStorage.getItem('token')
-  if (!token) {
-    router.push('/login')
+  const result = await applyCancel(order.value.orderNo, cancelReason.value)
+  if (!result.ok) {
+    alert(result.msg)
     return
   }
 
-  try {
-    const response = await fetch('/order/cancel', {
-      method: 'POST',
-      headers: {
-        'token': token,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        orderNo: order.value.orderNo,
-        cancelReason: cancelReason.value
-      })
-    })
+  const status = result.data && result.data.status
+  alert(status === 9 ? '取消申请已提交，等待卖家审核' : '订单取消成功')
+  closeModal()
+  fetchOrderDetail()
+}
 
-    const data = await response.json()
-    if (data.code === 200) {
-      alert('订单取消成功')
-      closeModal()
-      fetchOrderDetail()
-    } else {
-      alert(data.msg || '取消订单失败')
-    }
-  } catch (error) {
-    console.error('取消订单失败:', error)
-    alert('取消订单失败，请稍后重试')
+// 买家：申请退货退款（仅待发货订单）
+const handleRefundApply = () => {
+  refundReason.value = ''
+  showRefundModal.value = true
+}
+
+const confirmRefundApply = async () => {
+  const result = await applyRefund(order.value.orderNo, refundReason.value)
+  if (!result.ok) {
+    alert(result.msg)
+    return
   }
+
+  alert('退货退款申请已提交，等待卖家审核')
+  closeModal()
+  fetchOrderDetail()
+}
+
+// 卖家：打开审核弹窗（退货/取消 × 同意/拒绝）
+const handleAudit = (type, action) => {
+  auditType.value = type
+  auditAction.value = action
+  auditReason.value = ''
+  showAuditModal.value = true
+}
+
+const confirmAudit = async () => {
+  const orderNo = order.value.orderNo
+  const isRefund = auditType.value === 'refund'
+  const isApprove = auditAction.value === 'approve'
+
+  if (!isApprove && !auditReason.value.trim()) {
+    alert('请填写拒绝原因')
+    return
+  }
+
+  let result
+  if (isRefund) {
+    result = isApprove ? await approveRefund(orderNo) : await rejectRefund(orderNo, auditReason.value)
+  } else {
+    result = isApprove ? await approveCancel(orderNo) : await rejectCancel(orderNo, auditReason.value)
+  }
+
+  if (!result.ok) {
+    alert(result.msg)
+    return
+  }
+
+  alert(isApprove ? '已同意，已通过系统消息通知买家' : '已拒绝，已通过系统消息通知买家')
+  closeModal()
+  fetchOrderDetail()
 }
 
 const confirmDeliver = async () => {
@@ -750,6 +883,32 @@ onMounted(() => {
 
 .status-cancelled {
   color: var(--c-text-3);
+}
+
+/* 退货审核中 / 取消申请中 */
+.status-refund-apply,
+.status-cancel-apply {
+  color: var(--c-warning);
+}
+
+/* 已退货退款 */
+.status-refunded {
+  color: var(--c-success);
+}
+
+/* 等待卖家审核的提示文字 */
+.order-hint {
+  align-self: center;
+  font-size: 13px;
+  color: var(--c-text-3);
+}
+
+/* 弹窗内的说明文字 */
+.audit-tip {
+  font-size: 13px;
+  color: var(--c-text-2);
+  line-height: 1.7;
+  margin-bottom: 12px;
 }
 
 .order-no {

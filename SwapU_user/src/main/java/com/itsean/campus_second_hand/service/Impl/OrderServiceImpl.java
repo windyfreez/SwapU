@@ -201,6 +201,12 @@ public class OrderServiceImpl implements OrderService {
             order.setStatusDesc(Order.ORDER_STATUS_WAIT_RECEIVE_DESC);
         } else if (Order.ORDER_STATUS_ALREADY_RECEIVE.equals(status)) {
             order.setStatusDesc(Order.ORDER_STATUS_ALREADY_RECEIVE_DESC);
+        } else if (Order.ORDER_STATUS_REFUND_APPLYING.equals(status)) {
+            order.setStatusDesc(Order.ORDER_STATUS_REFUND_APPLYING_DESC);
+        } else if (Order.ORDER_STATUS_REFUNDED.equals(status)) {
+            order.setStatusDesc(Order.ORDER_STATUS_REFUNDED_DESC);
+        } else if (Order.ORDER_STATUS_CANCEL_APPLYING.equals(status)) {
+            order.setStatusDesc(Order.ORDER_STATUS_CANCEL_APPLYING_DESC);
         } else {
             order.setStatusDesc("未知状态");
         }
@@ -208,7 +214,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     /**
-     * 取消订单（待确认/待支付），回补库存
+     * 取消订单：待接单买家可直接取消；待支付需申请，卖家审核同意后才取消
      * @param orderCancelDTO
      * @return
      */
@@ -217,24 +223,132 @@ public class OrderServiceImpl implements OrderService {
     public OrderCancelVO cancelOrder(OrderCancelDTO orderCancelDTO) {
         String orderNo = orderCancelDTO.getOrderNo();
         Order order = orderMapper.getOrderByOrderNo(orderNo);
-
-        //待确认、待支付订单可以取消
-        if (order.getStatus() != Order.ORDER_STATUS_WAIT_ACCEPT
-                && order.getStatus() != Order.ORDER_STATUS_WAIT_PAY) {
-            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
         }
 
-        //条件取消 + 回补库存（未支付，不退款）
-        if (!doCancel(order, orderCancelDTO.getCancelReason(), false)) {
-            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL);
+        //只有买家本人可以取消订单
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(order.getBuyerId())) {
+            throw new OrderException(MessageConstant.ONLY_BUYER_CAN_CANCEL);
+        }
+
+        Integer status = order.getStatus();
+
+        //待接单：卖家尚未接单，买家无需卖家同意，直接取消并回补库存（未支付，不退款）
+        if (Order.ORDER_STATUS_WAIT_ACCEPT.equals(status)) {
+            if (!doCancel(order, orderCancelDTO.getCancelReason(), false)) {
+                throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL);
+            }
+
+            OrderCancelVO orderCancelVO = new OrderCancelVO();
+            orderCancelVO.setOrderNo(orderNo);
+            orderCancelVO.setStatus(Order.ORDER_STATUS_CANCEL);
+            orderCancelVO.setStatusDesc(Order.ORDER_STATUS_CANCEL_DESC);
+            orderCancelVO.setCancelReason(orderCancelDTO.getCancelReason());
+            orderCancelVO.setCancelTime(LocalDateTime.now());
+            log.info("买家{}直接取消待接单订单：{}", currentUserId, orderNo);
+            return orderCancelVO;
+        }
+
+        //待支付：卖家已接单，买家需要申请，等待卖家审核同意后才真正取消
+        if (Order.ORDER_STATUS_WAIT_PAY.equals(status)) {
+            int affected = orderMapper.updateStatusAndReasonIfMatch(orderNo,
+                    Order.ORDER_STATUS_WAIT_PAY, Order.ORDER_STATUS_CANCEL_APPLYING, orderCancelDTO.getCancelReason());
+            if (affected != 1) {
+                throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL);
+            }
+
+            OrderCancelVO orderCancelVO = new OrderCancelVO();
+            orderCancelVO.setOrderNo(orderNo);
+            orderCancelVO.setStatus(Order.ORDER_STATUS_CANCEL_APPLYING);
+            orderCancelVO.setStatusDesc(Order.ORDER_STATUS_CANCEL_APPLYING_DESC);
+            orderCancelVO.setCancelReason(orderCancelDTO.getCancelReason());
+            log.info("买家{}申请取消待支付订单，等待卖家审核：{}", currentUserId, orderNo);
+            return orderCancelVO;
+        }
+
+        //待发货走退货退款，待收货/已收货不支持取消
+        throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL_APPLY);
+    }
+
+    /**
+     * 卖家同意取消订单：流转为已取消，回补库存
+     * @param orderCancelApproveDTO
+     * @return
+     */
+    @Override
+    @Transactional
+    public OrderCancelVO approveCancel(OrderCancelApproveDTO orderCancelApproveDTO) {
+        String orderNo = orderCancelApproveDTO.getOrderNo();
+        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
+        }
+
+        //只有卖家本人可以审核取消申请
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(order.getSellerId())) {
+            throw new OrderException(MessageConstant.ONLY_SELLER_CAN_AUDIT_CANCEL);
+        }
+
+        //只允许审核处于取消申请中的订单
+        if (!Order.ORDER_STATUS_CANCEL_APPLYING.equals(order.getStatus())) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_CANCEL);
+        }
+
+        //条件取消 + 回补库存（未支付，不退款），沿用买家申请时记录的原因
+        if (!doCancel(order, order.getCancelReason(), false)) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_CANCEL);
         }
 
         OrderCancelVO orderCancelVO = new OrderCancelVO();
         orderCancelVO.setOrderNo(orderNo);
         orderCancelVO.setStatus(Order.ORDER_STATUS_CANCEL);
         orderCancelVO.setStatusDesc(Order.ORDER_STATUS_CANCEL_DESC);
-        orderCancelVO.setCancelReason(orderCancelDTO.getCancelReason());
+        orderCancelVO.setCancelReason(order.getCancelReason());
         orderCancelVO.setCancelTime(LocalDateTime.now());
+        log.info("卖家{}同意取消订单：{}", currentUserId, orderNo);
+        return orderCancelVO;
+    }
+
+    /**
+     * 卖家拒绝取消订单：订单回到待支付，并清空申请时写入的取消原因
+     * @param orderCancelRejectDTO
+     * @return
+     */
+    @Override
+    @Transactional
+    public OrderCancelVO rejectCancel(OrderCancelRejectDTO orderCancelRejectDTO) {
+        String orderNo = orderCancelRejectDTO.getOrderNo();
+        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
+        }
+
+        //只有卖家本人可以审核取消申请
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(order.getSellerId())) {
+            throw new OrderException(MessageConstant.ONLY_SELLER_CAN_AUDIT_CANCEL);
+        }
+
+        //只允许审核处于取消申请中的订单
+        if (!Order.ORDER_STATUS_CANCEL_APPLYING.equals(order.getStatus())) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_CANCEL);
+        }
+
+        //回到待支付，reason 传 null 表示清空取消原因
+        int affected = orderMapper.updateStatusAndReasonIfMatch(orderNo,
+                Order.ORDER_STATUS_CANCEL_APPLYING, Order.ORDER_STATUS_WAIT_PAY, null);
+        if (affected != 1) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_CANCEL);
+        }
+
+        OrderCancelVO orderCancelVO = new OrderCancelVO();
+        orderCancelVO.setOrderNo(orderNo);
+        orderCancelVO.setStatus(Order.ORDER_STATUS_WAIT_PAY);
+        orderCancelVO.setStatusDesc(Order.ORDER_STATUS_WAIT_PAY_DESC);
+        log.info("卖家{}拒绝取消订单，订单回到待支付：{}，原因：{}", currentUserId, orderNo, orderCancelRejectDTO.getRejectReason());
         return orderCancelVO;
     }
 
@@ -301,6 +415,177 @@ public class OrderServiceImpl implements OrderService {
         seller.setBalance(seller.getBalance().subtract(order.getTotalAmount()));
         userMapper.update(buyer);
         userMapper.update(seller);
+    }
+
+    /**
+     * 买家申请退货退款：只允许待发货订单，流转为退货审核中，等待卖家审核
+     * @param orderRefundApplyDTO
+     * @return
+     */
+    @Override
+    @Transactional
+    public OrderRefundVO applyRefund(OrderRefundApplyDTO orderRefundApplyDTO) {
+        String orderNo = orderRefundApplyDTO.getOrderNo();
+        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
+        }
+
+        //只有买家本人可以发起退货退款申请
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(order.getBuyerId())) {
+            throw new OrderException(MessageConstant.ONLY_BUYER_CAN_APPLY_REFUND);
+        }
+
+        //只允许待发货状态申请退货退款，待接单/待支付可直接取消订单，待收货/已收货不支持
+        if (!Order.ORDER_STATUS_WAIT_DELIVER.equals(order.getStatus())) {
+            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_REFUND);
+        }
+
+        //条件流转：待发货 -> 退货审核中，影响行数为 1 才算成功，保证并发下幂等
+        int affected = orderMapper.updateStatusIfMatch(orderNo,
+                Order.ORDER_STATUS_WAIT_DELIVER, Order.ORDER_STATUS_REFUND_APPLYING);
+        if (affected != 1) {
+            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_REFUND);
+        }
+
+        OrderRefundVO orderRefundVO = new OrderRefundVO();
+        orderRefundVO.setOrderNo(orderNo);
+        orderRefundVO.setStatus(Order.ORDER_STATUS_REFUND_APPLYING);
+        orderRefundVO.setStatusDesc(Order.ORDER_STATUS_REFUND_APPLYING_DESC);
+        orderRefundVO.setPayType(order.getPayType());
+        orderRefundVO.setRefundAmount(order.getTotalAmount());
+        orderRefundVO.setRefundReason(orderRefundApplyDTO.getRefundReason());
+        log.info("买家{}申请退货退款成功，订单号：{}，原因：{}", currentUserId, orderNo, orderRefundApplyDTO.getRefundReason());
+        return orderRefundVO;
+    }
+
+    /**
+     * 卖家审核同意退货退款：流转为已退货退款，按支付方式退款并回补商品库存
+     * @param orderRefundApproveDTO
+     * @return
+     */
+    @Override
+    @Transactional
+    public OrderRefundVO approveRefund(OrderRefundApproveDTO orderRefundApproveDTO) {
+        String orderNo = orderRefundApproveDTO.getOrderNo();
+        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
+        }
+
+        //只有卖家本人可以审核退货申请
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(order.getSellerId())) {
+            throw new OrderException(MessageConstant.ONLY_SELLER_CAN_APPROVE_REFUND);
+        }
+
+        //只允许审核处于退货审核中的订单
+        if (!Order.ORDER_STATUS_REFUND_APPLYING.equals(order.getStatus())) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_REFUND);
+        }
+
+        //条件流转：退货审核中 -> 已退货退款，影响行数为 1 才算成功，保证并发下幂等
+        int affected = orderMapper.updateStatusIfMatch(orderNo,
+                Order.ORDER_STATUS_REFUND_APPLYING, Order.ORDER_STATUS_REFUNDED);
+        if (affected != 1) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_REFUND);
+        }
+
+        //按支付方式退款
+        refundByPayType(order);
+
+        //退货后商品重新可售
+        restoreRefundProductStock(order);
+
+        OrderRefundVO orderRefundVO = new OrderRefundVO();
+        orderRefundVO.setOrderNo(orderNo);
+        orderRefundVO.setStatus(Order.ORDER_STATUS_REFUNDED);
+        orderRefundVO.setStatusDesc(Order.ORDER_STATUS_REFUNDED_DESC);
+        orderRefundVO.setPayType(order.getPayType());
+        orderRefundVO.setRefundAmount(order.getTotalAmount());
+        orderRefundVO.setRefundTime(LocalDateTime.now());
+        log.info("卖家{}同意退货退款成功，订单号：{}", currentUserId, orderNo);
+        return orderRefundVO;
+    }
+
+    /**
+     * 卖家拒绝退货退款：订单回到待发货，库存与资金都不动
+     * @param orderRefundRejectDTO
+     * @return
+     */
+    @Override
+    @Transactional
+    public OrderRefundVO rejectRefund(OrderRefundRejectDTO orderRefundRejectDTO) {
+        String orderNo = orderRefundRejectDTO.getOrderNo();
+        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
+        }
+
+        //只有卖家本人可以审核退货申请
+        Long currentUserId = BaseContext.getCurrentId();
+        if (!currentUserId.equals(order.getSellerId())) {
+            throw new OrderException(MessageConstant.ONLY_SELLER_CAN_APPROVE_REFUND);
+        }
+
+        //只允许审核处于退货审核中的订单
+        if (!Order.ORDER_STATUS_REFUND_APPLYING.equals(order.getStatus())) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_REFUND);
+        }
+
+        //条件流转：退货审核中 -> 待发货，卖家可继续发货
+        int affected = orderMapper.updateStatusIfMatch(orderNo,
+                Order.ORDER_STATUS_REFUND_APPLYING, Order.ORDER_STATUS_WAIT_DELIVER);
+        if (affected != 1) {
+            throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_REFUND);
+        }
+
+        OrderRefundVO orderRefundVO = new OrderRefundVO();
+        orderRefundVO.setOrderNo(orderNo);
+        orderRefundVO.setStatus(Order.ORDER_STATUS_WAIT_DELIVER);
+        orderRefundVO.setStatusDesc(Order.ORDER_STATUS_WAIT_DELIVER_DESC);
+        orderRefundVO.setPayType(order.getPayType());
+        orderRefundVO.setRefundAmount(order.getTotalAmount());
+        log.info("卖家{}拒绝退货退款，订单回到待发货：{}，原因：{}", currentUserId, orderNo, orderRefundRejectDTO.getRejectReason());
+        return orderRefundVO;
+    }
+
+    /**
+     * 按支付方式退款：余额支付买家加回、卖家扣回；微信/支付宝暂不做资金处理
+     * @param order
+     */
+    private void refundByPayType(Order order) {
+        //余额支付：原路退回，买家加回、卖家扣回
+        if (Order.PAY_TYPE_BALANCE.equals(order.getPayType())) {
+            refundBalance(order);
+            return;
+        }
+        //todo 微信支付(1)、支付宝支付(2)暂不接入，不做任何资金操作，直接按退款成功返回
+        log.info("订单{}支付方式为{}，暂不接入资金退款，直接提示退款成功", order.getOrderNo(), order.getPayType());
+    }
+
+    /**
+     * 退货退款后回补商品库存，让商品重新可售
+     * @param order
+     */
+    private void restoreRefundProductStock(Order order) {
+        //回补 DB 库存 + 状态回滚（已售出→售卖中）
+        productMapper.restoreStock(order.getProductId(), order.getQuantity(), LocalDateTime.now());
+
+        //回补 Redis 库存（尽力而为）
+        try {
+            stockService.restore(order.getProductId(), order.getQuantity());
+        } catch (Exception e) {
+            log.warn("Redis 库存回补异常，交由对账任务兜底, productId={}", order.getProductId(), e);
+        }
+
+        //穿透热门商品缓存（售罄恢复可售后重新回源）
+        try {
+            productService.evictHotCache(order.getProductId());
+        } catch (Exception e) {
+            log.warn("热门商品缓存失效异常, productId={}", order.getProductId(), e);
+        }
     }
 
     /**
@@ -449,6 +734,12 @@ public class OrderServiceImpl implements OrderService {
             orderDetailVO.setStatusDesc(Order.ORDER_STATUS_WAIT_RECEIVE_DESC);
         } else if (Order.ORDER_STATUS_ALREADY_RECEIVE.equals(status)) {
             orderDetailVO.setStatusDesc(Order.ORDER_STATUS_ALREADY_RECEIVE_DESC);
+        } else if (Order.ORDER_STATUS_REFUND_APPLYING.equals(status)) {
+            orderDetailVO.setStatusDesc(Order.ORDER_STATUS_REFUND_APPLYING_DESC);
+        } else if (Order.ORDER_STATUS_REFUNDED.equals(status)) {
+            orderDetailVO.setStatusDesc(Order.ORDER_STATUS_REFUNDED_DESC);
+        } else if (Order.ORDER_STATUS_CANCEL_APPLYING.equals(status)) {
+            orderDetailVO.setStatusDesc(Order.ORDER_STATUS_CANCEL_APPLYING_DESC);
         } else {
             orderDetailVO.setStatusDesc("未知状态");
         }

@@ -21,6 +21,9 @@ public class Order {
     public static final Integer ORDER_STATUS_WAIT_RECEIVE = 4;//待收货
     public static final Integer ORDER_STATUS_ALREADY_RECEIVE = 5;//已收货
     public static final Integer ORDER_STATUS_CANCEL = 6;//取消订单
+    public static final Integer ORDER_STATUS_REFUND_APPLYING = 7;//退货审核中（买家已申请，等待卖家审核）
+    public static final Integer ORDER_STATUS_REFUNDED = 8;//已退货退款
+    public static final Integer ORDER_STATUS_CANCEL_APPLYING = 9;//取消申请中（待支付订单买家申请取消，等待卖家审核）
     //2.订单状态描述
     public static final String ORDER_STATUS_WAIT_ACCEPT_DESC = "待确认订单";
     public static final String ORDER_STATUS_WAIT_PAY_DESC = "待支付";
@@ -28,6 +31,9 @@ public class Order {
     public static final String ORDER_STATUS_WAIT_RECEIVE_DESC = "待收货";
     public static final String ORDER_STATUS_ALREADY_RECEIVE_DESC = "已收货";
     public static final String ORDER_STATUS_CANCEL_DESC = "取消订单";
+    public static final String ORDER_STATUS_REFUND_APPLYING_DESC = "退货审核中";
+    public static final String ORDER_STATUS_REFUNDED_DESC = "已退货退款";
+    public static final String ORDER_STATUS_CANCEL_APPLYING_DESC = "取消申请中";
     //3.支付方式
     public static final Integer PAY_TYPE_ALIPAY = 1;//支付宝
     public static final Integer PAY_TYPE_WECHAT = 2;//微信

@@ -35,4 +35,17 @@ public class MessageConstant {
 
     //5.商品类型信息提示
     public static final String CATEGORY_NOT_EXIST = "商品类型不存在";
+
+    //6.退货退款类信息提示
+    public static final String ORDER_NOT_EXIST = "订单不存在";
+    public static final String ORDER_STATUS_CANT_REFUND = "该订单当前状态不支持退货退款，只有待发货的订单可以申请";
+    public static final String ORDER_CANT_APPROVE_REFUND = "该订单当前没有待审核的退货申请";
+    public static final String ONLY_BUYER_CAN_APPLY_REFUND = "只有买家本人可以申请退货退款";
+    public static final String ONLY_SELLER_CAN_APPROVE_REFUND = "只有卖家本人可以审核退货申请";
+
+    //7.取消订单审核类信息提示
+    public static final String ORDER_STATUS_CANT_CANCEL_APPLY = "只有待接单或待支付的订单可以取消";
+    public static final String ONLY_BUYER_CAN_CANCEL = "只有买家本人可以取消订单";
+    public static final String ONLY_SELLER_CAN_AUDIT_CANCEL = "只有卖家本人可以审核取消申请";
+    public static final String ORDER_CANT_APPROVE_CANCEL = "该订单当前没有待审核的取消申请";
 }
