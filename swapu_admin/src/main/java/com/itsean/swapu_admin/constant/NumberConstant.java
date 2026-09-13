@@ -23,4 +23,16 @@ public class NumberConstant {
     public static final int ZONE_COUNT = 3;
     public static final int MAX_RANDOM_PICK_PER_ZONE = 5;
 
+    //管理员角色常量
+    public static final Integer ADMIN_ROLE_SUPER = 1;//超级管理员
+    public static final Integer ADMIN_ROLE_NORMAL = 2;//普通管理员
+    //管理员账号状态常量
+    public static final Integer ADMIN_STATUS_ENABLED = 1;//启用
+    public static final Integer ADMIN_STATUS_DISABLED = 0;//禁用
+    //账号、密码长度限制
+    public static final int ADMIN_USERNAME_MIN_LENGTH = 2;
+    public static final int ADMIN_USERNAME_MAX_LENGTH = 20;
+    public static final int ADMIN_PASSWORD_MIN_LENGTH = 6;
+    public static final int ADMIN_PASSWORD_MAX_LENGTH = 20;
+
 }

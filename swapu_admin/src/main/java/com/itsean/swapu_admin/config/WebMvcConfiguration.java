@@ -1,16 +1,12 @@
 package com.itsean.swapu_admin.config;
 
-import com.itsean.swapu_admin.constant.JwtClaimsConstant;
-import com.itsean.swapu_admin.context.BaseContext;
+import com.itsean.swapu_admin.interceptor.JwtTokenAdminInterceptor;
 import com.itsean.swapu_admin.interceptor.JwtTokenUserInterceptor;
 import com.itsean.swapu_admin.properties.JwtProperties;
-import com.itsean.swapu_admin.utils.JwtUtil;
-import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -21,9 +17,6 @@ import springfox.documentation.service.ApiInfo;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 /**
  * 配置类，注册web层相关组件
  */
@@ -31,6 +24,8 @@ import javax.servlet.http.HttpServletResponse;
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
+    @Autowired
+    private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
     @Autowired
     private JwtTokenUserInterceptor jwtTokenUserInterceptor;
     @Autowired
@@ -87,37 +82,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-
-        log.info("当前线程的ID:"+Thread.currentThread().getId());
-
-        if (!(handler instanceof HandlerMethod)) {
-            return true;
-        }
-
-        String token = request.getHeader(jwtProperties.getUserTokenName());
-
-        if (token == null || token.isEmpty()) {
-            log.warn("请求头中未携带token，路径:{}", request.getRequestURI());
-            response.setStatus(401);
-            return false;
-        }
-
-        try {
-            log.info("jwt校验:{}", token);
-            Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
-            Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
-            log.info("当前用户id：{}", userId);
-            BaseContext.setCurrentId(userId);
-            return true;
-        } catch (Exception ex) {
-            log.error("JWT解析失败:{}", ex.getMessage());
-            response.setStatus(401);
-            return false;
-        }
-    }
-
-
     /**
      * 注册自定义拦截器
      * @param registry
@@ -125,8 +89,15 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
 
+        //管理端接口：使用 admin-secret-key 校验管理端令牌，登录接口放行
+        registry.addInterceptor(jwtTokenAdminInterceptor)
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login");
+
+        //用户端接口：使用 user-secret-key 校验用户端令牌
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/**")
+                .excludePathPatterns("/admin/**")
                 .excludePathPatterns("/user/login", "/user/register")
                 .excludePathPatterns("/product/detail/**")
                 .excludePathPatterns("/category/list")

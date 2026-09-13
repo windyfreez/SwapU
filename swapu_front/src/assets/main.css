@@ -299,9 +299,93 @@ html[data-layout='mobile'] .page-title {
   margin-bottom: 14px;
 }
 
+/* ---------- 手机版:统一宽度 + 防溢出 ---------- */
+/* 各页面卡片宽度统一由 .container 的左右内边距决定 */
+html[data-layout='mobile'] .card,
+html[data-layout='mobile'] .modal-content {
+  max-width: 100%;
+  /* 长标题/长链接不撑破卡片 */
+  overflow-wrap: anywhere;
+}
+
+/* 弹窗宽度统一:都不超过屏幕,避免 420/440/480 这类固定宽度在手机上超框 */
+html[data-layout='mobile'] .modal-content,
+html[data-layout='mobile'] .user-info-modal {
+  width: 100%;
+  max-width: calc(100vw - 24px);
+}
+
+/* 弹窗在手机上可滚动:表单字段多、键盘弹起时不会被裁掉 */
+html[data-layout='mobile'] .modal-overlay {
+  padding: 16px 12px;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+html[data-layout='mobile'] .modal-content {
+  margin: auto 0;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+/* 聊天长消息/长链接不撑破气泡 */
+html[data-layout='mobile'] .message-bubble {
+  overflow-wrap: anywhere;
+}
+
+/* 输入类控件天然带固有宽度(input 默认约 20 字符宽),
+   在 flex 行里 min-width:auto 会让它拒绝收缩,从而顶破卡片 */
+html[data-layout='mobile'] input,
+html[data-layout='mobile'] textarea,
+html[data-layout='mobile'] select {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* 图片一律不超出卡片 */
+html[data-layout='mobile'] img {
+  max-width: 100%;
+}
+
+/* 含输入框/可换行内容的横排容器,统一允许换行,不让子项顶破卡片 */
+html[data-layout='mobile'] .filter-bar,
+html[data-layout='mobile'] .filter-item,
+html[data-layout='mobile'] .price-row,
+html[data-layout='mobile'] .price-line,
+html[data-layout='mobile'] .region-inputs,
+html[data-layout='mobile'] .quantity-control,
+html[data-layout='mobile'] .chat-input,
+html[data-layout='mobile'] .pay-password-section,
+html[data-layout='mobile'] .option-list,
+html[data-layout='mobile'] .form-actions,
+html[data-layout='mobile'] .address-header,
+html[data-layout='mobile'] .amount-row,
+html[data-layout='mobile'] .info-item {
+  flex-wrap: wrap;
+}
+
+/* 页面自带的 max-width(820/860px)在手机版下让位给 .container,保证各页宽度一致 */
+html[data-layout='mobile'] .order-content,
+html[data-layout='mobile'] .sell-form,
+html[data-layout='mobile'] .edit-form,
+html[data-layout='mobile'] .detail-content,
+html[data-layout='mobile'] .create-order-page,
+html[data-layout='mobile'] .edit-product-page,
+html[data-layout='mobile'] .sell-page {
+  max-width: 100%;
+}
+
+/* 账户中心:侧栏变一列后,内容区跟着容器宽度,不再被 flex 挤压 */
+html[data-layout='mobile'] .account-content {
+  width: 100%;
+  min-width: 0;
+}
+
 /* ---------- 账户中心外壳 ---------- */
 html[data-layout='mobile'] .account-layout {
   flex-direction: column;
+  align-items: stretch;
   padding-top: 14px;
   gap: 14px;
 }
@@ -395,6 +479,9 @@ html[data-layout='mobile'] .category-item {
 html[data-layout='mobile'] .detail-main {
   display: flex;
   flex-direction: column;
+  /* 页面基础样式里是 align-items:start(为 grid 准备),
+     改成 flex 竖排后必须恢复 stretch,否则两张卡各按内容宽度收缩、宽度不一致 */
+  align-items: stretch;
   grid-template-columns: 1fr;
   gap: 14px;
   padding-top: 14px;
@@ -504,6 +591,7 @@ html[data-layout='mobile'] .status-tab {
 html[data-layout='mobile'] .info-cols {
   display: flex;
   flex-direction: column;
+  align-items: stretch;
   grid-template-columns: 1fr;
   gap: 12px;
 }
@@ -627,6 +715,7 @@ html[data-layout='mobile'] .footprint-grid {
 
 html[data-layout='mobile'] .favorite-card {
   flex-direction: column;
+  align-items: stretch;
   grid-template-columns: 1fr;
 }
 
@@ -651,6 +740,7 @@ html[data-layout='mobile'] .address-grid {
 
 html[data-layout='mobile'] .region-inputs {
   flex-direction: column;
+  align-items: stretch;
   gap: 10px;
 }
 
@@ -665,6 +755,7 @@ html[data-layout='mobile'] .stats-row {
 
 html[data-layout='mobile'] .create-order-page .order-content {
   flex-direction: column;
+  align-items: stretch;
   grid-template-columns: 1fr;
   gap: 14px;
 }
@@ -674,7 +765,7 @@ html[data-layout='mobile'] .address-item {
 }
 
 html[data-layout='mobile'] .auth-card {
-  margin: 0 16px;
+  margin: 0 12px;
   padding: 24px 18px;
 }
 

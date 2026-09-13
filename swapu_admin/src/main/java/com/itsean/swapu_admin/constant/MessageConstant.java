@@ -34,4 +34,19 @@ public class MessageConstant {
 
     //5.商品类型信息提示
     public static final String CATEGORY_NOT_EXIST = "商品类型不存在";
+
+    //6.管理员类信息提示
+    public static final String ADMIN_USERNAME_OR_PASSWORD_ERROR = "账号或密码错误";
+    public static final String ADMIN_ACCOUNT_DISABLED = "账号已被禁用";
+    public static final String ADMIN_USERNAME_ALREADY_EXIST = "用户名已存在";
+    public static final String ADMIN_NOT_EXIST = "管理员不存在";
+    public static final String ADMIN_NO_PERMISSION = "无操作权限，仅超级管理员可操作";
+    public static final String ADMIN_CANNOT_DISABLE_SELF = "不能禁用自己";
+    public static final String ADMIN_CANNOT_DELETE_SELF = "不能删除自己";
+    public static final String ADMIN_MUST_KEEP_ONE_SUPER = "至少保留一名启用的超级管理员";
+    public static final String ADMIN_OLD_PASSWORD_ERROR = "输入的旧密码不正确";
+    public static final String ADMIN_OLD_NEW_PASSWORD_SAME = "新密码和旧密码相同";
+    public static final String ADMIN_USERNAME_LENGTH_ERROR = "账号长度需为2-20个字符";
+    public static final String ADMIN_PASSWORD_LENGTH_ERROR = "密码长度需为6-20位";
+    public static final String ADMIN_STATUS_ERROR = "管理员状态值不合法";
 }

@@ -71,11 +71,10 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">邮箱</label>
+          <label class="form-label">邮箱 <span class="required">*</span></label>
           <input
             type="email"
             v-model="form.email"
-            placeholder="选填"
             class="form-input"
           />
         </div>

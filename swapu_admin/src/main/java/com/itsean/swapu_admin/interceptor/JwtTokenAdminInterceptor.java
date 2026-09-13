@@ -13,63 +13,58 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
- * jwt令牌校验的拦截器
+ * 管理端 jwt 令牌校验的拦截器
+ * <p>
+ * 使用 admin-secret-key 校验管理端令牌，与用户端令牌相互隔离。
  */
 @Component
 @Slf4j
-public class JwtTokenUserInterceptor implements HandlerInterceptor {
+public class JwtTokenAdminInterceptor implements HandlerInterceptor {
 
     @Autowired
     private JwtProperties jwtProperties;
 
     /**
-     * 校验jwt
+     * 校验管理端jwt
      *
-     * @param request
-     * @param response
-     * @param handler
-     * @return
-     * @throws Exception
+     * @param request  请求
+     * @param response 响应
+     * @param handler  处理器
+     * @return true 放行
      */
+    @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        log.info("当前线程的ID:"+Thread.currentThread().getId());
-
-        //判断当前拦截到的是Controller的方法还是其他资源
+        //判断当前拦截到的是Controller的方法还是其他资源，非动态方法直接放行
         if (!(handler instanceof HandlerMethod)) {
-            //当前拦截到的不是动态方法，直接放行
             return true;
         }
 
-        //1、从请求头中获取令牌
-        String token = request.getHeader(jwtProperties.getUserTokenName());
+        //1、从请求头中获取管理端令牌
+        String token = request.getHeader(jwtProperties.getAdminTokenName());
 
         //2、判断令牌是否存在，如果不存在，直接返回401
         if (token == null || token.isEmpty()) {
-            log.warn("请求头中未携带token，路径:{}", request.getRequestURI());
-            response.setStatus(401);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"msg\":\"未登录或登录已过期\",\"data\":null}");
+            log.warn("管理端请求头中未携带token，路径:{}", request.getRequestURI());
+            writeUnauthorized(response);
             return false;
         }
 
         //3、校验令牌
         try {
-            log.info("jwt校验:{}", token);
-            Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
-            Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
-            log.info("当前用户id：{}", userId);
-            BaseContext.setCurrentId(userId);
+            Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
+            Long adminId = Long.valueOf(claims.get(JwtClaimsConstant.ADMIN_ID).toString());
+            log.info("当前管理员id：{}", adminId);
+            BaseContext.setCurrentId(adminId);
             //4、通过，放行
             return true;
         } catch (Exception ex) {
             //5、不通过，响应401状态码和JSON格式的错误信息
-            log.error("JWT解析失败:{}", ex.getMessage());
-            response.setStatus(401);
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"code\":401,\"msg\":\"未登录或登录已过期\",\"data\":null}");
+            log.error("管理端JWT解析失败:{}", ex.getMessage());
+            writeUnauthorized(response);
             return false;
         }
     }
@@ -86,4 +81,16 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
         BaseContext.removeCurrentId();
     }
+
+    /**
+     * 输出未登录的统一JSON响应
+     *
+     * @param response 响应
+     */
+    private void writeUnauthorized(HttpServletResponse response) throws IOException {
+        response.setStatus(401);
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write("{\"code\":401,\"msg\":\"未登录或登录已过期\",\"data\":null}");
+    }
+
 }
