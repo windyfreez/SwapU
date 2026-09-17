@@ -13,9 +13,15 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.builders.RequestParameterBuilder;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ParameterType;
+import springfox.documentation.service.RequestParameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 配置类，注册web层相关组件
@@ -23,6 +29,15 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Configuration
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
+
+    /**
+     * 无需令牌即可访问的路径：文档静态资源与错误页
+     * 注意：/error 必须放行，否则 404/500 转发到错误页时会被令牌拦截器改写成“未登录”，掩盖真实错误
+     */
+    private static final String[] PUBLIC_PATH_PATTERNS = {
+            "/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**",
+            "/swagger-ui/**", "/swagger-ui.html/**", "/favicon.ico", "/error"
+    };
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
@@ -32,7 +47,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     private JwtProperties jwtProperties;
 
     /**
-     * 通过knife4j生成接口文档
+     * 通过knife4j生成管理端接口文档
      * @return
      */
     @Bean
@@ -46,6 +61,9 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .groupName("管理端接口")
                 .apiInfo(apiInfo)
+                //全局token请求头：文档页调试受保护接口时填入登录返回的令牌即可
+                .globalRequestParameters(buildTokenParameter(jwtProperties.getAdminTokenName(),
+                        "管理端jwt令牌：调用 /admin/login 获取后填入"))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.itsean.swapu_admin.controller.admin"))
                 .paths(PathSelectors.any())
@@ -65,11 +83,32 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         Docket docket = new Docket(DocumentationType.SWAGGER_2)
                 .groupName("用户端接口")
                 .apiInfo(apiInfo)
+                .globalRequestParameters(buildTokenParameter(jwtProperties.getUserTokenName(),
+                        "用户端jwt令牌：调用 /user/login 获取后填入"))
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.itsean.swapu_admin.controller.user"))
                 .paths(PathSelectors.any())
                 .build();
         return docket;
+    }
+
+    /**
+     * 构建全局令牌请求头参数
+     *
+     * @param tokenName   请求头名称，取自 jwt 配置的 token-name
+     * @param description 参数说明
+     * @return 全局请求参数集合
+     */
+    private List<RequestParameter> buildTokenParameter(String tokenName, String description) {
+        List<RequestParameter> requestParameters = new ArrayList<>();
+        requestParameters.add(new RequestParameterBuilder()
+                .name(tokenName)
+                .description(description)
+                .in(ParameterType.HEADER)
+                //非必填：登录、公开接口无需携带令牌
+                .required(false)
+                .build());
+        return requestParameters;
     }
 
     /**
@@ -102,7 +141,7 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .excludePathPatterns("/product/detail/**")
                 .excludePathPatterns("/category/list")
                 .excludePathPatterns("/product/hot")
-                .excludePathPatterns("/doc.html", "/webjars/**", "/swagger-resources/**", "/v2/api-docs/**", "/swagger-ui.html/**");
+                .excludePathPatterns(PUBLIC_PATH_PATTERNS);
 
     }
 

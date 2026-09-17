@@ -65,4 +65,10 @@ public interface AdminService {
      */
     void updatePassword(AdminPasswordDTO adminPasswordDTO);
 
+    /**
+     * 根据ID查询管理员详细信息
+     * @param id
+     * @return
+     */
+    Admin getById(Long id);
 }

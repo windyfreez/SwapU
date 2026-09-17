@@ -65,4 +65,23 @@ public interface ProductMapper {
      * @return
      */
     List<Product> selectHotProducts(@Param("limit") int limit);
+
+    /**
+     * 统计分类下的商品数量，用于删除分类前的占用校验
+     *
+     * @param categoryId 分类ID
+     * @return 商品数量
+     */
+    @Select("select count(*) from product where category_id = #{categoryId}")
+    int countByCategoryId(@Param("categoryId") Long categoryId);
+
+    /**
+     * 统计分类下指定状态的商品数量，用于禁用分类前的在售商品校验
+     *
+     * @param categoryId 分类ID
+     * @param status     商品状态
+     * @return 商品数量
+     */
+    @Select("select count(*) from product where category_id = #{categoryId} and status = #{status}")
+    int countByCategoryIdAndStatus(@Param("categoryId") Long categoryId, @Param("status") Integer status);
 }

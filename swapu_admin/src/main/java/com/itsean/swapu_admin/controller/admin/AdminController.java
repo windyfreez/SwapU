@@ -18,6 +18,7 @@ import com.itsean.swapu_admin.vo.AdminInfoVO;
 import com.itsean.swapu_admin.vo.AdminLoginVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,7 +85,6 @@ public class AdminController {
 
     /**
      * 新增管理员
-     *
      * @param adminDTO 管理员信息
      * @return 新增管理员的ID
      */
@@ -92,15 +92,12 @@ public class AdminController {
     @ApiOperation("新增管理员")
     public Result<AdminAddVO> addAdmin(@RequestBody AdminDTO adminDTO) {
         log.info("新增管理员：{}", adminDTO.getUsername());
-
         Long adminId = adminService.addAdmin(adminDTO);
-
         return Result.success(new AdminAddVO(adminId));
     }
 
     /**
      * 分页查询管理员
-     *
      * @param adminPageQueryDTO 分页查询条件
      * @return 分页结果
      */
@@ -108,9 +105,7 @@ public class AdminController {
     @ApiOperation("分页查询管理员")
     public Result<PageResult> pageQuery(AdminPageQueryDTO adminPageQueryDTO) {
         log.info("分页查询管理员：{}", adminPageQueryDTO);
-
         PageResult pageResult = adminService.pageQuery(adminPageQueryDTO);
-
         return Result.success(pageResult);
     }
 
@@ -124,48 +119,40 @@ public class AdminController {
     @ApiOperation("修改管理员")
     public Result update(@RequestBody AdminDTO adminDTO) {
         log.info("修改管理员：{}", adminDTO.getId());
-
         adminService.update(adminDTO);
-
         return Result.success("管理员信息修改成功");
     }
 
     /**
      * 启用/禁用管理员
-     *
      * @param id             管理员ID
      * @param adminStatusDTO 目标状态
      * @return 操作结果
      */
     @PutMapping("/{id}/status")
     @ApiOperation("启用/禁用管理员")
-    public Result updateStatus(@PathVariable Long id, @RequestBody AdminStatusDTO adminStatusDTO) {
+    public Result updateStatus(@ApiParam(value = "管理员ID", example = "1") @PathVariable Long id,
+                               @RequestBody AdminStatusDTO adminStatusDTO) {
         log.info("启用/禁用管理员：{}，状态：{}", id, adminStatusDTO.getStatus());
-
         adminService.updateStatus(id, adminStatusDTO.getStatus());
-
         return Result.success("管理员状态修改成功");
     }
 
     /**
      * 删除管理员
-     *
      * @param id 管理员ID
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
     @ApiOperation("删除管理员")
-    public Result deleteById(@PathVariable Long id) {
+    public Result deleteById(@ApiParam(value = "管理员ID", example = "1") @PathVariable Long id) {
         log.info("删除管理员：{}", id);
-
         adminService.deleteById(id);
-
         return Result.success("管理员删除成功");
     }
 
     /**
      * 管理员修改自己的密码
-     *
      * @param adminPasswordDTO 原密码与新密码
      * @return 操作结果
      */
@@ -173,10 +160,21 @@ public class AdminController {
     @ApiOperation("管理员修改自己密码")
     public Result updatePassword(@RequestBody AdminPasswordDTO adminPasswordDTO) {
         log.info("管理员修改密码，adminId：{}", BaseContext.getCurrentId());
-
         adminService.updatePassword(adminPasswordDTO);
-
         return Result.success("密码修改成功");
+    }
+
+    /**
+     * 根据id查询管理员详细信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    @ApiOperation("根据id获取管理员详细信息")
+    public Result<Admin> getById(@PathVariable Long id) {
+        log.info("根据id回显某管理员的详细信息：id={}" ,id);
+        Admin admin = adminService.getById(id);
+        return Result.success(admin);
     }
 
 }

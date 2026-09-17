@@ -43,8 +43,17 @@ mybatis:
     map-underscore-to-camel-case: true
 
 
+#接口文档配置，文档地址：http://localhost:8081/doc.html
 knife4j:
+  #开启knife4j增强，接口文档由 @Api/@ApiOperation/@ApiModelProperty 注解自动生成
   enable: true
+  #生产环境置为 true 会屏蔽文档页面，避免对外暴露接口信息
+  production: false
+  setting:
+    #文档界面语言：zh-CN 中文 / en-US 英文
+    language: zh-CN
+    #开启调试栏，可配合分组里的全局 token 请求头直接调试受保护接口
+    enableDebug: true
 
 #JWT配置
 sky:

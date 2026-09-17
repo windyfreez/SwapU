@@ -17,4 +17,9 @@ public class ErrorCodeConstant {
     public static final Integer ADMIN_CANNOT_OPERATE_SELF = 4104;//不能禁用或删除自己
     public static final Integer ADMIN_MUST_KEEP_ONE_SUPER = 4105;//至少保留一名启用的超级管理员
 
+    //分类模块错误码 4301-4303
+    public static final Integer CATEGORY_NAME_ALREADY_EXIST = 4301;//分类名称已存在
+    public static final Integer CATEGORY_HAS_PRODUCT = 4302;//分类下存在商品，不可禁用或删除
+    public static final Integer CATEGORY_NOT_EXIST = 4303;//分类不存在
+
 }

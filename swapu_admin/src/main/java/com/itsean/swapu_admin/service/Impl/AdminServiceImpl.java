@@ -279,6 +279,16 @@ public class AdminServiceImpl implements AdminService {
     }
 
     /**
+     * 根据ID查询某管理员详细信息
+     * @param id
+     * @return
+     */
+    @Override
+    public Admin getById(Long id) {
+        return adminMapper.findById(id);
+    }
+
+    /**
      * 校验当前登录人是否为启用状态的超级管理员，非超管一律按无权限处理
      */
     private void checkSuperAdmin() {

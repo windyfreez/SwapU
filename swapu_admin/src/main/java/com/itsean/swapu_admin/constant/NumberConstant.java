@@ -35,4 +35,12 @@ public class NumberConstant {
     public static final int ADMIN_PASSWORD_MIN_LENGTH = 6;
     public static final int ADMIN_PASSWORD_MAX_LENGTH = 20;
 
+    //分类状态常量
+    public static final Integer CATEGORY_STATUS_ENABLED = 1;//启用
+    public static final Integer CATEGORY_STATUS_DISABLED = 0;//禁用
+    //分类默认排序值
+    public static final int DEFAULT_CATEGORY_SORT = 0;
+    //分类名称长度上限，与 category.name 的 varchar(50) 保持一致
+    public static final int CATEGORY_NAME_MAX_LENGTH = 50;
+
 }

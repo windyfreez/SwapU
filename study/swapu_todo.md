@@ -25,7 +25,7 @@
 - [x] 热门商品库存采集到Redis中，编写库存预扣减逻辑，用Redis挡住未抢到库存的请求，并编写定时任务30min对redis库存，用RabbitMQ向后端数据库逻辑异步发消息，前端显示“排队中，请等候...”
 
 ## 4. 管理端-后端（P1）
-- [ ] 管理员登录（admin 表 + admin JWT，复用 JwtUtil）+ 管理员管理 CRUD
+- [x] 管理员登录（admin 表 + admin JWT，复用 JwtUtil）+ 管理员管理 CRUD
 - [ ] 审核模块：商品审核列表/通过/驳回（复用 audit_record）+ 评论审核 + 头像审核
 - [ ] 分类管理：category CRUD + 启停（表已有 status 字段）
 - [ ] 用户管理：启用/禁用账号、信用分修改（user.credit_score 已有）、用户交易统计
