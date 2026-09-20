@@ -65,7 +65,9 @@ export default defineConfig({
       },
       '/ws': {
         target: 'http://localhost:8080',
-        changeOrigin: true
+        changeOrigin: true,
+        // 聊天消息实时推送走 WebSocket，代理必须开启 ws 才会转发 Upgrade 请求
+        ws: true
       }
     }
   }

@@ -39,8 +39,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onActivated } from 'vue'
+import { ref, onMounted, onActivated, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { onChatMessage } from '@/utils/chatSocket'
 
 const router = useRouter()
 const sessions = ref([])
@@ -219,12 +220,40 @@ const openChat = (session) => {
   })
 }
 
+// WebSocket 消息订阅的取消函数
+let unsubscribeSocket = null
+// 去抖句柄：连续多条消息只刷新一次会话列表
+let refreshTimer = null
+
+// 收到任意新消息（含系统小助手的通知）就刷新会话列表与未读数
+const scheduleRefreshSessions = () => {
+  if (refreshTimer) return
+  refreshTimer = setTimeout(() => {
+    refreshTimer = null
+    fetchSessions()
+  }, 300)
+}
+
 onMounted(() => {
   fetchSessions()
+  // 订阅时内部会自动建立 WebSocket 连接，无需再单独调用连接方法
+  unsubscribeSocket = onChatMessage(scheduleRefreshSessions)
 })
 
 onActivated(() => {
   fetchSessions()
+})
+
+onUnmounted(() => {
+  // 只解除订阅，不断开连接：连接是全局单例，聊天页等仍在复用
+  if (unsubscribeSocket) {
+    unsubscribeSocket()
+    unsubscribeSocket = null
+  }
+  if (refreshTimer) {
+    clearTimeout(refreshTimer)
+    refreshTimer = null
+  }
 })
 </script>
 

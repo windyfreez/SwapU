@@ -268,6 +268,10 @@ public class OrderServiceImpl implements OrderService {
             return orderCancelVO;
         }
 
+        order.setCancelTime(LocalDateTime.now());
+        order.setCancelReason(orderCancelDTO.getCancelReason());
+        orderMapper.update(order);
+
         //待发货走退货退款，待收货/已收货不支持取消
         throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CANCEL_APPLY);
     }
@@ -443,8 +447,10 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //条件流转：待发货 -> 退货审核中，影响行数为 1 才算成功，保证并发下幂等
-        int affected = orderMapper.updateStatusIfMatch(orderNo,
-                Order.ORDER_STATUS_WAIT_DELIVER, Order.ORDER_STATUS_REFUND_APPLYING);
+        //退货原因写入 cancel_reason，订单详情页据此回显，卖家审核时能看到原因
+        int affected = orderMapper.updateStatusAndReasonIfMatch(orderNo,
+                Order.ORDER_STATUS_WAIT_DELIVER, Order.ORDER_STATUS_REFUND_APPLYING,
+                orderRefundApplyDTO.getRefundReason());
         if (affected != 1) {
             throw new OrderException(MessageConstant.ORDER_STATUS_CANT_REFUND);
         }
@@ -535,8 +541,9 @@ public class OrderServiceImpl implements OrderService {
         }
 
         //条件流转：退货审核中 -> 待发货，卖家可继续发货
-        int affected = orderMapper.updateStatusIfMatch(orderNo,
-                Order.ORDER_STATUS_REFUND_APPLYING, Order.ORDER_STATUS_WAIT_DELIVER);
+        //退货申请被拒绝，清空 cancel_reason，避免订单回到待发货后仍显示一条过期的退货原因
+        int affected = orderMapper.updateStatusAndReasonIfMatch(orderNo,
+                Order.ORDER_STATUS_REFUND_APPLYING, Order.ORDER_STATUS_WAIT_DELIVER, null);
         if (affected != 1) {
             throw new OrderException(MessageConstant.ORDER_CANT_APPROVE_REFUND);
         }

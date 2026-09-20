@@ -57,6 +57,8 @@ public class OrderDetailVO {
 
     private String buyerMessage;
 
+    private String cancelReason;//取消/退货原因（买家申请时填写，供买卖双方在详情页查看）
+
     private String address;
 
     private String logisticsCompany;

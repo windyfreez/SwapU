@@ -9,9 +9,11 @@ import com.itsean.pojo.dto.ChatMessageDTO;
 import com.itsean.pojo.dto.ChatSessionQueryDTO;
 import com.itsean.pojo.entity.ChatMessage;
 import com.itsean.common.exception.ChatMessageException;
+import com.itsean.campus_second_hand.handler.ChatWebSocketHandler;
 import com.itsean.campus_second_hand.mapper.ChatMapper;
 import com.itsean.campus_second_hand.service.ChatService;
 import com.itsean.pojo.vo.ChatMessageVO;
+import com.itsean.pojo.vo.ChatResponseVO;
 import com.itsean.pojo.vo.ChatSessionVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
@@ -39,8 +42,8 @@ public class ChatServiceImpl implements ChatService {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setFromUserId(currentUserId);
         chatMessage.setToUserId(chatMessageDTO.getToUserId());
-        //异常检验，无法给自己发消息
-        if(chatMessage.getFromUserId() == chatMessage.getToUserId()){
+        //异常检验，无法给自己发消息（用 Objects.equals 做值比较，避免 Long 引用比较失效）
+        if (Objects.equals(chatMessage.getFromUserId(), chatMessage.getToUserId())){
             throw new ChatMessageException(MessageConstant.CANT_SEND_MESSAGE_TO_YOURSELF);
         }
         chatMessage.setProductId(chatMessageDTO.getProductId());
@@ -50,6 +53,9 @@ public class ChatServiceImpl implements ChatService {
         chatMessage.setCreateTime(LocalDateTime.now());
 
         chatMapper.insertMessage(chatMessage);
+
+        //落库成功后实时推送给接收方，对方不在线时静默忽略（消息已入库，上线后仍可查到）
+        ChatWebSocketHandler.sendToUser(chatMessage.getToUserId(), ChatResponseVO.fromMessage(chatMessage));
 
         log.info("用户{}发送消息给用户{}", currentUserId, chatMessageDTO.getToUserId());
         return chatMessage;
@@ -111,6 +117,9 @@ public class ChatServiceImpl implements ChatService {
         chatMessage.setIsRead(0);
         chatMessage.setCreateTime(LocalDateTime.now());
         chatMapper.insertMessage(chatMessage);
+
+        //系统提醒同样实时推送，订单状态流转等通知无需刷新页面即可收到
+        ChatWebSocketHandler.sendToUser(chatMessage.getToUserId(), ChatResponseVO.fromMessage(chatMessage));
 
     }
 }

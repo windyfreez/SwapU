@@ -80,8 +80,9 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { connectChatSocket, onChatMessage } from '@/utils/chatSocket'
 
 const router = useRouter()
 const route = useRoute()
@@ -101,7 +102,8 @@ const otherUserInfo = ref({})
 
 const messages = ref([])
 const inputMessage = ref('')
-let ws = null
+// WebSocket 消息订阅的取消函数，页面卸载时解除订阅
+let unsubscribeSocket = null
 
 const formatTime = (dateStr) => {
   if (!dateStr) return ''
@@ -553,8 +555,51 @@ onMounted(async () => {
     targetUser.value.avatar = userInfo.avatar
   }
 
+  // 先注册订阅再建连，避免刚建连时推送的消息被漏掉
+  unsubscribeSocket = onChatMessage(handleSocketMessage)
+  connectChatSocket()
+
   markAsRead(userId)
   fetchHistory()
+})
+
+// 处理服务端通过 WebSocket 实时推送过来的消息（不再需要手动刷新页面）
+const handleSocketMessage = (data) => {
+  if (!data || !data.messageId) return
+
+  const targetUserId = parseInt(targetUser.value.userId)
+  // 只处理当前会话里对方发来的消息：自己发的由发送接口同步返回，其他会话交给会话列表页
+  if (data.fromUserId !== targetUserId) return
+
+  // 历史记录与实时推送可能包含同一条消息，按 messageId 去重
+  if (messages.value.some((msg) => msg.messageId === data.messageId)) return
+
+  messages.value.push({
+    messageId: data.messageId,
+    fromUserId: data.fromUserId,
+    fromUserNickname: targetUser.value.nickname || '对方',
+    fromUserAvatar: targetUser.value.avatar || '',
+    toUserId: data.toUserId,
+    productId: data.productId,
+    messageType: data.messageType,
+    content: data.content,
+    isRead: false,
+    createTime: data.createTime
+  })
+  nextTick(() => {
+    scrollToBottom()
+  })
+
+  // 人正停留在当前会话页，收到的消息直接标记已读
+  markAsRead(targetUserId)
+}
+
+onUnmounted(() => {
+  // 只解除订阅，不断开连接：连接是全局单例，消息列表页等仍在复用
+  if (unsubscribeSocket) {
+    unsubscribeSocket()
+    unsubscribeSocket = null
+  }
 })
 
 const fetchUserInfoById = async (userId) => {

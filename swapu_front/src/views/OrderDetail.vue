@@ -20,6 +20,22 @@
           <div class="create-time">下单时间: {{ formatTime(order.createTime) }}</div>
         </div>
 
+        <!-- 取消/退货信息：cancelReason 与 cancelTime 非空时才显示
+             卖家审核退货/取消申请时,就是在这里看到买家填写的原因 -->
+        <div v-if="order.cancelReason || order.cancelTime" class="card section-card">
+          <div class="section-title">{{ cancelInfoTitle }}</div>
+          <div v-if="order.cancelReason" class="cancel-reason-block">
+            <span class="cancel-reason-label">{{ cancelReasonLabel }}</span>
+            <p class="cancel-reason-text">{{ order.cancelReason }}</p>
+          </div>
+          <div v-if="order.cancelTime" class="info-list">
+            <div class="info-item">
+              <span class="info-label">取消时间</span>
+              <span class="info-value">{{ formatTime(order.cancelTime) }}</span>
+            </div>
+          </div>
+        </div>
+
         <!-- 商品信息 -->
         <div class="card section-card">
           <div class="section-title">商品信息</div>
@@ -358,7 +374,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { getStatusText, getStatusClass, isWaitingAudit } from '../utils/orderStatus'
+import { getStatusText, getStatusClass, isWaitingAudit, ORDER_STATUS } from '../utils/orderStatus'
 import {
   applyRefund,
   approveRefund,
@@ -430,6 +446,15 @@ const isBuyer = computed(() => {
 const isSeller = computed(() => {
   return order.value && currentUserId.value && order.value.sellerId === currentUserId.value
 })
+
+// 退货相关状态：7退货审核中 / 8已退货退款；其余（6取消订单 / 9取消申请中）按取消展示
+const isRefundStatus = computed(() =>
+  !!order.value && [ORDER_STATUS.REFUND_APPLYING, ORDER_STATUS.REFUNDED].includes(order.value.status)
+)
+
+const cancelInfoTitle = computed(() => (isRefundStatus.value ? '退货信息' : '取消信息'))
+
+const cancelReasonLabel = computed(() => (isRefundStatus.value ? '退货原因' : '取消原因'))
 
 const getFirstImage = (images) => {
   if (!images) return ''
@@ -1213,6 +1238,26 @@ onMounted(() => {
   font-size: 14px;
   color: var(--c-text);
   line-height: 1.6;
+}
+
+/* 取消/退货原因 */
+.cancel-reason-label {
+  display: block;
+  font-size: 13px;
+  color: var(--c-text-3);
+  margin-bottom: 6px;
+}
+
+.cancel-reason-text {
+  font-size: 14px;
+  color: var(--c-text);
+  line-height: 1.7;
+  word-break: break-word;
+  white-space: pre-wrap;
+}
+
+.cancel-reason-block + .info-list {
+  margin-top: 12px;
 }
 
 /* 操作按钮卡片 */

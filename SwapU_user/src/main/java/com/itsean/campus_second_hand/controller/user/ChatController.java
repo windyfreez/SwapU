@@ -32,17 +32,8 @@ public class ChatController {
         log.info("发送消息：{}", chatMessageDTO);
         ChatMessage chatMessage = chatService.sendMessage(chatMessageDTO);
 
-        ChatResponseVO responseVO = new ChatResponseVO();
-        responseVO.setCode(200);
-        responseVO.setMessageId(chatMessage.getId());
-        responseVO.setFromUserId(chatMessage.getFromUserId());
-        responseVO.setToUserId(chatMessage.getToUserId());
-        responseVO.setProductId(chatMessage.getProductId());
-        responseVO.setMessageType(chatMessage.getMessageType());
-        responseVO.setContent(chatMessage.getMessage());
-        responseVO.setCreateTime(chatMessage.getCreateTime());
-
-        return Result.success(responseVO);
+        //接收方的实时推送已在 ChatService 中完成，这里只把结果返回给发送方
+        return Result.success(ChatResponseVO.fromMessage(chatMessage));
     }
 
     /**
