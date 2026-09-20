@@ -34,13 +34,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class ChatWebSocketHandler {
 
-    /** 在线连接池：同一用户可能同时打开多个页面，因此一个 userId 对应一组 Session */
+    //在线连接池：同一用户可能同时打开多个页面，因此一个 userId 对应一组 Session
     private static final Map<Long, Set<Session>> sessionPool = new ConcurrentHashMap<>();
 
-    /** Session 属性键：缓存 userId，断开连接时无需重复解析 token */
+    //Session 属性键：缓存 userId，断开连接时无需重复解析 token
     private static final String SESSION_USER_ID = "userId";
 
-    /** 使用 Spring Boot 自动配置的 ObjectMapper，其中已注册 JavaTimeModule，可序列化 LocalDateTime */
+    //使用 Spring Boot 自动配置的 ObjectMapper，其中已注册 JavaTimeModule，可序列化 LocalDateTime
     private static ObjectMapper objectMapper;
 
     private static ChatService chatService;
