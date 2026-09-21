@@ -18,6 +18,7 @@
           v-model="keyword"
           type="text"
           placeholder="搜索好物..."
+          enterkeyhint="search"
           @keyup.enter="handleSearch"
         />
         <button class="search-btn" @click="handleSearch">搜索</button>
@@ -333,10 +334,48 @@ onUnmounted(() => {
   border-color: rgba(255, 255, 255, 0.85);
 }
 
-/* 手机版:顶部只保留品牌、显示模式、主题与用户入口,页面导航交给底部 tab 栏 */
-html[data-layout='mobile'] .nav-links,
-html[data-layout='mobile'] .nav-search {
+/* 手机版:顶栏分两行——第一行品牌 + 搜索框,第二行显示模式/主题/登录注册,
+   页面导航交给底部 tab 栏。搜索框在手机版必须保留:
+   首页筛选栏里没有关键词输入框,顶栏搜索框是手机端唯一能输入关键词的入口 */
+html[data-layout='mobile'] .navbar {
+  height: auto;
+}
+
+/* 权重写成 .navbar .navbar-inner,避免与 main.css 里 .container 的内边距简写打平手 */
+html[data-layout='mobile'] .navbar .navbar-inner {
+  height: auto;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px 12px;
+}
+
+html[data-layout='mobile'] .nav-links {
   display: none;
+}
+
+html[data-layout='mobile'] .brand {
+  order: 1;
+}
+
+/* 搜索框与品牌同处第一行,占满右侧剩余空间;
+   flex-basis 写死 140px,换行位置才可预测(不被输入框固有宽度带偏) */
+html[data-layout='mobile'] .nav-search {
+  order: 2;
+  display: flex;
+  flex: 1 1 140px;
+  min-width: 0;
+  max-width: none;
+}
+
+/* 显示模式/主题/登录注册整体换到第二行并靠右,与电脑版的位置习惯一致 */
+html[data-layout='mobile'] .nav-user {
+  order: 3;
+  justify-content: flex-end;
+}
+
+/* iOS 上字号小于 16px 的输入框聚焦时会自动放大整个页面 */
+html[data-layout='mobile'] .nav-search input {
+  font-size: 16px;
 }
 
 .login-link {

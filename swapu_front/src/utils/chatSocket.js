@@ -5,12 +5,16 @@
 
 const RECONNECT_BASE_DELAY = 1000
 const RECONNECT_MAX_DELAY = 30000
+// 看门狗轮询间隔：只用于发现“该连却没连”的情况
+const WATCHDOG_INTERVAL = 5000
 
 let socket = null
 // 记录当前连接对应的用户，重新登录（身份变化）时用于重建连接
 let connectedUserId = null
 let reconnectTimer = null
 let reconnectAttempts = 0
+// 看门狗定时器
+let watchdogTimer = null
 // 主动关闭标记：页面卸载或身份变化时不再自动重连
 let closedByUser = false
 
@@ -19,6 +23,23 @@ const messageHandlers = new Set()
 const getToken = () => localStorage.getItem('token') || ''
 
 const getUserId = () => localStorage.getItem('userId') || ''
+
+// 看门狗：页面加载时还没登录、登录后 App 不会重新挂载，这类错过建连时机的场景靠它补上
+const startWatchdog = () => {
+  if (watchdogTimer) return
+  watchdogTimer = setInterval(() => {
+    if (!socket && !closedByUser) {
+      openSocket()
+    }
+  }, WATCHDOG_INTERVAL)
+}
+
+const stopWatchdog = () => {
+  if (watchdogTimer) {
+    clearInterval(watchdogTimer)
+    watchdogTimer = null
+  }
+}
 
 const clearReconnectTimer = () => {
   if (reconnectTimer) {
@@ -139,6 +160,7 @@ export const connectChatSocket = () => {
  * 主动断开聊天 WebSocket 连接
  */
 export const disconnectChatSocket = () => {
+  stopWatchdog()
   closeSocket()
 }
 
@@ -149,9 +171,14 @@ export const disconnectChatSocket = () => {
  */
 export const onChatMessage = (handler) => {
   messageHandlers.add(handler)
+  startWatchdog()
   connectChatSocket()
   return () => {
     messageHandlers.delete(handler)
+    // 没有任何页面再关心消息时才停掉看门狗
+    if (messageHandlers.size === 0) {
+      stopWatchdog()
+    }
   }
 }
 

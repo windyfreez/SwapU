@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { connectChatSocket, onChatMessage } from '@/utils/chatSocket'
 
@@ -525,6 +525,37 @@ const markAsRead = async (fromUserId) => {
   }
 }
 
+// 加载指定会话：清空当前消息、恢复对方资料与商品上下文，再拉取历史记录
+const initChat = async (userId) => {
+  messages.value = []
+  targetUser.value.userId = userId
+
+  // sessionStorage 里可能残留其他会话的上下文，必须校验 userId 一致后才使用
+  let savedTarget = null
+  const cachedTarget = sessionStorage.getItem('chatTargetUser')
+  if (cachedTarget) {
+    try {
+      const parsed = JSON.parse(cachedTarget)
+      if (String(parsed.userId) === String(userId)) {
+        savedTarget = parsed
+      }
+    } catch (e) {
+      savedTarget = null
+    }
+  }
+
+  targetUser.value.productId = savedTarget ? (savedTarget.productId || null) : null
+  targetUser.value.productTitle = savedTarget ? (savedTarget.productTitle || '') : ''
+  targetUser.value.productImage = savedTarget ? (savedTarget.productImage || '') : ''
+
+  const userInfo = await fetchUserInfoById(userId)
+  targetUser.value.nickname = userInfo.nickname
+  targetUser.value.avatar = userInfo.avatar
+
+  markAsRead(userId)
+  fetchHistory()
+}
+
 onMounted(async () => {
   const userId = route.query.userId
   if (!userId) {
@@ -532,35 +563,18 @@ onMounted(async () => {
     return
   }
 
-  targetUser.value.userId = userId
-
-  const savedTarget = sessionStorage.getItem('chatTargetUser')
-  if (savedTarget) {
-    try {
-      const user = JSON.parse(savedTarget)
-      targetUser.value.productId = user.productId || null
-      targetUser.value.productTitle = user.productTitle || ''
-      targetUser.value.productImage = user.productImage || ''
-      const userInfo = await fetchUserInfoById(userId)
-      targetUser.value.nickname = userInfo.nickname
-      targetUser.value.avatar = userInfo.avatar
-    } catch (e) {
-      const userInfo = await fetchUserInfoById(userId)
-      targetUser.value.nickname = userInfo.nickname
-      targetUser.value.avatar = userInfo.avatar
-    }
-  } else {
-    const userInfo = await fetchUserInfoById(userId)
-    targetUser.value.nickname = userInfo.nickname
-    targetUser.value.avatar = userInfo.avatar
-  }
-
   // 先注册订阅再建连，避免刚建连时推送的消息被漏掉
   unsubscribeSocket = onChatMessage(handleSocketMessage)
   connectChatSocket()
 
-  markAsRead(userId)
-  fetchHistory()
+  await initChat(userId)
+})
+
+// 点击新消息弹窗切换到别的会话时路由参数会变，但组件被复用不会重新挂载，需要手动重载
+watch(() => route.query.userId, (userId) => {
+  if (userId) {
+    initChat(userId)
+  }
 })
 
 // 处理服务端通过 WebSocket 实时推送过来的消息（不再需要手动刷新页面）

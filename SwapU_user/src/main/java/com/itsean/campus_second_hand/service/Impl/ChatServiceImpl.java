@@ -9,8 +9,10 @@ import com.itsean.pojo.dto.ChatMessageDTO;
 import com.itsean.pojo.dto.ChatSessionQueryDTO;
 import com.itsean.pojo.entity.ChatMessage;
 import com.itsean.common.exception.ChatMessageException;
+import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.handler.ChatWebSocketHandler;
 import com.itsean.campus_second_hand.mapper.ChatMapper;
+import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.ChatService;
 import com.itsean.pojo.vo.ChatMessageVO;
 import com.itsean.pojo.vo.ChatResponseVO;
@@ -29,6 +31,9 @@ public class ChatServiceImpl implements ChatService {
 
     @Autowired
     private ChatMapper chatMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     /**
      * 发送消息
@@ -55,7 +60,7 @@ public class ChatServiceImpl implements ChatService {
         chatMapper.insertMessage(chatMessage);
 
         //落库成功后实时推送给接收方，对方不在线时静默忽略（消息已入库，上线后仍可查到）
-        ChatWebSocketHandler.sendToUser(chatMessage.getToUserId(), ChatResponseVO.fromMessage(chatMessage));
+        ChatWebSocketHandler.sendToUser(chatMessage.getToUserId(), buildPushVO(chatMessage, null));
 
         log.info("用户{}发送消息给用户{}", currentUserId, chatMessageDTO.getToUserId());
         return chatMessage;
@@ -119,7 +124,30 @@ public class ChatServiceImpl implements ChatService {
         chatMapper.insertMessage(chatMessage);
 
         //系统提醒同样实时推送，订单状态流转等通知无需刷新页面即可收到
-        ChatWebSocketHandler.sendToUser(chatMessage.getToUserId(), ChatResponseVO.fromMessage(chatMessage));
+        ChatWebSocketHandler.sendToUser(chatMessage.getToUserId(), buildPushVO(chatMessage, "系统小助手"));
 
+    }
+
+    /**
+     * 构建推送用的响应对象，补上发送者昵称与头像，前端据此弹出新消息提醒
+     * @param chatMessage 已插入数据库的聊天消息
+     * @param defaultNickname 查不到发送者时使用的兜底称呼，可为空
+     * @return 带发送者信息的推送对象
+     */
+    private ChatResponseVO buildPushVO(ChatMessage chatMessage, String defaultNickname) {
+        ChatResponseVO responseVO = ChatResponseVO.fromMessage(chatMessage);
+
+        User sender = userMapper.findById(chatMessage.getFromUserId());
+        if (sender == null) {
+            //发送者已被删除等异常情况，用兜底称呼保证弹窗里有内容
+            log.warn("推送消息时未查到发送者信息，fromUserId: {}", chatMessage.getFromUserId());
+            responseVO.setFromUserNickname(defaultNickname);
+            return responseVO;
+        }
+
+        //昵称为空时退回用户名，保证弹窗始终有称呼
+        responseVO.setFromUserNickname(sender.getNickname() != null ? sender.getNickname() : sender.getUsername());
+        responseVO.setFromUserAvatar(sender.getAvatar());
+        return responseVO;
     }
 }

@@ -12,6 +12,8 @@
     </footer>
     <!-- 手机版底部导航 -->
     <MobileTabBar v-if="showChrome && showTabBar" />
+    <!-- 新消息右下角提醒：全局挂载，任意页面都能收到 WebSocket 推送 -->
+    <MessageToast />
   </div>
 </template>
 
@@ -20,6 +22,7 @@ import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import MobileTabBar from './components/MobileTabBar.vue'
+import MessageToast from './components/MessageToast.vue'
 import { getCurrentLayout, LAYOUT_MOBILE } from './utils/layout'
 
 const route = useRoute()

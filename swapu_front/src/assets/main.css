@@ -487,6 +487,19 @@ html[data-layout='mobile'] .detail-main {
   padding-top: 14px;
 }
 
+/* 双保险：图片卡与信息卡一律铺满一行，任何情况下都不会各自按内容宽度收缩 */
+html[data-layout='mobile'] .detail-main > .gallery,
+html[data-layout='mobile'] .detail-main > .info-panel {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 两张卡的左右内边距必须一致(信息卡是 14px),
+   否则图片比下面的文字窄一圈，左右边线也对不齐 */
+html[data-layout='mobile'] .gallery {
+  padding: 14px;
+}
+
 html[data-layout='mobile'] .info-panel {
   padding: 16px 14px;
 }
@@ -671,8 +684,16 @@ html[data-layout='mobile'] .chat-input {
   padding: 10px 12px;
 }
 
-html[data-layout='mobile'] .message-bubble {
+html[data-layout='mobile'] .message-content {
   max-width: 78%;
+}
+
+/* 气泡必须撑满整块消息内容区，这里绝不能再写百分比 max-width：
+   .message-content 是按内容收缩(fit-content)的 flex 项，气泡再取它的百分比宽度
+   会形成循环依赖，浏览器只能按“单行理想宽度”去解，气泡最终只剩理想宽度的 78%，
+   2~4 个字的短消息就会被压成一字一行（看上去像竖排文字） */
+html[data-layout='mobile'] .message-bubble {
+  max-width: 100%;
 }
 
 /* ---------- 发布 / 编辑商品:表单页 ---------- */
