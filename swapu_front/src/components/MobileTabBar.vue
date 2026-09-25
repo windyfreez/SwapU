@@ -19,14 +19,14 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 
 const tabs = [
-  { to: '/', icon: '🏠', label: '首页', exact: true },
   { to: '/recommend', icon: '✨', label: '推荐' },
+  { to: '/', icon: '🏠', label: '全部', exact: true },
   { to: '/sell', icon: '＋', label: '发布' },
   { to: '/messages', icon: '💬', label: '消息' },
   { to: '/profile', icon: '👤', label: '我的' }
 ]
 
-// 首页要精确匹配，其余按前缀匹配（/messages/chat 也算“消息”选中）
+// 全部(首页路由)要精确匹配，其余按前缀匹配（/messages/chat 也算“消息”选中）
 const isActive = (tab) =>
   tab.exact ? route.path === tab.to : route.path.startsWith(tab.to)
 </script>

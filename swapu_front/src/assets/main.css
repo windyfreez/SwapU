@@ -422,7 +422,7 @@ html[data-layout='mobile'] .account-sidebar .side-link {
   flex-shrink: 0;
 }
 
-/* ---------- 首页 / 推荐:商品网格与筛选栏 ---------- */
+/* ---------- 全部 / 推荐:商品网格与筛选栏 ---------- */
 html[data-layout='mobile'] .goods-grid,
 html[data-layout='mobile'] .recommend-grid {
   grid-template-columns: repeat(2, 1fr);

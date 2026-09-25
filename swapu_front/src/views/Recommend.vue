@@ -1,13 +1,6 @@
 <template>
   <div class="recommend-page">
     <div class="container">
-      <div class="recommend-header">
-        <h1 class="page-title">✨ 推荐商品</h1>
-        <p class="recommend-subtitle">
-          {{ loggedIn ? '根据你的浏览与收藏，为你精选以下好物' : '为你精选高人气、刚上架的校园好物，登录后可获得更精准推荐' }}
-        </p>
-      </div>
-
       <div v-if="loading && goods.length === 0" class="loading-state">
         <p>推荐加载中...</p>
       </div>
@@ -62,7 +55,6 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const goods = ref([])
 const loading = ref(false)
-const loggedIn = ref(false)
 
 const getFirstImage = (imageField) => {
   if (!imageField) return ''
@@ -127,7 +119,6 @@ const fetchRecommend = async () => {
   loading.value = true
   try {
     const token = localStorage.getItem('token')
-    loggedIn.value = !!token
     const response = await fetch('/product/recommend?limit=20', {
       headers: {
         'token': token || ''
@@ -162,7 +153,6 @@ const goToDetail = (item) => {
 }
 
 onMounted(() => {
-  loggedIn.value = !!localStorage.getItem('token')
   fetchRecommend()
 })
 </script>
@@ -171,19 +161,6 @@ onMounted(() => {
 .recommend-page {
   padding-top: 20px;
   min-height: 60vh;
-}
-
-.recommend-header {
-  margin-bottom: 24px;
-}
-
-.recommend-header .page-title {
-  margin-bottom: 6px;
-}
-
-.recommend-subtitle {
-  color: var(--c-text-2);
-  font-size: 14px;
 }
 
 /* 商品网格 */

@@ -6,8 +6,9 @@
       </router-link>
 
       <nav class="nav-links">
-        <router-link to="/" class="nav-link" exact-active-class="active">首页</router-link>
+        <!-- 推荐放在最前,首页(全部商品)紧随其后 -->
         <router-link to="/recommend" class="nav-link" active-class="active">推荐</router-link>
+        <router-link to="/" class="nav-link" exact-active-class="active">全部</router-link>
         <router-link to="/sell" class="nav-link" active-class="active">发布</router-link>
         <router-link to="/messages" class="nav-link" active-class="active">消息</router-link>
         <router-link to="/profile" class="nav-link" active-class="active">我的</router-link>
@@ -336,7 +337,8 @@ onUnmounted(() => {
 
 /* 手机版:顶栏分两行——第一行品牌 + 搜索框,第二行显示模式/主题/登录注册,
    页面导航交给底部 tab 栏。搜索框在手机版必须保留:
-   首页筛选栏里没有关键词输入框,顶栏搜索框是手机端唯一能输入关键词的入口 */
+   首页路由(导航栏显示为「全部」)的筛选栏里没有关键词输入框,
+   顶栏搜索框是手机端唯一能输入关键词的入口 */
 html[data-layout='mobile'] .navbar {
   height: auto;
 }

@@ -366,6 +366,7 @@ public class ProductServiceImpl implements ProductService {
                 scores.merge(p.getId(), 0.6, Double::sum);
             }
         }
+
         //在热门商品中召回一定量的商品
         for (Product p : productMapper.selectHotProducts(size * 2)) {
             if (userId == null || !userId.equals(p.getUserId())) {
@@ -373,18 +374,25 @@ public class ProductServiceImpl implements ProductService {
                 scores.merge(p.getId(), categoryIds.isEmpty() ? 0.7 : 0.3, Double::sum);
             }
         }
+
         //在新上架的商品中召回一定量的商品
         for (Product p : productMapper.selectNewProducts(size * 2, userId)) {
             products.putIfAbsent(p.getId(), p);
             scores.merge(p.getId(), categoryIds.isEmpty() ? 0.3 : 0.2, Double::sum);
         }
 
+        //流式记录召回商品并封装进result变量中
         List<Product> result = products.values().stream()
+                //过滤不可购买的商品
                 .filter(p -> p.getStatus() != null && p.getStatus() == 1)
                 //根据召回结果累加分来给候选集商品进行排序
                 .sorted(Comparator.comparingDouble((Product p) -> scores.getOrDefault(p.getId(), 0D)).reversed()
                         .thenComparing(Product::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder())))
                 .limit(size).collect(Collectors.toList());
+
+        //使用LLM将候选集进行语义重排序
+
+
         return Result.success(result);
     }
 

@@ -1,36 +1,10 @@
 <template>
   <div class="home-page">
     <div class="container">
-      <!-- 热门商品 -->
+      <!-- 全部商品:搜索/筛选栏 + 商品列表 -->
       <section class="section">
         <div class="section-header">
-          <h2>🔥 热门商品</h2>
-        </div>
-        <div v-if="hotGoods.length > 0" class="goods-grid">
-          <div
-            v-for="item in hotGoods"
-            :key="'hot-' + item.id"
-            class="goods-card"
-            @click="goToDetail(item)"
-          >
-            <div class="goods-image">
-              <img :src="item.image" :alt="item.title" />
-            </div>
-            <div class="goods-info">
-              <h3 class="goods-title">{{ item.title }}</h3>
-              <div class="goods-footer">
-                <span class="goods-price">¥{{ item.price }}</span>
-                <span v-if="item.originalPrice" class="goods-original-price">¥{{ item.originalPrice }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- 精选推荐 -->
-      <section class="section">
-        <div class="section-header">
-          <h2>精选推荐</h2>
+          <h2>全部商品</h2>
         </div>
 
         <div class="filter-bar card">
@@ -62,7 +36,7 @@
           <button class="btn" @click="handleReset">重置</button>
         </div>
 
-        <!-- 分类导航:紧贴它实际过滤的「精选推荐」商品列表 -->
+        <!-- 分类导航:紧贴它实际过滤的商品列表 -->
         <div class="category-bar card">
           <div
             v-for="cat in categories"
@@ -159,7 +133,6 @@ const categories = ref([
 ])
 
 const goods = ref([])
-const hotGoods = ref([])
 const page = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
@@ -204,64 +177,6 @@ const fetchCategories = async () => {
     }
   } catch (error) {
     console.error('获取分类失败:', error)
-  }
-}
-
-const fetchHotGoods = async () => {
-  try {
-    const token = localStorage.getItem('token')
-    const response = await fetch('/product/hot', {
-      headers: {
-        'token': token || ''
-      }
-    })
-    if (!response.ok) {
-      console.error('获取热门商品失败, HTTP状态:', response.status)
-      return
-    }
-    const data = await response.json()
-
-    if (data.code === 200 && data.data) {
-      let goodsArray = data.data
-
-      if (Array.isArray(goodsArray) && goodsArray.length > 0 && Array.isArray(goodsArray[0])) {
-        goodsArray = goodsArray[0]
-      }
-
-      if (!Array.isArray(goodsArray)) {
-        console.error('热门商品数据不是数组:', typeof goodsArray, goodsArray)
-        return
-      }
-
-      const goodsList = goodsArray.map(item => {
-        if (typeof item === 'string') {
-          try {
-            item = JSON.parse(item)
-          } catch (e) {
-            console.warn('解析商品数据失败:', item)
-            return null
-          }
-        }
-        return {
-          id: item.id,
-          title: item.title,
-          description: item.description,
-          price: item.price,
-          originalPrice: item.originalPrice,
-          image: item.images && item.images.length > 0 ? item.images[0] : '',
-          categoryId: item.categoryId,
-          productCondition: item.productCondition,
-          viewCount: item.viewCount,
-          createTime: item.createTime
-        }
-      }).filter(item => item !== null)
-
-      hotGoods.value = goodsList
-    } else {
-      console.error('热门商品数据格式错误:', data)
-    }
-  } catch (error) {
-    console.error('获取热门商品失败:', error)
   }
 }
 
@@ -401,7 +316,6 @@ watch(
 onMounted(() => {
   keyword.value = route.query.keyword || ''
   fetchCategories()
-  fetchHotGoods()
   fetchGoods()
 })
 
@@ -415,7 +329,7 @@ const goToDetail = (item) => {
   padding-top: 20px;
 }
 
-/* 分类栏:位于「精选推荐」筛选栏下方,与它实际过滤的商品列表紧邻 */
+/* 分类栏:位于筛选栏下方,与它实际过滤的商品列表紧邻 */
 .category-bar {
   display: flex;
   flex-wrap: wrap;
