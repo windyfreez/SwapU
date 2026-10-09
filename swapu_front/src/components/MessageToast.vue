@@ -131,7 +131,8 @@ onUnmounted(() => {
 .toast-stack {
   position: fixed;
   right: 24px;
-  bottom: 24px;
+  /* 抬高到 AI 客服悬浮按钮（56px + 间距）之上，避免两者重叠 */
+  bottom: 92px;
   z-index: 2000;
   display: flex;
   flex-direction: column;
@@ -140,11 +141,11 @@ onUnmounted(() => {
   pointer-events: none;
 }
 
-/* 手机版：底部导航会挡住右下角，整体上移并铺满宽度 */
+/* 手机版：底部导航 + AI 客服按钮都会挡住右下角，整体上移并铺满宽度 */
 [data-layout='mobile'] .toast-stack {
   right: 12px;
   left: 12px;
-  bottom: calc(72px + env(safe-area-inset-bottom));
+  bottom: calc(140px + env(safe-area-inset-bottom));
   width: auto;
 }
 

@@ -48,4 +48,13 @@ public class MessageConstant {
     public static final String ONLY_BUYER_CAN_CANCEL = "只有买家本人可以取消订单";
     public static final String ONLY_SELLER_CAN_AUDIT_CANCEL = "只有卖家本人可以审核取消申请";
     public static final String ORDER_CANT_APPROVE_CANCEL = "该订单当前没有待审核的取消申请";
+
+    //8.AI客服类信息提示
+    public static final String AI_PROMPT_EMPTY = "提问内容不能为空";
+    public static final String AI_PROMPT_TOO_LONG = "提问内容过长，请精简后再试";
+    public static final String AI_NOT_CONFIGURED = "AI 客服暂未开通，请联系管理员";
+    public static final String AI_BALANCE_NOT_ENOUGH = "AI 客服暂不可用，请联系管理员";
+    public static final String AI_REQUEST_TOO_FREQUENT = "提问太快啦，请稍等片刻再问";
+    public static final String AI_SERVICE_UNAVAILABLE = "AI 客服暂时联系不上，请稍后再试";
+    public static final String AI_EMPTY_ANSWER = "AI 客服没有给出回答，换个说法再问一次试试";
 }

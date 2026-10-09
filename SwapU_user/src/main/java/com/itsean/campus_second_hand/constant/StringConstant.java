@@ -24,6 +24,7 @@ public class StringConstant {
     public static final String HOT_PRODUCTS_REDIS_KEY = "hot:products:";
     public static final String USER_PROFILE_REDIS_KEY_PREFIX = "recommend:user:profile:";
     public static final String PRODUCT_STOCK_PREFIX = "product:stock:";
+    public static final String AI_LIMIT_PREFIX = "ai:limit:";
 
     //RabbitMQ常量
     public static final String EXCHANGE_STOCK = "swapu.stock.exchange";//库存交换机

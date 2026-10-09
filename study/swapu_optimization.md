@@ -525,7 +525,9 @@ public Result recommend(Integer limit) {
            }
            3. data 为有序数组，顺序即最终推荐顺序。
            4. 只能包含候选集中已有的 productId，不得新增、不得遗漏。
+           5. 商品类别序号对应的商品类别名称如下：1手机数码、2电脑办公、3图书教材、4生活用品、5服饰鞋包、6运动户外、7美妆个护、8其他
            """.formatted(profileSb, candSb);
+           
    ```
 
    ```JSOn

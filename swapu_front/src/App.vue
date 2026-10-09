@@ -14,6 +14,8 @@
     <MobileTabBar v-if="showChrome && showTabBar" />
     <!-- 新消息右下角提醒：全局挂载，任意页面都能收到 WebSocket 推送 -->
     <MessageToast />
+    <!-- AI 客服悬浮入口 -->
+    <AiServiceWidget v-if="showChrome" />
   </div>
 </template>
 
@@ -23,6 +25,7 @@ import { useRoute } from 'vue-router'
 import NavBar from './components/NavBar.vue'
 import MobileTabBar from './components/MobileTabBar.vue'
 import MessageToast from './components/MessageToast.vue'
+import AiServiceWidget from './components/AiServiceWidget.vue'
 import { getCurrentLayout, LAYOUT_MOBILE } from './utils/layout'
 
 const route = useRoute()

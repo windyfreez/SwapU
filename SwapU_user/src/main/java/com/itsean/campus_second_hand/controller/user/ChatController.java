@@ -75,6 +75,12 @@ public class ChatController {
         return Result.success("已标记已读");
     }
 
+    /**
+     * 系统发送消息
+     * @param chatMessageDTO
+     * @return
+     */
+    @ApiOperation("系统发送消息")
     @PostMapping("/system/send")
     public Result systemSendMessage(ChatMessageDTO chatMessageDTO){
         chatService.systemSendMessage(chatMessageDTO);
