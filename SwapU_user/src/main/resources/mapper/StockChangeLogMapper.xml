@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itsean.campus_second_hand.mapper.StockChangeLogMapper">
+
+    <resultMap id="StockChangeLogResultMap" type="com.itsean.campus_second_hand.entity.StockChangeLog">
+        <id property="id" column="id"/>
+        <result property="changeNo" column="change_no"/>
+        <result property="orderNo" column="order_no"/>
+        <result property="productId" column="product_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="operationType" column="operation_type"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO stock_change_log
+            (change_no, order_no, product_id, quantity, operation_type, status, create_time, update_time)
+        VALUES
+            (#{changeNo}, #{orderNo}, #{productId}, #{quantity}, #{operationType}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="getByChangeNo" resultMap="StockChangeLogResultMap">
+        SELECT * FROM stock_change_log WHERE change_no = #{changeNo}
+    </select>
+
+    <update id="updateStatus">
+        UPDATE stock_change_log
+        SET status = #{status}, update_time = #{updateTime}
+        WHERE change_no = #{changeNo}
+    </update>
+
+    <select id="selectPending" resultMap="StockChangeLogResultMap">
+        SELECT * FROM stock_change_log
+        WHERE operation_type = 1 AND status = 0 AND create_time &lt; #{beforeTime}
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="selectPendingDeductGroupByProduct" resultType="map">
+        SELECT product_id AS productId, COALESCE(SUM(quantity), 0) AS pendingQuantity
+        FROM stock_change_log
+        WHERE operation_type = 1 AND status = 0
+        GROUP BY product_id
+    </select>
+
+</mapper>
