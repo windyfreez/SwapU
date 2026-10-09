@@ -25,5 +25,12 @@ public class NumberConstant {
     //分页缺省值常量
     public static final int DEFAULT_PAGE = 1;//默认页码
     public static final int DEFAULT_PAGE_SIZE = 10;//默认每页记录数
+    //库存变更日志状态常量
+    public static final int STOCK_CHANGE_STATUS_PENDING = 0;//待处理
+    public static final int STOCK_CHANGE_STATUS_SUCCESS = 1;//成功
+    public static final int STOCK_CHANGE_STATUS_FAILED = 2;//失败(死信/需人工)
+    //库存变更操作类型常量
+    public static final int STOCK_CHANGE_OP_DEDUCT = 1;//扣减
+    public static final int STOCK_CHANGE_OP_RESTORE = 2;//回补
 
 }

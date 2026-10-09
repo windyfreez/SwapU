@@ -25,6 +25,16 @@ public class StringConstant {
     public static final String USER_PROFILE_REDIS_KEY_PREFIX = "recommend:user:profile:";
     public static final String PRODUCT_STOCK_PREFIX = "product:stock:";
 
+    //RabbitMQ常量
+    public static final String EXCHANGE_STOCK = "swapu.stock.exchange";//库存交换机
+    public static final String QUEUE_STOCK_SYNC = "swapu.stock.sync.queue";//库存同步队列
+    public static final String EXCHANGE_STOCK_DLX = "swapu.stock.dlx.exchange";//库存死信交换机
+    public static final String QUEUE_STOCK_DLQ = "swapu.stock.dlq.queue";//库存死信队列
+    public static final String ROUTING_KEY_STOCK_CHANGE = "stock.change";//库存变更路由键
+    public static final String ROUTING_KEY_STOCK_DEAD = "stock.change.dead";//库存死信路由键
 
+    //库存变更流水号后缀
+    public static final String STOCK_CHANGE_NO_DEDUCT_SUFFIX = "-D";//扣减
+    public static final String STOCK_CHANGE_NO_RESTORE_SUFFIX = "-R";//回补
 
 }

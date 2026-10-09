@@ -4,20 +4,24 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.itsean.campus_second_hand.constant.MessageConstant;
 import com.itsean.campus_second_hand.constant.NumberConstant;
+import com.itsean.campus_second_hand.constant.StringConstant;
 import com.itsean.campus_second_hand.context.BaseContext;
 import com.itsean.campus_second_hand.controller.user.ChatController;
 import com.itsean.campus_second_hand.dto.*;
 import com.itsean.campus_second_hand.dto.*;
 import com.itsean.campus_second_hand.entity.Order;
 import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.campus_second_hand.entity.StockChangeLog;
 import com.itsean.campus_second_hand.entity.User;
 import com.itsean.campus_second_hand.entity.result.PageResult;
 import com.itsean.campus_second_hand.exception.OrderException;
 import com.itsean.campus_second_hand.mapper.FavoriteMapper;
 import com.itsean.campus_second_hand.mapper.OrderMapper;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
+import com.itsean.campus_second_hand.mapper.StockChangeLogMapper;
 import com.itsean.campus_second_hand.mapper.UserBehaviorLogMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
+import com.itsean.campus_second_hand.mq.StockChangeProducer;
 import com.itsean.campus_second_hand.service.OrderService;
 import com.itsean.campus_second_hand.service.ProductService;
 import com.itsean.campus_second_hand.service.StockService;
@@ -27,6 +31,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.DigestUtils;
 
 import java.math.BigDecimal;
@@ -56,6 +62,10 @@ public class OrderServiceImpl implements OrderService {
     private UserBehaviorLogMapper userBehaviorLogMapper;
     @Autowired
     private ChatController chatController;
+    @Autowired
+    private StockChangeLogMapper stockChangeLogMapper;
+    @Autowired
+    private StockChangeProducer stockChangeProducer;
 
     /**
      * 创建订单
@@ -86,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException(MessageConstant.CANT_BUY_YOURSELF_PRODUCT);
         }
 
-        //3.Redis 预扣（尽力而为，异常降级为纯 DB 扣减）
+        //3.Redis 预扣（尽力而为，异常降级为同步 DB 扣减）
         boolean redisDeducted = false;
         try {
             stockService.initIfAbsent(productId, stockQuantity);
@@ -97,40 +107,43 @@ public class OrderServiceImpl implements OrderService {
         } catch (OrderException e) {
             throw e;
         } catch (Exception e) {
-            log.warn("Redis 预扣库存异常，降级为纯 DB 扣减, productId={}", productId, e);
+            log.warn("Redis 预扣库存异常，降级为同步 DB 扣减, productId={}", productId, e);
         }
 
-        //4.DB 原子扣减 + 写订单，任何失败回滚 Redis 预扣
-        try {
-            int affected = productMapper.deductStock(productId, needQuantity, LocalDateTime.now());
-            if (affected != 1) {
-                throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
-            }
+        //4.补全订单属性（从 DB 实体取数，而非缓存快照；orderNo 供订单与扣减日志共用）
+        order.setProductImage(product.getImages().get(0));
+        order.setProductTitle(product.getTitle());
+        order.setOrderNo(generateOrderNo());
+        order.setQuantity(needQuantity);
+        order.setUnitPrice(product.getPrice());
+        order.setAmount(product.getPrice().multiply(new BigDecimal(needQuantity)));
+        order.setAddressId(orderDTO.getAddressId());
+        order.setBuyerId(buyerId);
+        order.setSellerId(sellerId);
+        order.setStatus(Order.ORDER_STATUS_WAIT_ACCEPT);
+        order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
+        order.setExpireTime(LocalDateTime.now().plusMinutes(30));
+        order.setCreateTime(LocalDateTime.now());
 
-            //降级路径下 Redis 未预扣，扣减成功后同步 Redis 为最新值
-            if (!redisDeducted) {
+        try {
+            if (redisDeducted) {
+                //异步路径：写订单 + 写扣减日志（同一事务），提交后发 MQ 异步落库
+                orderMapper.add(order);
+                stockChangeLogMapper.insert(buildDeductLog(order.getOrderNo(), productId, needQuantity));
+                registerStockChangeAfterCommit(order.getOrderNo(), productId, needQuantity);
+            } else {
+                //降级路径：同步 DB 原子扣减 + 写订单，成功后同步 Redis 为最新值
+                int affected = productMapper.deductStock(productId, needQuantity, LocalDateTime.now());
+                if (affected != 1) {
+                    throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
+                }
                 try {
                     stockService.syncStock(productId, stockQuantity - needQuantity);
                 } catch (Exception e) {
                     log.warn("Redis 库存同步异常，交由对账任务兜底, productId={}", productId, e);
                 }
+                orderMapper.add(order);
             }
-
-            //补全订单属性（从 DB 实体取数，而非缓存快照）
-            order.setProductImage(product.getImages().get(0));
-            order.setProductTitle(product.getTitle());
-            order.setOrderNo(generateOrderNo());
-            order.setQuantity(needQuantity);
-            order.setUnitPrice(product.getPrice());
-            order.setAmount(product.getPrice().multiply(new BigDecimal(needQuantity)));
-            order.setAddressId(orderDTO.getAddressId());
-            order.setBuyerId(buyerId);
-            order.setSellerId(sellerId);
-            order.setStatus(Order.ORDER_STATUS_WAIT_ACCEPT);
-            order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
-            order.setExpireTime(LocalDateTime.now().plusMinutes(30));
-            order.setCreateTime(LocalDateTime.now());
-            orderMapper.add(order);
 
             //库存变更后穿透热门商品缓存，避免回显旧库存/已售罄商品
             try {
@@ -155,6 +168,46 @@ public class OrderServiceImpl implements OrderService {
 
         BeanUtils.copyProperties(order, orderVO);
         return orderVO;
+    }
+
+    /**
+     * 构造扣减库存变更日志（status=0 待处理，随订单事务一并落库）
+     * @param orderNo
+     * @param productId
+     * @param quantity
+     * @return
+     */
+    private StockChangeLog buildDeductLog(String orderNo, Long productId, Integer quantity) {
+        StockChangeLog stockChangeLog = new StockChangeLog();
+        stockChangeLog.setChangeNo(orderNo + StringConstant.STOCK_CHANGE_NO_DEDUCT_SUFFIX);
+        stockChangeLog.setOrderNo(orderNo);
+        stockChangeLog.setProductId(productId);
+        stockChangeLog.setQuantity(quantity);
+        stockChangeLog.setOperationType(NumberConstant.STOCK_CHANGE_OP_DEDUCT);
+        stockChangeLog.setStatus(NumberConstant.STOCK_CHANGE_STATUS_PENDING);
+        LocalDateTime now = LocalDateTime.now();
+        stockChangeLog.setCreateTime(now);
+        stockChangeLog.setUpdateTime(now);
+        return stockChangeLog;
+    }
+
+    /**
+     * 事务提交后发送库存扣减消息（避免消费者先于日志落库产生竞态）
+     * @param orderNo
+     * @param productId
+     * @param quantity
+     */
+    private void registerStockChangeAfterCommit(String orderNo, Long productId, Integer quantity) {
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                try {
+                    stockChangeProducer.sendDeduct(orderNo, productId, quantity);
+                } catch (Exception e) {
+                    log.warn("库存扣减消息发送失败，交由对账任务补投, orderNo={}", orderNo, e);
+                }
+            }
+        });
     }
 
     /**
