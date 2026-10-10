@@ -191,7 +191,7 @@
     <update id="deductStock">
         UPDATE product
         SET quantity = quantity - #{needQuantity},
-            status = CASE WHEN quantity - #{needQuantity} = 0 THEN 2 ELSE 1 END,
+            status = CASE WHEN quantity = 0 THEN 2 ELSE 1 END,
             update_time = #{updateTime}
         WHERE id = #{id} AND status = 1 AND quantity &gt;= #{needQuantity}
     </update>

@@ -397,11 +397,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * 失效热门商品缓存（库存变更后调用，避免回显旧库存/已售罄商品）
+     * 删除失效热门商品缓存（库存变更后调用，避免回显旧库存/已售罄商品）
      * @param productId
      */
     @Override
     public void evictHotCache(Long productId) {
+        //（库存变更后）删除对应商品的缓存，避免回显旧库存
         stringRedisTemplate.delete(HOT_PRODUCTS_REDIS_KEY + productId);
     }
 

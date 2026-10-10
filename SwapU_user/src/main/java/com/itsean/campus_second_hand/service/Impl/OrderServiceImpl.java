@@ -96,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderException(MessageConstant.CANT_BUY_YOURSELF_PRODUCT);
         }
 
-        //3.Redis 预扣（尽力而为，异常降级为同步 DB 扣减）
+        //3.Redis 预扣
         boolean redisDeducted = false;
         try {
             stockService.initIfAbsent(productId, stockQuantity);
@@ -107,6 +107,7 @@ public class OrderServiceImpl implements OrderService {
         } catch (OrderException e) {
             throw e;
         } catch (Exception e) {
+            //捕捉库存扣减失败异常，扣减失败直接降级DB扣减
             log.warn("Redis 预扣库存异常，降级为同步 DB 扣减, productId={}", productId, e);
         }
 

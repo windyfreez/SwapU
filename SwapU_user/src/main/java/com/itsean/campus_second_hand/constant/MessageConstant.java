@@ -18,7 +18,7 @@ public class MessageConstant {
     public static final String UPLOAD_FAILED = "文件上传失败";
 
     //2.订单类信息提示
-    public static final String NEED_MORE_THAN_STORE = "您需要的商品数量大于卖家提供的最多商品数量";
+    public static final String NEED_MORE_THAN_STORE = "商品库存不足！";
     public static final String CANT_BUY_YOURSELF_PRODUCT = "您不能购买您自己的商品";
     public static final String ORDER_STATUS_CANT_CANCEL = "您的订单无法取消，请选择退款";
     public static final String BALANCE_NOT_ENOUGH = "您的余额不足，请充值或选择其他支付方式";
