@@ -205,165 +205,75 @@ public ProductDetailVO getProductById(Long id) {
 
 ## 二、 热门商品库存预扣减与缓存一致性方案
 
-### 1. 核心挑战分析
+好，我不写代码，用文字把 RabbitMQ 这一层从头到尾讲清楚，配合类名和文件名，你对照着读。
 
-热门商品采用"缓存优先回显"策略后，库存扣减引入了四类新的技术挑战：
+### 1. 整体链路
 
-* **缓存回显延迟导致脏数据：** 热门商品缓存由定时任务每 1 分钟刷新一次，库存卖光（数据库 `status` 变为"已售出"）后，`hot:products:{id}` 缓存仍残留旧快照，最长 60 秒内用户仍能看到已售罄商品或旧库存。
-* **下单读取脏缓存：** 原下单逻辑通过 `getProductById` 优先读取热门缓存快照，库存扣减基于过期数据而非数据库真实库存。
-* **并发超卖风险：** 原扣减使用无条件 `UPDATE ... WHERE id = #{id}`，多个并发请求同时读到 `quantity = 1` 并各自扣减，导致超卖。
-* **库存只减不增：** 下单即扣库存，但手动取消、超时未确认、超时未支付、超时未发货四类取消场景均未回补库存，也未把商品状态从"已售出"改回"售卖中"。
+下单时 Redis 先预扣（拦截）→ 在同一事务里写订单 + 写一条「扣减日志」→ 事务提交后把日志内容发到 RabbitMQ → 消费者收到消息后原子扣减 DB 库存并更新日志状态 → 定时任务兜底对账。
 
-### 2. 解决方案设计思路
+### 2. 生产者侧：从下单到消息发出
 
-我们采用 **"Redis 预扣减 + 数据库原子扣减兜底 + 取消回补 + 定时对账 + 缓存穿透"** 的完整方案：
+入口是 `OrderServiceImpl.createOrder`（已改造为完全异步）。
 
-- **第一层（Redis 预扣减）：** 以数据库为最终真相，Redis 作为预扣加速层。下单先通过 Lua 脚本原子判断并扣减 Redis 库存，库存不足直接快速失败，避免大量无效请求打到数据库。
-- **第二层（数据库原子扣减兜底）：** Redis 预扣成功后，仍执行带 `quantity >= 需求数量 AND status = 1` 条件的原子 UPDATE，影响行数不为 1 则回滚 Redis 并抛异常，从根本上杜绝超卖。
-- **第三层（取消回补与退款）：** 订单取消时按"条件翻转订单状态 + 回补库存 + 可选退款"三步走，幂等可靠，彻底解决库存只减不增。
-- **第四层（定时对账）：** 定时任务以数据库为准，将 Redis 库存拉回一致，兜底 Redis 宕机、漂移等异常。
-- **缓存穿透：** 任何库存变更（扣减、回补）后立即失效对应热门商品缓存，卖光即从热门列表消失，无需等待定时任务。
+**第 1 步：Redis 预扣（前置拦截）**
+先调 `StockService.initIfAbsent` 保证 Redis 里有这个商品的库存 key，再调 `StockService.preDeduct`（内部是 Lua 脚本，原子校验+扣减）。这一步成功才算「有库存可扣」，是并发下的第一道闸。如果 Redis 挂了，走降级（同步 DB 扣减，不经过 MQ）。
 
-### 3. 解决方案具体实现
+**第 2 步：写订单 + 写扣减日志（同一事务）**
+预扣成功后，在同一个 `@Transactional` 里做两件事：
 
-#### A. Redis 原子库存预扣减
+- 插入订单表 `orders`；
+- 插入 `stock_change_log`（扣减日志），`status=0`（待处理），流水号 `change_no = 订单号 + "-D"`，唯一。
 
-为每个商品维护 Redis 库存计数器 `product:stock:{id}`，扣减通过 Lua 脚本保证"判断 + 扣减"一步原子完成：
+这里就是「本地消息表」模式：**日志随订单一起落库**，它是后面一切可靠性（幂等、补投、对账）的依据。
 
-```lua
--- KEYS[1]: 商品库存 key  product:stock:{id}
--- ARGV[1]: 扣减数量
-local stock = tonumber(redis.call('GET', KEYS[1]) or '0')
-if stock >= tonumber(ARGV[1]) then
-  redis.call('DECRBY', KEYS[1], ARGV[1])
-  return 1
-else
-  return 0
-end
-```
+**第 3 步：事务提交后才发 MQ**
+通过 `TransactionSynchronizationManager` 注册一个 `afterCommit` 回调，在**事务提交成功后**才调 `StockChangeProducer.sendDeduct` 发消息。目的：保证消费者永远只能看到「已经提交落库」的日志，避免「消息先被消费、日志还没写入」的竞态。如果发消息失败，日志就停在 `status=0`，交给定时任务补投。
 
-Java 层封装为 `StockService`：
+**第 4 步：发消息**
+`StockChangeProducer.sendDeduct` 构造一个 `StockChangeMessage`（字段：changeNo、orderNo、productId、quantity、operationType、createTime），用 `RabbitTemplate.convertAndSend` 发到交换机 `swapu.stock.exchange`，路由键 `stock.change`，并带上 `CorrelationData(changeNo)` 用于生产者确认。
 
-```java
-public interface StockService {
-    boolean preDeduct(Long productId, int quantity);      // Lua 原子预扣，库存不足返回 false
-    void rollbackPreDeduct(Long productId, int quantity); // DB 扣减失败时回滚
-    void restore(Long productId, int quantity);           // 取消订单回补
-    void initIfAbsent(Long productId, int quantity);      // 懒初始化（key 不存在时写入）
-    void syncStock(Long productId, int quantity);         // 以 DB 为准同步
-}
-```
+### 3. RabbitMQ 拓扑（RabbitMQConfig）
 
-#### B. 数据库原子扣减（防超卖兜底）
+- **交换机** `swapu.stock.exchange`：direct 类型，持久化。
+- **主队列** `swapu.stock.sync.queue`：持久化，并声明了死信交换机/死信路由键。
+- **死信交换机/队列** `swapu.stock.dlx.exchange` + `swapu.stock.dlq.queue`：消费重试耗尽后消息被转到这里，防止丢失、便于人工排查。
+- **JSON 转换器**：注册了 JavaTimeModule，让 `LocalDateTime` 能正常序列化/反序列化。
+- **生产者确认 + 路由回退**：`publisher-confirm` 确认消息到没到 broker，`returns` 兜底路由失败，都只记日志（真正的补投靠对账任务）。
+- **重试拦截器**：消费失败重试 5 次，指数退避（1s 起，最大 10s），超限后用 `RepublishMessageRecoverer` 转到死信队列。
+- **自定义监听容器工厂** `stockRabbitListenerContainerFactory`：自动 ack + 上面那个重试拦截 + 拒绝后不重回队列（避免死循环）。
 
-Redis 预扣只是加速层，数据库仍是最终真相。扣减必须走带条件的原子 UPDATE：
+### 4. 消费者侧：从消息到 DB 落库
 
-```xml
-<update id="deductStock">
-    UPDATE product
-    SET quantity = quantity - #{needQuantity},
-        status = CASE WHEN quantity - #{needQuantity} = 0 THEN 2 ELSE 1 END,
-        update_time = #{updateTime}
-    WHERE id = #{id} AND status = 1 AND quantity &gt;= #{needQuantity}
-</update>
-```
+**`StockChangeConsumer`**：`@RabbitListener` 监听主队列，收到 `StockChangeMessage` 后，先校验 `operationType` 是不是「扣减」（回补走同步，不进这个队列），然后交给处理服务。
 
-判断影响行数 == 1 才算成功；否则回滚 Redis 预扣并抛"库存不足"异常。
+**`StockChangeProcessServiceImpl.processDeduct`**（`@Transactional`）：核心在这里，分三步：
 
-#### C. 下单流程改造
+1. **幂等校验**：按 `changeNo` 查日志。
+   - 已「成功」→ 直接返回（重复消息，跳过）；
+   - 不存在或已「失败」→ 也跳过（防御性处理）。
 
-下单整体流程调整为"绕缓存读 DB → Redis 预扣 → DB 原子扣减 → 穿透缓存"：
+2. **DB 原子扣减**：调 `productMapper.deductStock`。这条 SQL 是原子条件更新（`WHERE quantity >= 需要量 AND status = 1`），扣减的同时把扣到 0 的商品 status 置为「已售出」，并返回影响行数。
 
-```java
-@Transactional
-public OrderVO createOrder(OrderDTO orderDTO) {
-    // 1. 读 DB 实时库存（绕开热门缓存，避免扣减基于脏快照）
-    Product product = productMapper.getProductById(orderDTO.getProductId());
-    Integer stockQuantity = product.getQuantity();
+3. **状态流转**：
+   - 影响行数 = 1 → 扣减成功，把日志 `status` 更新为「成功」；
+   - 影响行数 = 0 → 说明 DB 实际库存不足（Redis 漂移了），把日志 `status` 更新为「失败」并打 error 日志（不重试，因为重试无意义）。
 
-    // 2. Redis 预扣（尽力而为，异常降级为纯 DB 扣减）
-    boolean redisDeducted = false;
-    try {
-        stockService.initIfAbsent(productId, stockQuantity);
-        if (!stockService.preDeduct(productId, needQuantity)) {
-            throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
-        }
-        redisDeducted = true;
-    } catch (OrderException e) {
-        throw e;
-    } catch (Exception e) {
-        log.warn("Redis 预扣库存异常，降级为纯 DB 扣减", e);
-    }
+**关键设计点**：「DB 扣减」和「日志置成功」在**同一个事务**里，要么一起成功、要么一起回滚。这样就能保证**恰好一次落库**——重复消费时，如果之前那次已经成功，日志是「成功」态会被幂等跳过；如果之前那次失败回滚了，日志不存在/仍是待处理，会重新扣减，不会出现重复扣两次。
 
-    // 3. DB 原子扣减 + 写订单，任何失败回滚 Redis 预扣
-    try {
-        int affected = productMapper.deductStock(productId, needQuantity, LocalDateTime.now());
-        if (affected != 1) {
-            throw new OrderException(MessageConstant.NEED_MORE_THAN_STORE);
-        }
-        // ...补全订单属性、orderMapper.add(order)...
+### 5. 可靠性兜底：StockSyncTask（两个定时任务）
 
-        // 4. 库存变更后穿透热门缓存，避免回显旧库存/已售罄商品
-        productService.evictHotCache(productId);
-    } catch (RuntimeException e) {
-        if (redisDeducted) {
-            stockService.rollbackPreDeduct(productId, needQuantity);
-        }
-        throw e;
-    }
-    return orderVO;
-}
-```
+**兜底 A（30 分钟一次）**：校准 Redis 库存。
+公式是 `Redis = DB库存 − 未落库的扣减量`（`status=0` 的扣减日志求和）。
+为什么要扣掉未落库的：因为 DB 扣减是异步的，可能滞后于 Redis 已预扣的量；如果对账直接「以 DB 为准」刷回 Redis，会把已经预扣掉的库存又加回去，导致超卖。
 
-#### D. 取消回补与退款
+**兜底 B（5 分钟一次）**：补投。
+扫描 `status=0` 且创建时间超过阈值（5 分钟）还没被消费成功的日志，重新发一次 MQ。它兜住「生产者发消息失败/消息丢失」这类情况。
 
-取消订单统一走"条件翻转状态（幂等）→ 回补库存 → 可选退款"三步：
+### 6. 贯穿始终的三个核心机制（读代码时重点看这些）
 
-```sql
--- 仅当订单仍处于可取消状态(1/2/3)时才翻转，影响行数==1 保证幂等
-UPDATE orders
-SET status = #{cancelStatus}, cancel_time = #{cancelTime}, cancel_reason = #{cancelReason}
-WHERE order_no = #{orderNo} AND status = #{expectStatus}
-```
-
-```java
-private boolean doCancel(Order order, String reason, boolean needRefund) {
-    int affected = orderMapper.cancelIfCancellable(order.getOrderNo(), order.getStatus(),
-            Order.ORDER_STATUS_CANCEL, LocalDateTime.now(), reason);
-    if (affected != 1) return false;   // 已被取消，幂等跳过
-
-    // 回补 DB 库存 + 状态回滚（已售出 → 售卖中）
-    productMapper.restoreStock(order.getProductId(), order.getQuantity(), LocalDateTime.now());
-    // 回补 Redis 库存
-    stockService.restore(order.getProductId(), order.getQuantity());
-    // 穿透热门缓存
-    productService.evictHotCache(order.getProductId());
-
-    // 已支付订单（余额支付）退款：买家加回，卖家扣回（允许卖家余额为负）
-    if (needRefund && Order.PAY_TYPE_BALANCE.equals(order.getPayType())) {
-        refundBalance(order);
-    }
-    return true;
-}
-```
-
-回补点覆盖四处：手动取消（待确认/待支付）、超时未确认、超时未支付、超时未发货（已支付，额外退款）。
-
-#### E. 定时对账机制
-
-每 1 分钟以数据库为准对齐 Redis 库存，兜底 Redis 宕机、漂移造成的偏差：
-
-```java
-@Scheduled(cron = "0 0/1 * * * ?")
-public void syncStockToRedis() {
-    List<Product> products = productMapper.selectSellingProductStock();
-    for (Product product : products) {
-        stockService.syncStock(product.getId(), product.getQuantity());
-    }
-}
-```
-
-**优化收益：** 库存扣减由"读-改-写"升级为 Redis 原子预扣 + 数据库条件更新兜底，超卖率降为零；卖光后热门缓存立即失效，无需等待定时任务刷新；取消订单自动回补库存并退款，库存数据始终保持自洽。
+1. **本地消息表（stock_change_log）**：幂等 + 审计 + 补投三合一，`change_no` 唯一键是幂等的物理保证。
+2. **afterCommit 发消息**：把「发消息」和「业务事务提交」解耦，保证顺序正确。
+3. **扣减 + 日志置成功同事务**：实现「恰好一次」DB 落库；配合消费前的幂等查询，挡住重复投递。
 
 ---
 

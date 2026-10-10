@@ -86,9 +86,8 @@
           <div class="pagination-info">
             <span>共 {{ total }} 件商品</span>
             <select v-model="pageSize" class="page-size-select" @change="handlePageSizeChange">
-              <option :value="10">10条/页</option>
-              <option :value="20">20条/页</option>
-              <option :value="30">30条/页</option>
+              <option :value="30">30个商品/页</option>
+              <option :value="60">60个商品/页</option>
             </select>
           </div>
           <div class="page-nav">
@@ -134,7 +133,8 @@ const categories = ref([
 
 const goods = ref([])
 const page = ref(1)
-const pageSize = ref(10)
+// 全部商品默认每页 30 个，可选 60 个
+const pageSize = ref(30)
 const total = ref(0)
 const loading = ref(false)
 const noMore = ref(false)

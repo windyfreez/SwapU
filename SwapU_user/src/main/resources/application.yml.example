@@ -58,6 +58,18 @@ swapu:
     user-ttl: 7200000
     user-token-name: token
 
+  #推荐系统大模型语义重排序配置（api-key 复用 deepseek 配置）
+  recommend:
+    rerank:
+      #是否启用大模型语义重排序，关闭后推荐退化为纯召回分排序
+      enabled: true
+      #参与重排序的最大候选商品数，控制请求体大小与费用
+      max-candidates: 30
+      #单次重排序连接超时（毫秒）
+      connect-timeout: 3000
+      #单次重排序读取响应超时（毫秒），比客服问答短，避免拖慢推荐接口
+      read-timeout: 15000
+
   alioss:
     endpoint: your_oss_endpoint
     # 密钥通过环境变量注入(必须设置,否则上传功能不可用)

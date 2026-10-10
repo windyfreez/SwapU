@@ -90,7 +90,7 @@ public interface ProductMapper {
     List<Product> selectNewProducts(@Param("limit") int limit, @Param("userId") Long userId);
 
     /**
-     * 原子扣减库存（防超卖），返回影响行数
+     * 原子扣减库存（防超卖），todo返回影响行数
      * @param id
      * @param needQuantity
      * @param updateTime

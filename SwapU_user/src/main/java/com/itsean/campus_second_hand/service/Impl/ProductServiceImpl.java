@@ -18,6 +18,7 @@ import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.ProductService;
 import com.itsean.campus_second_hand.service.ProductViewService;
+import com.itsean.campus_second_hand.service.ReRankService;
 import com.itsean.campus_second_hand.utils.SimpleRandomSortUtil;
 import com.itsean.campus_second_hand.vo.ProductDetailVO;
 import com.itsean.campus_second_hand.vo.ProductVO;
@@ -54,6 +55,8 @@ public class ProductServiceImpl implements ProductService {
     private ProductViewService productViewService;
     @Resource
     private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private ReRankService reRankService;
 
     /**
      * 添加商品
@@ -390,8 +393,8 @@ public class ProductServiceImpl implements ProductService {
                         .thenComparing(Product::getCreateTime, Comparator.nullsLast(Comparator.reverseOrder())))
                 .limit(size).collect(Collectors.toList());
 
-        //使用LLM将候选集进行语义重排序
-
+        //使用LLM将候选集进行语义重排序，失败时自动回退为召回分排序
+        result = reRankService.reRank(result, categoryIds);
 
         return Result.success(result);
     }
