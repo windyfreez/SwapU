@@ -27,7 +27,7 @@
 ## 4. 管理端-后端（P1）
 - [x] 管理员登录（admin 表 + admin JWT，复用 JwtUtil）+ 管理员管理 CRUD
 - [ ] 审核模块：商品审核列表/通过/驳回（复用 audit_record）+ 评论审核 + 头像审核
-- [ ] 分类管理：category CRUD + 启停（表已有 status 字段）
+- [x] 分类管理：category CRUD + 启停（表已有 status 字段）
 - [ ] 用户管理：启用/禁用账号、信用分修改（user.credit_score 已有）、用户交易统计
 - [ ] 平台统计：在售数/交易完成数/成交总额/流量（按天聚合）
 

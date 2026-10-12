@@ -33,10 +33,33 @@
             <if test="creditScore != null">
                 credit_score = #{creditScore},
             </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
         </set>
         where id = #{id}
     </update>
 
-
+    <select id="pageQuery" resultType="com.itsean.swapu_admin.entity.User">
+        select * from user
+        <where>
+            <if test="keyword != null and keyword != ''">
+                and (username like concat('%', #{keyword}, '%') or nickname like concat('%', #{keyword}, '%'))
+            </if>
+            <if test="studentId != null and studentId != ''">
+                and student_id like concat('%', #{studentId}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                and phone like concat('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
 
 </mapper>

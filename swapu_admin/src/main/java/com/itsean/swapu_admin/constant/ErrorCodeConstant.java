@@ -3,7 +3,7 @@ package com.itsean.swapu_admin.constant;
 /**
  * 管理端业务错误码常量类
  * <p>
- * 约定：401 未登录/无操作权限；4101-4105 管理员模块；4201-4203 审核模块；4301-4303 分类模块；4401-4402 用户模块。
+ * 约定：401 未登录/无操作权限；4101-4105 管理员模块；4201-4203 审核模块；4301-4303 分类模块；4401-4403 用户模块。
  */
 public class ErrorCodeConstant {
 
@@ -21,5 +21,10 @@ public class ErrorCodeConstant {
     public static final Integer CATEGORY_NAME_ALREADY_EXIST = 4301;//分类名称已存在
     public static final Integer CATEGORY_HAS_PRODUCT = 4302;//分类下存在商品，不可禁用或删除
     public static final Integer CATEGORY_NOT_EXIST = 4303;//分类不存在
+
+    //用户模块错误码 4401-4403
+    public static final Integer USER_NOT_EXIST = 4401;//用户不存在
+    public static final Integer USER_STATUS_ERROR = 4402;//用户状态值不合法
+    public static final Integer USER_CREDIT_SCORE_ERROR = 4403;//信用分取值不合法
 
 }

@@ -8,7 +8,8 @@ public class NumberConstant {
     public static final int ACCOUNT_STATUS_NORMAL = 1;
     public static final int ACCOUNT_STATUS_LOCK = 0;
     //信用分常量
-    public static final int FULL_CREDIT_SCORE = 100;
+    public static final int FULL_CREDIT_SCORE = 100;//满分
+    public static final int CREDIT_SCORE_MIN = 0;//最低信用分
     //商品状态常量
     public static final int PRODUCT_STATUS_CHECKED = 0;//审核中
     public static final int PRODUCT_STATUS_SELLING = 1;//售卖中

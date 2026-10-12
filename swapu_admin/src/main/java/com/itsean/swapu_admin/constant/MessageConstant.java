@@ -57,4 +57,8 @@ public class MessageConstant {
     public static final String CATEGORY_NAME_REQUIRED = "分类名称不能为空";
     public static final String CATEGORY_NAME_LENGTH_ERROR = "分类名称长度不能超过50个字符";
     public static final String CATEGORY_STATUS_ERROR = "分类状态值不合法";
+
+    //8.用户管理类信息提示（管理端）
+    public static final String USER_STATUS_ERROR = "用户状态值不合法";
+    public static final String USER_CREDIT_SCORE_ERROR = "信用分需在0到100之间";
 }

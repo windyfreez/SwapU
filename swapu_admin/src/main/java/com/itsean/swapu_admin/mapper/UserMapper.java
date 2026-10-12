@@ -1,10 +1,13 @@
 package com.itsean.swapu_admin.mapper;
 
+import com.itsean.swapu_admin.dto.UserPageQueryDTO;
 import com.itsean.swapu_admin.dto.UserRegisterDTO;
 import com.itsean.swapu_admin.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -63,4 +66,11 @@ public interface UserMapper {
      * @param user
      */
     void update(User user);
+
+    /**
+     * 分页查询用户列表（管理端）
+     * @param userPageQueryDTO 分页查询条件
+     * @return 当前页用户列表
+     */
+    List<User> pageQuery(UserPageQueryDTO userPageQueryDTO);
 }

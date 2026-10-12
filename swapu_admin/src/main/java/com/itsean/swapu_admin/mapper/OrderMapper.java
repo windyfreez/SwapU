@@ -5,6 +5,7 @@ import com.itsean.swapu_admin.entity.Order;
 import com.itsean.swapu_admin.vo.OrderPageVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import java.math.BigDecimal;
@@ -75,6 +76,24 @@ public interface OrderMapper {
      */
     @Select("select sum(total_amount) from orders where seller_id = #{currentUserId}")
     BigDecimal sumSellAmountByUserId(Long currentUserId);
+
+    /**
+     * 根据买家编号和订单状态统计订单总金额（无匹配时返回0）
+     * @param buyerId 买家ID
+     * @param status  订单状态
+     * @return 该状态下买家订单总金额
+     */
+    @Select("select coalesce(sum(total_amount), 0) from orders where buyer_id = #{buyerId} and status = #{status}")
+    BigDecimal sumAmountByBuyerIdAndStatus(@Param("buyerId") Long buyerId, @Param("status") Integer status);
+
+    /**
+     * 根据卖家编号和订单状态统计订单总金额（无匹配时返回0）
+     * @param sellerId 卖家ID
+     * @param status   订单状态
+     * @return 该状态下卖家订单总金额
+     */
+    @Select("select coalesce(sum(total_amount), 0) from orders where seller_id = #{sellerId} and status = #{status}")
+    BigDecimal sumAmountBySellerIdAndStatus(@Param("sellerId") Long sellerId, @Param("status") Integer status);
 
     /**
      * 查询流程限时内未完成流程流转的僵尸单
