@@ -20,6 +20,7 @@
     <img src="https://img.shields.io/github/languages/top/windyfreez/SwapU">
   </div>
 </div>
+
 ## 项目简介
 
 对于在商圈或校园中传统的线下市集来说，信息杂乱不集中、交易不方便、商品流转流程不够规范且浪费公共资源是始终存在的痛点，而SwapU云市集平台则是为解决这些痛点而诞生的商品交易平台。
