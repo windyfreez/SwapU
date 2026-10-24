@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.swapu_admin.mapper.AuditRecordMapper">
+
+    <resultMap id="AuditRecordVOResultMap" type="com.itsean.swapu_admin.vo.AuditRecordVO">
+        <id property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="result" column="result"/>
+        <result property="reason" column="reason"/>
+        <result property="aiResult" column="ai_result"/>
+        <result property="reviewerId" column="reviewer_id"/>
+        <result property="reviewTime" column="review_time"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO audit_record (type, target_id, result, reason, ai_result, reviewer_id, review_time)
+        VALUES (#{type}, #{targetId}, #{result}, #{reason,jdbcType=VARCHAR}, #{aiResult,jdbcType=VARCHAR},
+                #{reviewerId,jdbcType=BIGINT}, #{reviewTime})
+    </insert>
+
+    <select id="pageQuery" resultMap="AuditRecordVOResultMap">
+        SELECT id, type, target_id, result, reason, ai_result, reviewer_id, review_time
+        FROM audit_record
+        <where>
+            <if test="type != null">
+                AND type = #{type}
+            </if>
+            <if test="result != null">
+                AND result = #{result}
+            </if>
+            <if test="reviewerId != null">
+                AND reviewer_id = #{reviewerId}
+            </if>
+        </where>
+        ORDER BY review_time DESC, id DESC
+    </select>
+
+    <select id="listByTarget" resultMap="AuditRecordVOResultMap">
+        SELECT id, type, target_id, result, reason, ai_result, reviewer_id, review_time
+        FROM audit_record
+        WHERE type = #{type}
+          AND target_id = #{targetId}
+        ORDER BY review_time DESC, id DESC
+    </select>
+
+</mapper>

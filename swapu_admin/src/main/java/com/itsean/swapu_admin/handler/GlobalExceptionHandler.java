@@ -3,6 +3,7 @@ package com.itsean.swapu_admin.handler;
 import com.itsean.pojo.Result;
 import com.itsean.swapu_admin.exception.AccountRepeatException;
 import com.itsean.swapu_admin.exception.AdminException;
+import com.itsean.swapu_admin.exception.AuditException;
 import com.itsean.swapu_admin.exception.BaseException;
 import com.itsean.swapu_admin.exception.UserManageException;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +35,15 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserManageException.class)
     public Result handleUserManageException(UserManageException ex) {
         log.warn("用户管理模块业务异常: code={}, msg={}", ex.getCode(), ex.getMessage());
+        return error(ex);
+    }
+
+    /**
+     * 审核模块业务异常（管理端），直接携带模块错误码返回
+     */
+    @ExceptionHandler(AuditException.class)
+    public Result handleAuditException(AuditException ex) {
+        log.warn("审核模块业务异常: code={}, msg={}", ex.getCode(), ex.getMessage());
         return error(ex);
     }
 

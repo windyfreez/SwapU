@@ -15,7 +15,21 @@ public class NumberConstant {
     public static final int PRODUCT_STATUS_SELLING = 1;//售卖中
     public static final int PRODUCT_STATUS_SOLD_OUT = 2;//已售出
     public static final int PRODUCT_STATUS_DOWN = 3;//已下架
+    public static final int PRODUCT_STATUS_AUDIT_REJECTED = 4;//审核驳回
     public static final Integer PRODUCT_STATUS_UP = 1;//已上架
+    //评论审核状态常量
+    public static final int COMMENT_STATUS_PENDING = 0;//待审核
+    public static final int COMMENT_STATUS_PUBLISHED = 1;//已发布
+    public static final int COMMENT_STATUS_REJECTED = 2;//审核驳回
+    //审核类型常量
+    public static final int AUDIT_TYPE_PRODUCT = 1;//商品
+    public static final int AUDIT_TYPE_COMMENT = 2;//评论
+    public static final int AUDIT_TYPE_AVATAR = 3;//头像
+    //审核结论常量
+    public static final int AUDIT_RESULT_PASS = 1;//通过
+    public static final int AUDIT_RESULT_REJECT = 2;//驳回
+    //驳回原因长度上限，与 audit_record.reason 的 varchar(500) 保持一致
+    public static final int AUDIT_REASON_MAX_LENGTH = 500;
     //商品浏览数常量
     public static final int DEFAULT_VIEW_COUNT = 0;//初始化商品浏览数
     // 热门商品相关常量

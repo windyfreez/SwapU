@@ -61,4 +61,17 @@ public class MessageConstant {
     //8.用户管理类信息提示（管理端）
     public static final String USER_STATUS_ERROR = "用户状态值不合法";
     public static final String USER_CREDIT_SCORE_ERROR = "信用分需在0到100之间";
+
+    //9.审核模块信息提示（管理端）
+    public static final String AUDIT_PRODUCT_NOT_EXIST = "商品不存在";
+    public static final String AUDIT_COMMENT_NOT_EXIST = "评论不存在";
+    public static final String AUDIT_PRODUCT_ID_REQUIRED = "商品ID不能为空";
+    public static final String AUDIT_COMMENT_ID_REQUIRED = "评论ID不能为空";
+    public static final String AUDIT_REASON_REQUIRED = "驳回时必须填写原因";
+    public static final String AUDIT_REASON_TOO_LONG = "驳回原因不能超过500个字符";
+    public static final String AUDIT_PRODUCT_STATUS_ERROR = "商品当前状态不可审核";
+    public static final String AUDIT_COMMENT_STATUS_ERROR = "评论当前状态不可审核";
+    public static final String AUDIT_RESULT_ERROR = "审核结论不合法";
+    public static final String AUDIT_STATUS_FILTER_ERROR = "审核状态筛选值不合法";
+    public static final String AUDIT_TYPE_FILTER_ERROR = "审核类型筛选值不合法";
 }

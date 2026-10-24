@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.swapu_admin.mapper.CommentMapper">
+
+    <!-- 评论审核列表：评论为用户对用户，sender 为评论人，receiver 为被评论人 -->
+    <resultMap id="CommentAuditVOResultMap" type="com.itsean.swapu_admin.vo.CommentAuditVO">
+        <id property="id" column="id"/>
+        <result property="receiverId" column="receiver_id"/>
+        <result property="receiverUsername" column="receiver_username"/>
+        <result property="receiverNickname" column="receiver_nickname"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="content" column="content"/>
+        <result property="images" column="images"
+                typeHandler="com.itsean.swapu_admin.handler.JsonStringListTypeHandler"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="auditPageQuery" resultMap="CommentAuditVOResultMap">
+        SELECT c.id,
+               c.receiver_id,
+               ru.username AS receiver_username,
+               ru.nickname AS receiver_nickname,
+               c.sender_id AS user_id,
+               su.username,
+               c.content,
+               CASE
+                   WHEN c.image IS NULL OR c.image = '' THEN NULL
+                   ELSE JSON_ARRAY(c.image)
+                   END AS images,
+               c.status,
+               c.send_time AS create_time
+        FROM comment c
+                 LEFT JOIN user su ON c.sender_id = su.id
+                 LEFT JOIN user ru ON c.receiver_id = ru.id
+        <where>
+            <if test="status != null">
+                AND c.status = #{status}
+            </if>
+            <if test="receiverId != null">
+                AND c.receiver_id = #{receiverId}
+            </if>
+            <if test="keyword != null and keyword != ''">
+                AND c.content LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+        </where>
+        ORDER BY c.send_time DESC
+    </select>
+
+    <!-- 审核状态流转：仅允许从期望状态（待审核）流转，防止并发重复审核 -->
+    <update id="updateStatusFromExpected">
+        UPDATE comment
+        SET status = #{status}
+        WHERE id = #{id}
+          AND status = #{expectedStatus}
+    </update>
+
+</mapper>

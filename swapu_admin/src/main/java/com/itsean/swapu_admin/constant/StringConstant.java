@@ -10,6 +10,12 @@ public class StringConstant {
     public static final String PRODUCT_STATUS_SELLING_DESC = "售卖中";//售卖中
     public static final String PRODUCT_STATUS_SOLD_OUT_DESC = "已售出";//已售出
     public static final String PRODUCT_STATUS_DOWN_DESC = "已下架";//已下架
+    public static final String PRODUCT_STATUS_AUDIT_REJECTED_DESC = "审核驳回";//审核驳回
+
+    //评论审核状态
+    public static final String COMMENT_STATUS_PENDING_DESC = "待审核";//待审核
+    public static final String COMMENT_STATUS_PUBLISHED_DESC = "已发布";//已发布
+    public static final String COMMENT_STATUS_REJECTED_DESC = "已驳回";//已驳回
 
     //商品成色
     public static final String PRODUCT_CONDITION_NEW = "全新（未拆封）";

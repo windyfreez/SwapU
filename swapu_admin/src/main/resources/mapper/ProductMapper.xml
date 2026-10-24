@@ -158,4 +158,59 @@
             LIMIT #{limit}
     </select>
 
+    <!-- 商品审核列表：关联发布人与分类，返回审核页所需字段 -->
+    <resultMap id="ProductAuditVOResultMap" type="com.itsean.swapu_admin.vo.ProductAuditVO">
+        <id property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="price" column="price"/>
+        <result property="originalPrice" column="original_price"/>
+        <result property="images" column="images" typeHandler="com.itsean.swapu_admin.handler.JsonStringListTypeHandler"/>
+        <result property="productCondition" column="product_condition"/>
+        <result property="status" column="status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <select id="auditPageQuery" resultMap="ProductAuditVOResultMap">
+        SELECT p.id,
+               p.title,
+               p.user_id,
+               u.username,
+               p.category_id,
+               c.name AS category_name,
+               p.price,
+               p.original_price,
+               p.images,
+               p.product_condition,
+               p.status,
+               p.create_time
+        FROM product p
+                 LEFT JOIN user u ON p.user_id = u.id
+                 LEFT JOIN category c ON p.category_id = c.id
+        <where>
+            <if test="status != null">
+                AND p.status = #{status}
+            </if>
+            <if test="categoryId != null">
+                AND p.category_id = #{categoryId}
+            </if>
+            <if test="title != null and title != ''">
+                AND p.title LIKE CONCAT('%', #{title}, '%')
+            </if>
+        </where>
+        ORDER BY p.create_time DESC
+    </select>
+
+    <!-- 审核状态流转：仅允许从期望状态（待审核）流转，防止并发重复审核 -->
+    <update id="updateStatusFromExpected">
+        UPDATE product
+        SET status      = #{status},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+          AND status = #{expectedStatus}
+    </update>
+
 </mapper>

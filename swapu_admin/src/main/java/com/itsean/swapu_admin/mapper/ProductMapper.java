@@ -1,9 +1,12 @@
 package com.itsean.swapu_admin.mapper;
 
+import com.itsean.swapu_admin.dto.ProductAuditPageQueryDTO;
 import com.itsean.swapu_admin.dto.ProductListPageQueryDTO;
 import com.itsean.swapu_admin.entity.Product;
+import com.itsean.swapu_admin.vo.ProductAuditVO;
 import org.apache.ibatis.annotations.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -84,4 +87,25 @@ public interface ProductMapper {
      */
     @Select("select count(*) from product where category_id = #{categoryId} and status = #{status}")
     int countByCategoryIdAndStatus(@Param("categoryId") Long categoryId, @Param("status") Integer status);
+
+    /**
+     * 分页查询审核商品列表（关联发布人与分类）
+     *
+     * @param productAuditPageQueryDTO 审核分页查询条件
+     * @return 当前页商品审核列表
+     */
+    List<ProductAuditVO> auditPageQuery(ProductAuditPageQueryDTO productAuditPageQueryDTO);
+
+    /**
+     * 仅当商品处于指定状态（待审核）时更新状态，避免并发重复审核
+     *
+     * @param id             商品ID
+     * @param status         目标状态
+     * @param expectedStatus 期望的当前状态
+     * @param updateTime     更新时间
+     * @return 受影响行数，0 表示状态已被其他请求改变
+     */
+    int updateStatusFromExpected(@Param("id") Long id, @Param("status") Integer status,
+                                 @Param("expectedStatus") Integer expectedStatus,
+                                 @Param("updateTime") LocalDateTime updateTime);
 }
