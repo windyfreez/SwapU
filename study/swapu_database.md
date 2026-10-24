@@ -188,7 +188,22 @@ ER 图未清晰显示全部状态码，建议以项目代码中的枚举或订�
 | source | varchar(50) |  | — | 行为来源/触发场景 |
 | create_time | datetime |  | — | 行为发生时间 |
 
-## 12. ER 关系说明
+## 12. audit_record（审核流水表）
+
+| 字段名 | 类型 | 主键 | 非空 | 说明 |
+|---|---|:---:|:---:|---|
+| id | bigint | ✓ | 是 | 流水 ID |
+| type | tinyint |  | 是 | 审核类型：1商品 2评论 3头像 |
+| target_id | bigint |  | 是 | 被审对象 ID（商品/评论/用户） |
+| result | tinyint |  | 是 | 审核结论：1通过 2驳回 |
+| reason | varchar(500) |  | — | 驳回原因 |
+| ai_result | json |  | — | AI 审核结论（JSON，AI 审核接入后） |
+| reviewer_id | bigint |  | — | 审核人 ID（`admin.id`） |
+| review_time | datetime |  | — | 审核时间 |
+
+> `audit_record` 通过 `(type, target_id)` 多态关联被审对象（商品/评论/用户），不设置外键；`idx_audit_record_type_target` 用于按对象查历史流水，`idx_audit_record_reviewer` 用于按审核人筛选。
+
+## 13. ER 关系说明
 
 | 关系 | 关联字段 | 关系说明 |
 |---|---|---|
@@ -209,17 +224,20 @@ ER 图未清晰显示全部状态码，建议以项目代码中的枚举或订�
 | 用户—行为日志 | `user_behavior_log.user_id` → `user.id` | 记录用户行为 |
 | 商品—行为日志 | `user_behavior_log.product_id` → `product.id` | 记录用户对商品的行为 |
 | 分类—行为日志 | `user_behavior_log.category_id` → `category.id` | 行为记录关联商品分类 |
+| 管理员—审核流水 | `audit_record.reviewer_id` → `admin.id` | 管理员执行审核并产生审核流水 |
+| 审核流水—审核对象 | `audit_record.type` / `audit_record.target_id` | 多态关联商品、评论或用户，不设置外键 |
 
-## 13. 设计说明与注意事项
+## 14. 设计说明与注意事项
 
 1. **订单快照字段**：`product_title`、`product_image`、`unit_price` 等字段用于保留下单时的商品信息，避免商品后续修改影响历史订单展示。
 2. **库存变更追踪**：`stock_change_log` 保存库存变更数量、操作类型及关联订单，便于审计和问题排查。
 3. **用户行为分析**：`user_behavior_log` 将用户、商品、分类、行为类型及行为值关联起来，可用于行为统计或个性化推荐。
 4. **地址管理**：`address_book` 通过 `user_id` 归属用户，`is_default` 表示默认收货地址。
-5. **字段与约束核验**：本文件根据 ER 图整理。实际的 `NOT NULL`、默认值、唯一索引、普通索引、外键约束及状态码应以项目的建表 SQL 和代码枚举为准。
+5. **审核流水**：`audit_record` 统一记录商品、评论、头像审核；`type` 与 `target_id` 为多态关联，`ai_result` 预留给 AI 审核结论，人工审核作为兜底。
+6. **字段与约束核验**：本文件根据 ER 图整理。实际的 `NOT NULL`、默认值、唯一索引、普通索引、外键约束及状态码应以项目的建表 SQL 和代码枚举为准。
 
 
-## 14. 创建表结构 SQL 文件
+## 15. 创建表结构 SQL 文件
 
 > 以下 SQL 根据 ER 图中的字段名称和数据类型整理，补充了常用的自增主键、默认时间和必要约束，便于初始化数据库。ER 图无法确认的业务默认值、唯一约束和状态码，需结合项目实际代码进一步核对。若项目已有正式建表 SQL，应以正式 SQL 为准。
 
@@ -432,6 +450,25 @@ CREATE TABLE user_behavior_log (
     INDEX idx_behavior_product_id (product_id),
     INDEX idx_behavior_category_id (category_id)
 ) COMMENT='用户行为日志表';
+
+-- =========================
+-- 12. 审核流水表
+-- =========================
+CREATE TABLE IF NOT EXISTS audit_record
+(
+    id          BIGINT AUTO_INCREMENT COMMENT '流水ID'
+        PRIMARY KEY,
+    type        TINYINT      NOT NULL COMMENT '审核类型：1商品 2评论 3头像',
+    target_id   BIGINT       NOT NULL COMMENT '被审对象ID（商品/评论/用户）',
+    result      TINYINT      NOT NULL COMMENT '审核结论：1通过 2驳回',
+    reason      VARCHAR(500) DEFAULT NULL COMMENT '驳回原因',
+    ai_result   JSON         DEFAULT NULL COMMENT 'AI审核结论（JSON，AI审核接入后）',
+    reviewer_id BIGINT       DEFAULT NULL COMMENT '审核人ID（admin.id）',
+    review_time DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '审核时间',
+    KEY idx_audit_record_type_target (type, target_id),
+    KEY idx_audit_record_reviewer (reviewer_id),
+    KEY idx_audit_record_review_time (review_time)
+) COMMENT='审核流水表';
 ```
 
 ### SQL 使用说明
@@ -440,3 +477,4 @@ CREATE TABLE user_behavior_log (
 2. SQL 中的索引是根据常见查询关联添加的建议索引，并不代表 ER 图已经明确标注这些索引。
 3. 此版本未添加外键约束，以避免在尚未确认项目实际约束策略时引入额外限制；关联关系可先通过业务层维护。
 4. `orders.address_id` 按 ER 图字段名称整理；若实际项目字段为 `address_book_id`，请统一修改文档与 SQL。
+5. `audit_record.review_time` 默认取当前时间；`audit_record` 通过 `(type, target_id)` 多态关联商品、评论或用户，未设置外键。
