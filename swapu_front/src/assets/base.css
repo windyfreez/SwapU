@@ -7,8 +7,8 @@
   /* 颜色 */
   --c-primary: #2563eb;
   --c-primary-hover: #1d4ed8;
-  --c-primary-light: #eff6ff;
-  --c-primary-dark: #1e40af;
+  --c-primary-light: #eaf2ff;
+  --c-primary-dark: #1e3a8a;
 
   --c-success: #16a34a;
   --c-success-light: #f0fdf4;
@@ -22,20 +22,20 @@
   --c-text-3: #9ca3af;
   --c-border: #e5e7eb;
   --c-border-strong: #d1d5db;
-  --c-bg: #f5f6f8;
+  --c-bg: #f4f7fb;
   --c-card: #ffffff;
   --c-hover: #f5f6f8;
   --c-input-bg: #fafbfc;
   --c-disabled-bg: #f0f1f3;
 
   /* 圆角 / 阴影 */
-  --radius: 8px;
-  --radius-lg: 12px;
-  --shadow-sm: 0 1px 2px rgba(16, 24, 40, 0.05);
-  --shadow-md: 0 2px 8px rgba(16, 24, 40, 0.08);
+  --radius: 4px;
+  --radius-lg: 8px;
+  --shadow-sm: 0 2px 8px rgba(31, 69, 125, 0.07);
+  --shadow-md: 0 12px 28px rgba(31, 69, 125, 0.12);
 
   /* 布局 */
-  --nav-height: 64px;
+  --nav-height: 72px;
   --container-width: 1200px;
 }
 

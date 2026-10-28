@@ -12,21 +12,11 @@
     </template>
 
     <template v-else>
-      <!-- 用户信息卡 + 统计(可点击跳转) -->
-      <div class="card profile-card">
-        <div class="profile-main">
-          <div class="avatar-large">
-            <img v-if="userInfo.avatar" :src="userInfo.avatar" alt="头像" />
-            <span v-else>👤</span>
-          </div>
-          <div class="user-detail">
-            <h2>{{ userInfo.nickname || userInfo.username }}</h2>
-            <p class="user-meta">学号 {{ userInfo.studentId || '—' }}</p>
-            <p class="user-meta" v-if="userInfo.college">{{ userInfo.college }}</p>
-          </div>
-          <button class="btn btn-outline btn-sm edit-btn" @click="goToEditProfile">编辑资料</button>
-        </div>
-
+      <div class="dashboard-intro">
+        <div><span class="dashboard-kicker">PERSONAL SPACE</span><h1>你好，{{ userInfo.nickname || userInfo.username }}。</h1><p>{{ userInfo.college || '校园生活，从发现一件好物开始。' }}</p></div>
+        <button class="edit-profile-link" @click="goToEditProfile">编辑资料 →</button>
+      </div>
+      <div class="profile-summary">
         <div class="stats-row">
           <div class="stat-item link" @click="goToMyProducts">
             <span class="stat-value">{{ orderStats.publishCount }}</span>
@@ -57,7 +47,7 @@
 
       <!-- 内容预览:最近足迹 / 在售商品 -->
       <div class="preview-grid">
-        <div class="card preview-panel">
+        <div class="preview-panel">
           <div class="preview-header">
             <h3>👣 最近足迹</h3>
             <router-link to="/my-footprints" class="more-link">查看更多 ›</router-link>
@@ -84,7 +74,7 @@
           </div>
         </div>
 
-        <div class="card preview-panel">
+        <div class="preview-panel">
           <div class="preview-header">
             <h3>📦 在售商品</h3>
             <router-link to="/my-products" class="more-link">查看更多 ›</router-link>
@@ -345,58 +335,30 @@ onMounted(() => {
   gap: 14px;
 }
 
-/* 用户信息卡 */
-.profile-card {
-  padding: 28px 30px 0;
-}
-
-.profile-main {
+/* 个人仪表盘 */
+.dashboard-intro {
   display: flex;
   align-items: center;
-  padding-bottom: 24px;
+  justify-content: space-between;
+  padding: 4px 0 28px;
+  border-bottom: 1px solid var(--c-border);
 }
 
-.avatar-large {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: var(--c-primary-light);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 34px;
-  margin-right: 18px;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.avatar-large img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.user-detail {
-  flex: 1;
-  min-width: 0;
-}
-
-.user-detail h2 {
-  font-size: 21px;
+.dashboard-kicker { color: var(--c-primary); font-size: 10px; letter-spacing: 1.8px; font-weight: 700; }
+.dashboard-intro h1 {
+  margin: 5px 0 3px;
+  font-size: 30px;
   font-weight: 700;
   color: var(--c-text);
-  margin-bottom: 4px;
 }
+.dashboard-intro p { font-size: 13px; color: var(--c-text-3); }
+.edit-profile-link { border: 0; border-bottom: 1px solid var(--c-primary); padding: 0 0 3px; background: transparent; color: var(--c-primary); font-size: 13px; }
+.edit-profile-link:hover { color: var(--c-primary-hover); }
 
-.user-meta {
-  font-size: 13px;
-  color: var(--c-text-3);
-}
-
+.profile-summary { margin: 26px 0 36px; }
 .stats-row {
   display: flex;
   align-items: center;
-  border-top: 1px solid var(--c-border);
 }
 
 .stat-item {
@@ -409,12 +371,11 @@ onMounted(() => {
 
 .stat-item.link {
   cursor: pointer;
-  transition: background 0.15s;
-  border-radius: var(--radius);
+  transition: color 0.15s;
 }
 
 .stat-item.link:hover {
-  background: var(--c-hover);
+  background: transparent;
 }
 
 .stat-item.link:hover .stat-value {
@@ -446,10 +407,10 @@ onMounted(() => {
 
 /* 内容预览 */
 .preview-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 38px;
+  margin-top: 12px;
 }
 
 .preview-panel {
@@ -460,12 +421,12 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 0 0 13px;
   border-bottom: 1px solid var(--c-border);
 }
 
 .preview-header h3 {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 600;
   color: var(--c-text);
 }
@@ -481,27 +442,28 @@ onMounted(() => {
 }
 
 .preview-list {
-  padding: 8px 10px;
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 0 0 8px;
 }
 
 .preview-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 10px;
-  border-radius: var(--radius);
+  display: block;
+  flex: 0 0 136px;
+  padding: 0;
   cursor: pointer;
   transition: background 0.15s;
 }
 
 .preview-item:hover {
-  background: var(--c-hover);
+  background: transparent;
 }
 
 .preview-thumb {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius);
+  width: 136px;
+  height: 108px;
+  border-radius: 0;
   overflow: hidden;
   background: var(--c-disabled-bg);
   flex-shrink: 0;
@@ -514,11 +476,11 @@ onMounted(() => {
 }
 
 .preview-info {
-  flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 1px;
+  padding-top: 8px;
 }
 
 .preview-title {
@@ -532,7 +494,7 @@ onMounted(() => {
 .preview-price {
   font-size: 14px;
   font-weight: 700;
-  color: var(--c-danger);
+  color: var(--c-primary);
 }
 
 .preview-empty {

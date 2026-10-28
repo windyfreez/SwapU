@@ -183,8 +183,9 @@ onUnmounted(() => {
   top: 0;
   z-index: 900;
   height: var(--nav-height);
-  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%);
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+  background: rgba(255, 255, 255, .96);
+  border-bottom: 1px solid #e8eef8;
+  box-shadow: 0 2px 12px rgba(31, 69, 125, 0.06);
 }
 
 .navbar-inner {
@@ -209,7 +210,7 @@ onUnmounted(() => {
 .brand-name {
   font-size: 19px;
   font-weight: 700;
-  color: #fff;
+  color: #10244c;
   letter-spacing: 1px;
 }
 
@@ -217,7 +218,7 @@ onUnmounted(() => {
   font-style: normal;
   font-size: 12px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--c-primary);
   margin-left: 6px;
   letter-spacing: 0.5px;
 }
@@ -233,20 +234,20 @@ onUnmounted(() => {
 .nav-link {
   padding: 8px 16px;
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #60708d;
   border-radius: var(--radius);
   transition: all 0.2s;
 }
 
 .nav-link:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.15);
+  color: var(--c-primary);
+  background: var(--c-primary-light);
 }
 
 .nav-link.active {
-  color: #fff;
+  color: var(--c-primary);
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.22);
+  background: var(--c-primary-light);
 }
 
 /* 搜索 */
@@ -256,7 +257,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   height: 38px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
+  border: 1px solid #dce5f2;
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.95);
   overflow: hidden;
@@ -264,8 +265,8 @@ onUnmounted(() => {
 }
 
 .nav-search:focus-within {
-  border-color: #fff;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.25);
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 
 .nav-search input {
@@ -323,16 +324,17 @@ onUnmounted(() => {
   padding: 0 14px;
   font-size: 13px;
   flex-shrink: 0;
-  background: transparent;
-  border-color: rgba(255, 255, 255, 0.45);
-  color: #fff;
+  background: #fff;
+  border-color: #dce5f2;
+  color: #60708d;
 }
 
 /* 覆盖全局 .btn:hover 的浅色底,避免悬停时变回白底卡片 */
 .navbar .theme-toggle:hover,
 .navbar .layout-toggle:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.85);
+  background: var(--c-primary-light);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 /* 手机版:顶栏分两行——第一行品牌 + 搜索框,第二行显示模式/主题/登录注册,
@@ -382,25 +384,25 @@ html[data-layout='mobile'] .nav-search input {
 
 .login-link {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
+  color: #60708d;
 }
 
 .login-link:hover {
-  color: #fff;
+  color: var(--c-primary);
   text-decoration: underline;
 }
 
 .btn-register {
-  background: #fff;
-  border-color: #fff;
-  color: var(--c-primary);
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
   font-weight: 600;
 }
 
 .btn-register:hover {
-  background: var(--c-primary-light);
-  border-color: #fff;
-  color: var(--c-primary-hover);
+  background: var(--c-primary-hover);
+  border-color: var(--c-primary-hover);
+  color: #fff;
 }
 
 .user-menu {
@@ -416,7 +418,7 @@ html[data-layout='mobile'] .nav-search input {
 }
 
 .user-menu:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--c-primary-light);
 }
 
 .user-avatar {
@@ -439,7 +441,7 @@ html[data-layout='mobile'] .nav-search input {
 
 .user-name {
   font-size: 14px;
-  color: #fff;
+  color: #304467;
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -448,7 +450,7 @@ html[data-layout='mobile'] .nav-search input {
 
 .caret {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.85);
+  color: #71809a;
   transition: transform 0.2s;
 }
 
