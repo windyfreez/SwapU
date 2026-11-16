@@ -31,4 +31,9 @@ public class ReRankProperties {
      * 单次重排序读取响应超时（毫秒），比客服问答短很多，避免拖慢推荐接口
      */
     private int readTimeout = 15000;
+
+    /**
+     * 重排序结果缓存 TTL（秒），TTL 内重复请求直接返回上次重排结果，小于等于 0 表示不缓存
+     */
+    private int cacheTtlSeconds = 300;
 }

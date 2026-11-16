@@ -16,6 +16,7 @@ import com.itsean.campus_second_hand.entity.result.PageResult;
 import com.itsean.campus_second_hand.entity.result.Result;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
+import com.itsean.campus_second_hand.properties.ReRankProperties;
 import com.itsean.campus_second_hand.service.ProductService;
 import com.itsean.campus_second_hand.service.ProductViewService;
 import com.itsean.campus_second_hand.service.ReRankService;
@@ -30,6 +31,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -57,6 +59,8 @@ public class ProductServiceImpl implements ProductService {
     private StringRedisTemplate stringRedisTemplate;
     @Autowired
     private ReRankService reRankService;
+    @Autowired
+    private ReRankProperties reRankProperties;
 
     /**
      * 添加商品
@@ -351,8 +355,17 @@ public class ProductServiceImpl implements ProductService {
     public Result recommend(Integer limit) {
         int size = limit == null ? 20 : Math.max(1, Math.min(limit, 50));
         Long userId = BaseContext.getCurrentId();
+
+        //先读用户画像，拿到画像版本号用于缓存主动失效
         Map<Object, Object> profile = userId == null ? Collections.emptyMap() :
                 stringRedisTemplate.opsForHash().entries(StringConstant.USER_PROFILE_REDIS_KEY_PREFIX + userId);
+        String profileVersion = extractProfileVersion(profile);
+
+        //命中重排序结果缓存时直接返回，跳过召回与LLM重排序，保障重复请求的响应速度
+        List<Product> cachedResult = getCachedResult(userId, size, profileVersion);
+        if (cachedResult != null) {
+            return Result.success(cachedResult);
+        }
 
         List<Long> categoryIds = profile.entrySet().stream()
                 .filter(e -> !"_updatedAt".equals(String.valueOf(e.getKey())))
@@ -396,7 +409,73 @@ public class ProductServiceImpl implements ProductService {
         //使用LLM将候选集进行语义重排序，失败时自动回退为召回分排序
         result = reRankService.reRank(result, categoryIds);
 
+        //把重排序后的候选集写入缓存，TTL 内重复请求直接复用
+        cacheResult(userId, size, profileVersion, result);
+
         return Result.success(result);
+    }
+
+    /**
+     * 读取重排序结果缓存，未命中、缓存失效或读失败时返回 null
+     * @param userId 当前用户
+     * @param size 推荐条数
+     * @param profileVersion 画像版本号，用于画像重建后主动失效旧缓存
+     * @return 缓存的商品列表，未命中返回 null
+     */
+    private List<Product> getCachedResult(Long userId, int size, String profileVersion) {
+        if (userId == null || !reRankProperties.isEnabled() || reRankProperties.getCacheTtlSeconds() <= 0) {
+            return null;
+        }
+        String key = StringConstant.RECOMMEND_RERANK_CACHE_PREFIX + userId + ":" + size + ":" + profileVersion;
+        try {
+            String json = stringRedisTemplate.opsForValue().get(key);
+            if (json == null || json.isEmpty()) {
+                return null;
+            }
+            List<Product> cached = JSONUtil.toList(json, Product.class);
+            // TTL 内可能有个别商品售罄/下架，读侧再过滤一次可购买商品，避免回显失效商品
+            List<Product> available = cached.stream()
+                    .filter(p -> p.getStatus() != null && p.getStatus() == NumberConstant.PRODUCT_STATUS_SELLING)
+                    .collect(Collectors.toList());
+            return available.isEmpty() ? null : available;
+        } catch (Exception e) {
+            // Redis 故障等异常时放行走实时召回，不让缓存组件把推荐搞挂
+            log.warn("读取重排序结果缓存失败，本次走实时召回：{}", e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 把重排序后的候选集写入缓存，写失败不影响本次推荐
+     * @param userId 当前用户
+     * @param size 推荐条数
+     * @param profileVersion 画像版本号
+     * @param result 重排序后的商品列表
+     */
+    private void cacheResult(Long userId, int size, String profileVersion, List<Product> result) {
+        if (userId == null || !reRankProperties.isEnabled()
+                || reRankProperties.getCacheTtlSeconds() <= 0
+                || result == null || result.isEmpty()) {
+            return;
+        }
+        String key = StringConstant.RECOMMEND_RERANK_CACHE_PREFIX + userId + ":" + size + ":" + profileVersion;
+        try {
+            stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(result),
+                    Duration.ofSeconds(reRankProperties.getCacheTtlSeconds()));
+        } catch (Exception e) {
+            log.warn("写入重排序结果缓存失败，不影响本次推荐：{}", e.getMessage());
+        }
+    }
+
+    /**
+     * 从画像 Hash 中提取版本号（_updatedAt），用于缓存 key 拼装实现主动失效
+     * @param profile 用户画像
+     * @return 画像版本号，无画像（冷启动）时返回占位 "0"
+     */
+    private String extractProfileVersion(Map<Object, Object> profile) {
+        Object updatedAt = profile == null ? null : profile.get("_updatedAt");
+        //没有画像（冷启动）时用固定占位版本，待画像构建后版本号变化会自动失效旧缓存
+        return updatedAt == null ? "0" : String.valueOf(updatedAt);
     }
 
     /**
