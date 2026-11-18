@@ -36,7 +36,7 @@ SwapU 是一个面向校园场景的 C2C 二手交易平台，基于 Spring Boot
 - SwapU_user：用户端所有服务，包括用户管理、商品、订单、聊天、地址模块
 - swapu_admin：管理端所有服务，包括管理员管理、商品、订单统计、数据统计模块（**尚未完成**）
 - swapu_front：用户端前端页面
-- swapu_admin_front：管理端前端页面（**尚未完成**）
+- swapu_admin_front：管理端前端页面（Vue 3 + Vite 独立项目，`npm run dev` 启动）
 - swapu_pojo：用于存放dto、vo、entity实体类
 - swapu_common：用于存放工具类、配置类等公共部分
 - screenshot：前端页面展示、文档图片资源

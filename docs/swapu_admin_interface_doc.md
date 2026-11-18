@@ -1,5 +1,7 @@
 # SwapU 管理端接口文档
 
+> **实现状态（2026-11）：** 本文档是最初的设计稿，其中「平台统计」「头像审核」等接口尚未实现，部分字段与路径也与当前代码不一致。前端开发请以实际代码核对后的 [swapu_admin_api_inventory.md](./swapu_admin_api_inventory.md) 为准。
+
 ## 基础信息
 
 - **Base URL**: `http://localhost:8081`（管理端独立服务；前端开发环境经 Vite proxy 转发 `/admin` 前缀）

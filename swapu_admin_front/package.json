@@ -1,0 +1,19 @@
+{
+  "name": "swapu-admin-front",
+  "version": "0.1.0",
+  "private": true,
+  "description": "SwapU 管理后台前端（独立项目）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4174"
+  },
+  "dependencies": {
+    "vue": "^3.2.38",
+    "vue-router": "^4.6.4"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^3.0.3",
+    "vite": "^3.0.9"
+  }
+}
