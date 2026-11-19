@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.task;
 
-import com.itsean.campus_second_hand.entity.Order;
-import com.itsean.campus_second_hand.entity.User;
+import com.itsean.pojo.entity.Order;
+import com.itsean.pojo.entity.User;
 import com.itsean.campus_second_hand.mapper.OrderMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.OrderService;

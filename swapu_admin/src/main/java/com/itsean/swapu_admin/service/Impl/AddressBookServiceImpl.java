@@ -1,7 +1,7 @@
 package com.itsean.swapu_admin.service.impl;
 
-import com.itsean.swapu_admin.context.BaseContext;
-import com.itsean.swapu_admin.entity.AddressBook;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.entity.AddressBook;
 import com.itsean.swapu_admin.mapper.AddressBookMapper;
 import com.itsean.swapu_admin.service.AddressBookService;
 import org.springframework.beans.factory.annotation.Autowired;

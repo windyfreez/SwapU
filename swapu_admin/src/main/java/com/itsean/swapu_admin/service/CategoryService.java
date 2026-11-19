@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.service;
 
 import com.itsean.swapu_admin.dto.CategoryDTO;
-import com.itsean.swapu_admin.entity.Category;
-import com.itsean.swapu_admin.entity.result.Result;
+import com.itsean.pojo.entity.Category;
+import com.itsean.pojo.Result;
 import com.itsean.swapu_admin.vo.CategoryVO;
 import org.springframework.stereotype.Service;
 

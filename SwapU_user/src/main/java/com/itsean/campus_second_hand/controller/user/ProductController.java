@@ -1,13 +1,13 @@
 package com.itsean.campus_second_hand.controller.user;
 
-import com.itsean.campus_second_hand.dto.ProductDTO;
-import com.itsean.campus_second_hand.dto.ProductListPageQueryDTO;
-import com.itsean.campus_second_hand.entity.Product;
-import com.itsean.campus_second_hand.entity.result.PageResult;
-import com.itsean.campus_second_hand.entity.result.Result;
+import com.itsean.pojo.dto.ProductDTO;
+import com.itsean.pojo.dto.ProductListPageQueryDTO;
+import com.itsean.pojo.entity.Product;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.service.ProductService;
-import com.itsean.campus_second_hand.vo.ProductDetailVO;
-import com.itsean.campus_second_hand.vo.ProductVO;
+import com.itsean.pojo.vo.ProductDetailVO;
+import com.itsean.pojo.vo.ProductVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;

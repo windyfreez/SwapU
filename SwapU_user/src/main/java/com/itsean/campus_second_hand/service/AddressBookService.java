@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.service;
 
-import com.itsean.campus_second_hand.entity.AddressBook;
+import com.itsean.pojo.entity.AddressBook;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

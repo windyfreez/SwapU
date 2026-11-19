@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static com.itsean.campus_second_hand.constant.StringConstant.PRODUCT_VIEW_PREFIX;
+import static com.itsean.common.constant.StringConstant.PRODUCT_VIEW_PREFIX;
 
 @Slf4j
 @Component

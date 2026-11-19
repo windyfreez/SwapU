@@ -1,11 +1,11 @@
 package com.itsean.campus_second_hand.aspect;
 
-import com.itsean.campus_second_hand.context.BaseContext;
-import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.entity.Product;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.service.BehaviorBufferService;
-import com.itsean.campus_second_hand.dto.FavoriteDTO;
-import com.itsean.campus_second_hand.dto.OrderDTO;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.OrderDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;

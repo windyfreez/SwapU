@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.task;
 
-import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.pojo.entity.Product;
 import com.itsean.campus_second_hand.entity.StockChangeLog;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.StockChangeLogMapper;

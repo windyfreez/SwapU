@@ -1,7 +1,7 @@
 package com.itsean.swapu_admin.config;
 
-import com.itsean.swapu_admin.properties.AliOssProperties;
-import com.itsean.swapu_admin.utils.AliOssUtil;
+import com.itsean.common.properties.AliOssProperties;
+import com.itsean.common.utils.AliOssUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.utils;
 
-import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.pojo.entity.Product;
 
 import java.util.ArrayList;
 import java.util.Collections;

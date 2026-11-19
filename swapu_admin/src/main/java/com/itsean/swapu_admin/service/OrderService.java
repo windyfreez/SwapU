@@ -1,8 +1,10 @@
 package com.itsean.swapu_admin.service;
 
+import com.itsean.pojo.dto.*;
 import com.itsean.swapu_admin.dto.*;
-import com.itsean.swapu_admin.entity.Order;
-import com.itsean.swapu_admin.entity.result.PageResult;
+import com.itsean.pojo.entity.Order;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.vo.*;
 import com.itsean.swapu_admin.vo.*;
 import org.springframework.stereotype.Service;
 

@@ -1,8 +1,8 @@
 package com.itsean.campus_second_hand.mapper;
 
-import com.itsean.campus_second_hand.dto.OrderPageQueryDTO;
-import com.itsean.campus_second_hand.entity.Order;
-import com.itsean.campus_second_hand.vo.OrderPageVO;
+import com.itsean.pojo.dto.OrderPageQueryDTO;
+import com.itsean.pojo.entity.Order;
+import com.itsean.pojo.vo.OrderPageVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

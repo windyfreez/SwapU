@@ -3,7 +3,7 @@
 <mapper namespace="com.itsean.campus_second_hand.mapper.FavoriteMapper">
 
 
-    <resultMap id="ProductResultMap" type="com.itsean.campus_second_hand.entity.Product">
+    <resultMap id="ProductResultMap" type="com.itsean.pojo.entity.Product">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
         <result property="title" column="title"/>

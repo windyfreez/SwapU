@@ -1,7 +1,7 @@
 package com.itsean.swapu_admin.mapper;
 
 import com.itsean.swapu_admin.dto.CommentAuditPageQueryDTO;
-import com.itsean.swapu_admin.entity.Comment;
+import com.itsean.pojo.entity.Comment;
 import com.itsean.swapu_admin.vo.CommentAuditVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

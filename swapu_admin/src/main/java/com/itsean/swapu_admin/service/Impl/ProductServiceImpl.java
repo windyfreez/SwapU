@@ -5,22 +5,22 @@ import cn.hutool.json.JSONUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
-import com.itsean.swapu_admin.constant.NumberConstant;
-import com.itsean.swapu_admin.constant.StringConstant;
-import com.itsean.swapu_admin.context.BaseContext;
-import com.itsean.swapu_admin.dto.ProductDTO;
-import com.itsean.swapu_admin.dto.ProductListPageQueryDTO;
-import com.itsean.swapu_admin.entity.Product;
-import com.itsean.swapu_admin.entity.User;
-import com.itsean.swapu_admin.entity.result.PageResult;
-import com.itsean.swapu_admin.entity.result.Result;
+import com.itsean.common.constant.NumberConstant;
+import com.itsean.common.constant.StringConstant;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.dto.ProductDTO;
+import com.itsean.pojo.dto.ProductListPageQueryDTO;
+import com.itsean.pojo.entity.Product;
+import com.itsean.pojo.entity.User;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.Result;
 import com.itsean.swapu_admin.mapper.ProductMapper;
 import com.itsean.swapu_admin.mapper.UserMapper;
 import com.itsean.swapu_admin.service.ProductService;
 import com.itsean.swapu_admin.service.ProductViewService;
 import com.itsean.swapu_admin.utils.SimpleRandomSortUtil;
-import com.itsean.swapu_admin.vo.ProductDetailVO;
-import com.itsean.swapu_admin.vo.ProductVO;
+import com.itsean.pojo.vo.ProductDetailVO;
+import com.itsean.pojo.vo.ProductVO;
 import lombok.extern.slf4j.Slf4j;
 import nonapi.io.github.classgraph.json.JSONUtils;
 import org.springframework.beans.BeanUtils;
@@ -35,8 +35,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.itsean.swapu_admin.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
-import static com.itsean.swapu_admin.constant.StringConstant.HOT_PRODUCTS_REDIS_KEY;
+import static com.itsean.common.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
+import static com.itsean.common.constant.StringConstant.HOT_PRODUCTS_REDIS_KEY;
 
 @Slf4j
 @Service

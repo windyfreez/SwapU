@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.controller.user;
 
-import com.itsean.campus_second_hand.entity.Category;
-import com.itsean.campus_second_hand.entity.result.Result;
+import com.itsean.pojo.entity.Category;
+import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.service.CategoryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

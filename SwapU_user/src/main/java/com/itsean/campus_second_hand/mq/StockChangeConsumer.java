@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.mq;
 
-import com.itsean.campus_second_hand.constant.NumberConstant;
+import com.itsean.common.constant.NumberConstant;
 import com.itsean.campus_second_hand.dto.StockChangeMessage;
 import com.itsean.campus_second_hand.service.StockChangeProcessService;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ public class StockChangeConsumer {
      * 监听库存同步队列，处理扣减消息（回补走同步，不经过此队列）
      * @param message
      */
-    @RabbitListener(queues = "#{T(com.itsean.campus_second_hand.constant.StringConstant).QUEUE_STOCK_SYNC}",
+    @RabbitListener(queues = "#{T(com.itsean.common.constant.StringConstant).QUEUE_STOCK_SYNC}",
             containerFactory = "stockRabbitListenerContainerFactory")
     public void onStockChange(StockChangeMessage message) {
         log.info("收到库存变更消息, changeNo={}, operationType={}", message.getChangeNo(), message.getOperationType());

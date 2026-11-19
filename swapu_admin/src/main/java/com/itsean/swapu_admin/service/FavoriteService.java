@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.service;
 
-import com.itsean.swapu_admin.dto.FavoriteDTO;
-import com.itsean.swapu_admin.dto.FavoritePageQueryDTO;
-import com.itsean.swapu_admin.entity.result.PageResult;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.FavoritePageQueryDTO;
+import com.itsean.pojo.PageResult;
 import org.springframework.stereotype.Service;
 
 @Service

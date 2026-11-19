@@ -1,9 +1,9 @@
 package com.itsean.swapu_admin.interceptor;
 
-import com.itsean.swapu_admin.constant.JwtClaimsConstant;
-import com.itsean.swapu_admin.context.BaseContext;
-import com.itsean.swapu_admin.properties.JwtProperties;
-import com.itsean.swapu_admin.utils.JwtUtil;
+import com.itsean.common.constant.JwtClaimsConstant;
+import com.itsean.common.context.BaseContext;
+import com.itsean.common.properties.JwtProperties;
+import com.itsean.common.utils.JwtUtil;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

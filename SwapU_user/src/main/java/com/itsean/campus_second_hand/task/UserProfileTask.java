@@ -13,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.itsean.campus_second_hand.constant.StringConstant.USER_PROFILE_REDIS_KEY_PREFIX;
+import static com.itsean.common.constant.StringConstant.USER_PROFILE_REDIS_KEY_PREFIX;
 
 @Component
 public class UserProfileTask {

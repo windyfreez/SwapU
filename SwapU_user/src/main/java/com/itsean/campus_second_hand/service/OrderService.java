@@ -1,8 +1,10 @@
 package com.itsean.campus_second_hand.service;
 
+import com.itsean.pojo.dto.*;
 import com.itsean.campus_second_hand.dto.*;
-import com.itsean.campus_second_hand.entity.Order;
-import com.itsean.campus_second_hand.entity.result.PageResult;
+import com.itsean.pojo.entity.Order;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.vo.*;
 import com.itsean.campus_second_hand.vo.*;
 import org.springframework.stereotype.Service;
 

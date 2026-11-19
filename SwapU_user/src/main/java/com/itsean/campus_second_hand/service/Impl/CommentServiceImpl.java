@@ -2,9 +2,9 @@ package com.itsean.campus_second_hand.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.itsean.campus_second_hand.context.BaseContext;
+import com.itsean.common.context.BaseContext;
 import com.itsean.campus_second_hand.mapper.CommentMapper;
-import com.itsean.campus_second_hand.entity.User;
+import com.itsean.pojo.entity.User;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.CommentService;
 import com.itsean.common.constant.MessageConstant;

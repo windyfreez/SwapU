@@ -43,7 +43,7 @@
         where id = #{id}
     </update>
 
-    <select id="pageQuery" resultType="com.itsean.swapu_admin.entity.User">
+    <select id="pageQuery" resultType="com.itsean.pojo.entity.User">
         select * from user
         <where>
             <if test="keyword != null and keyword != ''">

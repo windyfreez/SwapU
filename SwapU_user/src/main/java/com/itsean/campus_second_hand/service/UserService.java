@@ -1,11 +1,11 @@
 package com.itsean.campus_second_hand.service;
 
-import com.itsean.campus_second_hand.dto.PasswordDTO;
-import com.itsean.campus_second_hand.dto.UserDTO;
-import com.itsean.campus_second_hand.dto.UserLoginDTO;
-import com.itsean.campus_second_hand.dto.UserRegisterDTO;
-import com.itsean.campus_second_hand.entity.User;
-import com.itsean.campus_second_hand.vo.UserRegisterVO;
+import com.itsean.pojo.dto.PasswordDTO;
+import com.itsean.pojo.dto.UserDTO;
+import com.itsean.pojo.dto.UserLoginDTO;
+import com.itsean.pojo.dto.UserRegisterDTO;
+import com.itsean.pojo.entity.User;
+import com.itsean.pojo.vo.UserRegisterVO;
 import com.itsean.pojo.vo.UserProfileVO;
 
 public interface UserService {

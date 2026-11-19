@@ -1,10 +1,10 @@
 package com.itsean.swapu_admin.handler;
 
 import com.itsean.pojo.Result;
-import com.itsean.swapu_admin.exception.AccountRepeatException;
+import com.itsean.common.exception.AccountRepeatException;
 import com.itsean.swapu_admin.exception.AdminException;
 import com.itsean.swapu_admin.exception.AuditException;
-import com.itsean.swapu_admin.exception.BaseException;
+import com.itsean.common.exception.BaseException;
 import com.itsean.swapu_admin.exception.UserManageException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;

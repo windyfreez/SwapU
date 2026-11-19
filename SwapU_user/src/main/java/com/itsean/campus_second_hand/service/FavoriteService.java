@@ -1,8 +1,8 @@
 package com.itsean.campus_second_hand.service;
 
-import com.itsean.campus_second_hand.dto.FavoriteDTO;
-import com.itsean.campus_second_hand.dto.FavoritePageQueryDTO;
-import com.itsean.campus_second_hand.entity.result.PageResult;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.FavoritePageQueryDTO;
+import com.itsean.pojo.PageResult;
 import org.springframework.stereotype.Service;
 
 @Service

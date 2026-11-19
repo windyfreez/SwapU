@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.mapper;
 
-import com.itsean.swapu_admin.dto.FavoriteDTO;
-import com.itsean.swapu_admin.dto.FavoritePageQueryDTO;
-import com.itsean.swapu_admin.entity.Product;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.FavoritePageQueryDTO;
+import com.itsean.pojo.entity.Product;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;

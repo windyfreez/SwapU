@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.mapper;
 
-import com.itsean.swapu_admin.dto.OrderPageQueryDTO;
-import com.itsean.swapu_admin.entity.Order;
-import com.itsean.swapu_admin.vo.OrderPageVO;
+import com.itsean.pojo.dto.OrderPageQueryDTO;
+import com.itsean.pojo.entity.Order;
+import com.itsean.pojo.vo.OrderPageVO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

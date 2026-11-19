@@ -1,11 +1,11 @@
 package com.itsean.swapu_admin.service;
 
-import com.itsean.swapu_admin.dto.ProductDTO;
-import com.itsean.swapu_admin.dto.ProductListPageQueryDTO;
-import com.itsean.swapu_admin.entity.result.PageResult;
-import com.itsean.swapu_admin.entity.result.Result;
-import com.itsean.swapu_admin.vo.ProductDetailVO;
-import com.itsean.swapu_admin.vo.ProductVO;
+import com.itsean.pojo.dto.ProductDTO;
+import com.itsean.pojo.dto.ProductListPageQueryDTO;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.Result;
+import com.itsean.pojo.vo.ProductDetailVO;
+import com.itsean.pojo.vo.ProductVO;
 import org.springframework.stereotype.Service;
 
 @Service

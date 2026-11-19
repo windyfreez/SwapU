@@ -2,11 +2,11 @@ package com.itsean.campus_second_hand.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.itsean.campus_second_hand.context.BaseContext;
-import com.itsean.campus_second_hand.dto.FavoriteDTO;
-import com.itsean.campus_second_hand.dto.FavoritePageQueryDTO;
-import com.itsean.campus_second_hand.entity.Product;
-import com.itsean.campus_second_hand.entity.result.PageResult;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.FavoritePageQueryDTO;
+import com.itsean.pojo.entity.Product;
+import com.itsean.pojo.PageResult;
 import com.itsean.campus_second_hand.mapper.FavoriteMapper;
 import com.itsean.campus_second_hand.service.FavoriteService;
 import lombok.extern.slf4j.Slf4j;

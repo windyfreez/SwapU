@@ -2,11 +2,11 @@ package com.itsean.swapu_admin.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.itsean.swapu_admin.context.BaseContext;
-import com.itsean.swapu_admin.dto.FavoriteDTO;
-import com.itsean.swapu_admin.dto.FavoritePageQueryDTO;
-import com.itsean.swapu_admin.entity.Product;
-import com.itsean.swapu_admin.entity.result.PageResult;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.FavoritePageQueryDTO;
+import com.itsean.pojo.entity.Product;
+import com.itsean.pojo.PageResult;
 import com.itsean.swapu_admin.mapper.FavoriteMapper;
 import com.itsean.swapu_admin.service.FavoriteService;
 import lombok.extern.slf4j.Slf4j;

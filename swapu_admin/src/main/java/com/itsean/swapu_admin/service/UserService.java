@@ -1,11 +1,11 @@
 package com.itsean.swapu_admin.service;
 
-import com.itsean.swapu_admin.dto.PasswordDTO;
-import com.itsean.swapu_admin.dto.UserDTO;
-import com.itsean.swapu_admin.dto.UserLoginDTO;
-import com.itsean.swapu_admin.dto.UserRegisterDTO;
-import com.itsean.swapu_admin.entity.User;
-import com.itsean.swapu_admin.vo.UserRegisterVO;
+import com.itsean.pojo.dto.PasswordDTO;
+import com.itsean.pojo.dto.UserDTO;
+import com.itsean.pojo.dto.UserLoginDTO;
+import com.itsean.pojo.dto.UserRegisterDTO;
+import com.itsean.pojo.entity.User;
+import com.itsean.pojo.vo.UserRegisterVO;
 
 public interface UserService {
 

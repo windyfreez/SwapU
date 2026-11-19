@@ -5,7 +5,7 @@ import com.itsean.swapu_admin.dto.AdminDTO;
 import com.itsean.swapu_admin.dto.AdminLoginDTO;
 import com.itsean.swapu_admin.dto.AdminPageQueryDTO;
 import com.itsean.swapu_admin.dto.AdminPasswordDTO;
-import com.itsean.swapu_admin.entity.Admin;
+import com.itsean.pojo.entity.Admin;
 
 /**
  * 管理员模块业务接口

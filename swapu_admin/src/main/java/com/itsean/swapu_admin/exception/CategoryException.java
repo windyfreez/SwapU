@@ -1,5 +1,7 @@
 package com.itsean.swapu_admin.exception;
 
+import com.itsean.common.exception.BaseException;
+
 /**
  * 分类模块业务异常
  */

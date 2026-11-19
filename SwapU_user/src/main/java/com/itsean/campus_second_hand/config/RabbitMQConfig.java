@@ -3,7 +3,7 @@ package com.itsean.campus_second_hand.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.itsean.campus_second_hand.constant.StringConstant;
+import com.itsean.common.constant.StringConstant;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.Binding;

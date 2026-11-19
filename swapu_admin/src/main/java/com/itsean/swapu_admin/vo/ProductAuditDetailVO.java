@@ -1,6 +1,6 @@
 package com.itsean.swapu_admin.vo;
 
-import com.itsean.swapu_admin.entity.Product;
+import com.itsean.pojo.entity.Product;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

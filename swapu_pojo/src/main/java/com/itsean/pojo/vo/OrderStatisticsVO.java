@@ -21,4 +21,16 @@ public class OrderStatisticsVO {
     private Integer sellCompleted;
 
     private BigDecimal totalSellAmount;
+
+    /** 在售商品数 */
+    private Integer publishCount;
+
+    /** 已售商品数 */
+    private Integer soldCount;
+
+    /** 我的收藏数 */
+    private Integer favoriteCount;
+
+    /** 足迹(浏览记录)总数 */
+    private Integer footprintCount;
 }

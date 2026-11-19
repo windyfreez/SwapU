@@ -1,8 +1,8 @@
 package com.itsean.campus_second_hand.task;
 import cn.hutool.json.JSONUtil;
-import com.itsean.campus_second_hand.constant.NumberConstant;
-import com.itsean.campus_second_hand.constant.StringConstant;
-import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.common.constant.NumberConstant;
+import com.itsean.common.constant.StringConstant;
+import com.itsean.pojo.entity.Product;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-import static com.itsean.campus_second_hand.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
+import static com.itsean.common.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
 
 @Slf4j
 @Component

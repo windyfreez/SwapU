@@ -34,7 +34,7 @@
     </update>
 
 
-    <select id="pageQuery" resultType="com.itsean.campus_second_hand.entity.Order">
+    <select id="pageQuery" resultType="com.itsean.pojo.entity.Order">
         select * from orders
         <where>
             <if test="status != null">

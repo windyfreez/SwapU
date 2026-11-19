@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.mapper;
 
-import com.itsean.swapu_admin.entity.ChatMessage;
-import com.itsean.swapu_admin.vo.ChatMessageVO;
-import com.itsean.swapu_admin.vo.ChatSessionVO;
+import com.itsean.pojo.entity.ChatMessage;
+import com.itsean.pojo.vo.ChatMessageVO;
+import com.itsean.pojo.vo.ChatSessionVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

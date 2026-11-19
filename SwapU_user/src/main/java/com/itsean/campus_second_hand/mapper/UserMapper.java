@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.mapper;
 
-import com.itsean.campus_second_hand.dto.UserRegisterDTO;
-import com.itsean.campus_second_hand.entity.User;
+import com.itsean.pojo.dto.UserRegisterDTO;
+import com.itsean.pojo.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

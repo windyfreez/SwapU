@@ -2,7 +2,7 @@ package com.itsean.swapu_admin.config;
 
 import com.itsean.swapu_admin.interceptor.JwtTokenAdminInterceptor;
 import com.itsean.swapu_admin.interceptor.JwtTokenUserInterceptor;
-import com.itsean.swapu_admin.properties.JwtProperties;
+import com.itsean.common.properties.JwtProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

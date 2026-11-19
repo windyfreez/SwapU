@@ -1,10 +1,12 @@
 package com.itsean.campus_second_hand.controller.user;
 
+import com.itsean.pojo.dto.*;
 import com.itsean.campus_second_hand.dto.*;
-import com.itsean.campus_second_hand.entity.Order;
-import com.itsean.campus_second_hand.entity.result.PageResult;
-import com.itsean.campus_second_hand.entity.result.Result;
+import com.itsean.pojo.entity.Order;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.service.OrderService;
+import com.itsean.pojo.vo.*;
 import com.itsean.campus_second_hand.vo.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

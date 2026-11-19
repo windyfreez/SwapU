@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.mapper;
 
 import com.itsean.swapu_admin.dto.UserPageQueryDTO;
-import com.itsean.swapu_admin.dto.UserRegisterDTO;
-import com.itsean.swapu_admin.entity.User;
+import com.itsean.pojo.dto.UserRegisterDTO;
+import com.itsean.pojo.entity.User;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;

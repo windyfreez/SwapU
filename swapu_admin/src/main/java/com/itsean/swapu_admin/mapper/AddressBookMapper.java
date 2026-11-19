@@ -1,6 +1,6 @@
 package com.itsean.swapu_admin.mapper;
 
-import com.itsean.swapu_admin.entity.AddressBook;
+import com.itsean.pojo.entity.AddressBook;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

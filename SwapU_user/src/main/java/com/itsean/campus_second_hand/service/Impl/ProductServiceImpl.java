@@ -5,15 +5,15 @@ import cn.hutool.json.JSONUtil;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
-import com.itsean.campus_second_hand.constant.NumberConstant;
-import com.itsean.campus_second_hand.constant.StringConstant;
-import com.itsean.campus_second_hand.context.BaseContext;
-import com.itsean.campus_second_hand.dto.ProductDTO;
-import com.itsean.campus_second_hand.dto.ProductListPageQueryDTO;
-import com.itsean.campus_second_hand.entity.Product;
-import com.itsean.campus_second_hand.entity.User;
-import com.itsean.campus_second_hand.entity.result.PageResult;
-import com.itsean.campus_second_hand.entity.result.Result;
+import com.itsean.common.constant.NumberConstant;
+import com.itsean.common.constant.StringConstant;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.dto.ProductDTO;
+import com.itsean.pojo.dto.ProductListPageQueryDTO;
+import com.itsean.pojo.entity.Product;
+import com.itsean.pojo.entity.User;
+import com.itsean.pojo.PageResult;
+import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.properties.ReRankProperties;
@@ -21,8 +21,8 @@ import com.itsean.campus_second_hand.service.ProductService;
 import com.itsean.campus_second_hand.service.ProductViewService;
 import com.itsean.campus_second_hand.service.ReRankService;
 import com.itsean.campus_second_hand.utils.SimpleRandomSortUtil;
-import com.itsean.campus_second_hand.vo.ProductDetailVO;
-import com.itsean.campus_second_hand.vo.ProductVO;
+import com.itsean.pojo.vo.ProductDetailVO;
+import com.itsean.pojo.vo.ProductVO;
 import lombok.extern.slf4j.Slf4j;
 import nonapi.io.github.classgraph.json.JSONUtils;
 import org.springframework.beans.BeanUtils;
@@ -42,8 +42,8 @@ import java.util.LinkedHashMap;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-import static com.itsean.campus_second_hand.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
-import static com.itsean.campus_second_hand.constant.StringConstant.HOT_PRODUCTS_REDIS_KEY;
+import static com.itsean.common.constant.MessageConstant.CANT_SEARCH_HOT_PRODUCTS;
+import static com.itsean.common.constant.StringConstant.HOT_PRODUCTS_REDIS_KEY;
 
 @Slf4j
 @Service

@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.mapper;
 
-import com.itsean.campus_second_hand.entity.AddressBook;
+import com.itsean.pojo.entity.AddressBook;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.itsean.swapu_admin.mapper;
 
 import com.itsean.swapu_admin.dto.AdminPageQueryDTO;
-import com.itsean.swapu_admin.entity.Admin;
+import com.itsean.pojo.entity.Admin;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;

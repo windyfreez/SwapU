@@ -1,13 +1,13 @@
 package com.itsean.campus_second_hand.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itsean.campus_second_hand.constant.JwtClaimsConstant;
-import com.itsean.campus_second_hand.context.BaseContext;
+import com.itsean.common.constant.JwtClaimsConstant;
+import com.itsean.common.context.BaseContext;
 import com.itsean.pojo.dto.ChatMessageDTO;
 import com.itsean.pojo.entity.ChatMessage;
-import com.itsean.campus_second_hand.properties.JwtProperties;
+import com.itsean.common.properties.JwtProperties;
 import com.itsean.campus_second_hand.service.ChatService;
-import com.itsean.campus_second_hand.utils.JwtUtil;
+import com.itsean.common.utils.JwtUtil;
 import com.itsean.pojo.vo.ChatResponseVO;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;

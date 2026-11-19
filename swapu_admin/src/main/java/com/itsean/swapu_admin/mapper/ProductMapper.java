@@ -1,8 +1,8 @@
 package com.itsean.swapu_admin.mapper;
 
 import com.itsean.swapu_admin.dto.ProductAuditPageQueryDTO;
-import com.itsean.swapu_admin.dto.ProductListPageQueryDTO;
-import com.itsean.swapu_admin.entity.Product;
+import com.itsean.pojo.dto.ProductListPageQueryDTO;
+import com.itsean.pojo.entity.Product;
 import com.itsean.swapu_admin.vo.ProductAuditVO;
 import org.apache.ibatis.annotations.*;
 

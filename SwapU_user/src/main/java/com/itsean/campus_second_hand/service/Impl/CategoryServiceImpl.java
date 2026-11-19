@@ -4,8 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.json.JSONUtil;
 import com.github.xiaoymin.knife4j.core.util.CollectionUtils;
 import com.github.xiaoymin.knife4j.core.util.StrUtil;
-import com.itsean.campus_second_hand.entity.Category;
-import com.itsean.campus_second_hand.entity.result.Result;
+import com.itsean.pojo.entity.Category;
+import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.mapper.CategoryMapper;
 import com.itsean.campus_second_hand.service.CategoryService;
 import nonapi.io.github.classgraph.json.JSONUtils;
@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.util.List;
 
-import static com.itsean.campus_second_hand.constant.MessageConstant.CATEGORY_NOT_EXIST;
-import static com.itsean.campus_second_hand.constant.StringConstant.CATEGORY_LIST_PREFIX;
+import static com.itsean.common.constant.MessageConstant.CATEGORY_NOT_EXIST;
+import static com.itsean.common.constant.StringConstant.CATEGORY_LIST_PREFIX;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {

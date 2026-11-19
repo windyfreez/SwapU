@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.service.impl;
 
-import com.itsean.campus_second_hand.context.BaseContext;
-import com.itsean.campus_second_hand.entity.AddressBook;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.entity.AddressBook;
 import com.itsean.campus_second_hand.mapper.AddressBookMapper;
 import com.itsean.campus_second_hand.service.AddressBookService;
 import org.springframework.beans.factory.annotation.Autowired;

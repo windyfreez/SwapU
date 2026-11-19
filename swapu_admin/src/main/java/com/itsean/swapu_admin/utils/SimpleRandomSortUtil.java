@@ -1,6 +1,6 @@
 package com.itsean.swapu_admin.utils;
 
-import com.itsean.swapu_admin.entity.Product;
+import com.itsean.pojo.entity.Product;
 
 import java.util.ArrayList;
 import java.util.Collections;

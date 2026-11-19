@@ -1,17 +1,17 @@
 package com.itsean.swapu_admin.service.impl;
 
-import com.itsean.swapu_admin.constant.MessageConstant;
-import com.itsean.swapu_admin.constant.NumberConstant;
-import com.itsean.swapu_admin.context.BaseContext;
-import com.itsean.swapu_admin.dto.PasswordDTO;
-import com.itsean.swapu_admin.dto.UserDTO;
-import com.itsean.swapu_admin.dto.UserLoginDTO;
-import com.itsean.swapu_admin.dto.UserRegisterDTO;
-import com.itsean.swapu_admin.entity.User;
-import com.itsean.swapu_admin.exception.AccountRepeatException;
+import com.itsean.common.constant.MessageConstant;
+import com.itsean.common.constant.NumberConstant;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.dto.PasswordDTO;
+import com.itsean.pojo.dto.UserDTO;
+import com.itsean.pojo.dto.UserLoginDTO;
+import com.itsean.pojo.dto.UserRegisterDTO;
+import com.itsean.pojo.entity.User;
+import com.itsean.common.exception.AccountRepeatException;
 import com.itsean.swapu_admin.mapper.UserMapper;
 import com.itsean.swapu_admin.service.UserService;
-import com.itsean.swapu_admin.vo.UserRegisterVO;
+import com.itsean.pojo.vo.UserRegisterVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

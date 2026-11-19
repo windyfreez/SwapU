@@ -56,7 +56,7 @@ knife4j:
     enableDebug: true
 
 #JWT配置
-sky:
+swapu:
   jwt:
     #管理端
     admin-secret-key: your_admin_secret_key

@@ -1,12 +1,12 @@
 package com.itsean.swapu_admin.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itsean.swapu_admin.dto.ChatMessageDTO;
-import com.itsean.swapu_admin.entity.ChatMessage;
-import com.itsean.swapu_admin.properties.JwtProperties;
+import com.itsean.pojo.dto.ChatMessageDTO;
+import com.itsean.pojo.entity.ChatMessage;
+import com.itsean.common.properties.JwtProperties;
 import com.itsean.swapu_admin.service.ChatService;
-import com.itsean.swapu_admin.utils.JwtUtil;
-import com.itsean.swapu_admin.vo.ChatResponseVO;
+import com.itsean.common.utils.JwtUtil;
+import com.itsean.pojo.vo.ChatResponseVO;
 import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +52,7 @@ public class ChatWebSocketHandler {
             }
 
             Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
-            Long userId = Long.valueOf(claims.get(com.itsean.swapu_admin.constant.JwtClaimsConstant.USER_ID).toString());
+            Long userId = Long.valueOf(claims.get(com.itsean.common.constant.JwtClaimsConstant.USER_ID).toString());
 
             sessionPool.put(userId, session);
             log.info("用户{}建立WebSocket连接，sessionId: {}", userId, session.getId());
@@ -78,7 +78,7 @@ public class ChatWebSocketHandler {
             }
 
             Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
-            Long fromUserId = Long.valueOf(claims.get(com.itsean.swapu_admin.constant.JwtClaimsConstant.USER_ID).toString());
+            Long fromUserId = Long.valueOf(claims.get(com.itsean.common.constant.JwtClaimsConstant.USER_ID).toString());
 
             ChatMessageDTO chatMessageDTO = objectMapper.readValue(message, ChatMessageDTO.class);
 
@@ -127,7 +127,7 @@ public class ChatWebSocketHandler {
             String token = getTokenFromSession(session);
             if (token != null && !token.isEmpty()) {
                 Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
-                Long userId = Long.valueOf(claims.get(com.itsean.swapu_admin.constant.JwtClaimsConstant.USER_ID).toString());
+                Long userId = Long.valueOf(claims.get(com.itsean.common.constant.JwtClaimsConstant.USER_ID).toString());
 
                 sessionPool.remove(userId);
                 log.info("用户{}断开WebSocket连接", userId);

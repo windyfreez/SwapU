@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.aspect;
 
 import com.itsean.campus_second_hand.controller.user.ChatController;
-import com.itsean.campus_second_hand.entity.Order;
+import com.itsean.pojo.entity.Order;
 import com.itsean.campus_second_hand.mapper.OrderMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

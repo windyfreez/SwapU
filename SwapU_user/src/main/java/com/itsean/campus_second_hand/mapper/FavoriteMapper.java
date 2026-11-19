@@ -1,8 +1,8 @@
 package com.itsean.campus_second_hand.mapper;
 
-import com.itsean.campus_second_hand.dto.FavoriteDTO;
-import com.itsean.campus_second_hand.dto.FavoritePageQueryDTO;
-import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.pojo.dto.FavoriteDTO;
+import com.itsean.pojo.dto.FavoritePageQueryDTO;
+import com.itsean.pojo.entity.Product;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;

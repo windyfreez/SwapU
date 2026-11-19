@@ -1,12 +1,12 @@
 package com.itsean.swapu_admin.service;
 
 import com.github.pagehelper.PageInfo;
-import com.itsean.swapu_admin.dto.ChatHistoryQueryDTO;
-import com.itsean.swapu_admin.dto.ChatMessageDTO;
-import com.itsean.swapu_admin.dto.ChatSessionQueryDTO;
-import com.itsean.swapu_admin.entity.ChatMessage;
-import com.itsean.swapu_admin.vo.ChatMessageVO;
-import com.itsean.swapu_admin.vo.ChatSessionVO;
+import com.itsean.pojo.dto.ChatHistoryQueryDTO;
+import com.itsean.pojo.dto.ChatMessageDTO;
+import com.itsean.pojo.dto.ChatSessionQueryDTO;
+import com.itsean.pojo.entity.ChatMessage;
+import com.itsean.pojo.vo.ChatMessageVO;
+import com.itsean.pojo.vo.ChatSessionVO;
 
 public interface ChatService {
 

@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.service.impl;
 
-import com.itsean.campus_second_hand.constant.StringConstant;
+import com.itsean.common.constant.StringConstant;
 import com.itsean.campus_second_hand.service.StockService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;

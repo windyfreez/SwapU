@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.mq;
 
-import com.itsean.campus_second_hand.constant.NumberConstant;
-import com.itsean.campus_second_hand.constant.StringConstant;
+import com.itsean.common.constant.NumberConstant;
+import com.itsean.common.constant.StringConstant;
 import com.itsean.campus_second_hand.dto.StockChangeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.connection.CorrelationData;

@@ -1,7 +1,7 @@
 package com.itsean.campus_second_hand.config;
 
-import com.itsean.campus_second_hand.properties.AliOssProperties;
-import com.itsean.campus_second_hand.utils.AliOssUtil;
+import com.itsean.common.properties.AliOssProperties;
+import com.itsean.common.utils.AliOssUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;

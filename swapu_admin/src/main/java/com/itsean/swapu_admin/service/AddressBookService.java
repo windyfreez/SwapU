@@ -1,6 +1,6 @@
 package com.itsean.swapu_admin.service;
 
-import com.itsean.swapu_admin.entity.AddressBook;
+import com.itsean.pojo.entity.AddressBook;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

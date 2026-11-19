@@ -1,8 +1,8 @@
 package com.itsean.campus_second_hand.controller.user;
 
-import com.itsean.campus_second_hand.context.BaseContext;
-import com.itsean.campus_second_hand.entity.AddressBook;
-import com.itsean.campus_second_hand.entity.result.Result;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.entity.AddressBook;
+import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.service.AddressBookService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

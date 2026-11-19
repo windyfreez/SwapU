@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 
-import static com.itsean.swapu_admin.constant.StringConstant.PRODUCT_VIEW_PREFIX;
+import static com.itsean.common.constant.StringConstant.PRODUCT_VIEW_PREFIX;
 
 @Service
 public class ProductViewServiceImpl implements ProductViewService {

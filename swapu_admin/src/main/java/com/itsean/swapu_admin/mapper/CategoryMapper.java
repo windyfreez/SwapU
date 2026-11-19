@@ -1,6 +1,6 @@
 package com.itsean.swapu_admin.mapper;
 
-import com.itsean.swapu_admin.entity.Category;
+import com.itsean.pojo.entity.Category;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.ResultMap;

@@ -1,6 +1,6 @@
 package com.itsean.campus_second_hand.service.impl;
 
-import com.itsean.campus_second_hand.constant.NumberConstant;
+import com.itsean.common.constant.NumberConstant;
 import com.itsean.campus_second_hand.dto.StockChangeMessage;
 import com.itsean.campus_second_hand.entity.StockChangeLog;
 import com.itsean.campus_second_hand.mapper.ProductMapper;

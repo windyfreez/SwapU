@@ -2,8 +2,8 @@ package com.itsean.campus_second_hand.service.impl;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.itsean.campus_second_hand.context.BaseContext;
-import com.itsean.campus_second_hand.entity.Product;
+import com.itsean.common.context.BaseContext;
+import com.itsean.pojo.entity.Product;
 import com.itsean.campus_second_hand.mapper.ProductMapper;
 import com.itsean.campus_second_hand.mapper.UserBehaviorLogMapper;
 import com.itsean.campus_second_hand.service.ViewService;
