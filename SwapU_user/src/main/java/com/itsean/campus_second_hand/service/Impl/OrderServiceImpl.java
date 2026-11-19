@@ -1,5 +1,6 @@
 package com.itsean.campus_second_hand.service.impl;
 
+import cn.hutool.crypto.digest.BCrypt;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.itsean.common.constant.MessageConstant;
@@ -82,8 +83,19 @@ public class OrderServiceImpl implements OrderService {
         OrderVO orderVO = new OrderVO();
         BeanUtils.copyProperties(orderDTO, order);
 
+        //用户端下单页未收集配送方式，缺省按「快递」处理，避免订单里该字段为空导致发货分支判断含糊
+        if (order.getDeliveryMethod() == null) {
+            order.setDeliveryMethod(Order.DELIVERY_METHOD_EXPRESS);
+        }
+
         Long productId = orderDTO.getProductId();
         Integer needQuantity = orderDTO.getQuantity();
+
+        //防御性校验：即使 DTO 上的 @Min(1) 被内部调用绕过，负数/零数量也绝不允许进入下单流程，
+        //否则 Redis Lua 的 DECRBY 会把库存反向加回去，且 amount = 单价 × 负数 会让订单金额为负
+        if (needQuantity == null || needQuantity <= 0) {
+            throw new OrderException(MessageConstant.QUANTITY_INVALID);
+        }
 
         //1.读 DB 实时库存（绕开热门商品缓存，避免扣减基于脏快照）
         Product product = productMapper.getProductById(productId);
@@ -222,19 +234,31 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderConfirmVO confirmOrder(OrderConfirmDTO orderConfirmDTO) {
         String orderNo = orderConfirmDTO.getOrderNo();
-        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        Order order = loadOrder(orderNo);
+
+        //只有卖家本人可以确认接单
+        requireSeller(order, MessageConstant.ONLY_SELLER_CAN_CONFIRM);
+
+        //只有待确认订单可以接单：避免重复接单把「待支付/已支付」的订单打回待支付
+        if (!Order.ORDER_STATUS_WAIT_ACCEPT.equals(order.getStatus())) {
+            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_CONFIRM);
+        }
+
         OrderConfirmVO orderConfirmVO = new OrderConfirmVO();
+        //运费允许不传，缺省按 0 处理，避免 amount.add(null) 抛空指针
+        BigDecimal freight = orderConfirmDTO.getFreight() == null
+                ? BigDecimal.ZERO : orderConfirmDTO.getFreight();
 
         //订单信息补充
         orderConfirmVO.setOrderNo(order.getOrderNo());
         orderConfirmVO.setStatus(Order.ORDER_STATUS_WAIT_PAY);
         orderConfirmVO.setStatusDesc(Order.ORDER_STATUS_WAIT_PAY_DESC);
-        orderConfirmVO.setFreight(orderConfirmDTO.getFreight());
+        orderConfirmVO.setFreight(freight);
         orderConfirmVO.setConfirmTime(LocalDateTime.now());
 
         BeanUtils.copyProperties(orderConfirmVO,order);
         //计算订单总金额
-        order.setTotalAmount(order.getAmount().add(orderConfirmDTO.getFreight()));
+        order.setTotalAmount(order.getAmount().add(freight));
         orderMapper.update(order);
         return orderConfirmVO;
     }
@@ -246,7 +270,9 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public Order getOrderByOrderNo(String orderNo) {
-        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        Order order = loadOrder(orderNo);
+        //订单详情只对买卖双方可见，防止拿着单号遍历他人订单
+        requireParticipant(order);
         Integer status = order.getStatus();
         if (Order.ORDER_STATUS_WAIT_ACCEPT.equals(status)) {
             order.setStatusDesc(Order.ORDER_STATUS_WAIT_ACCEPT_DESC);
@@ -661,42 +687,54 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public OrderPayVO payOrder(OrderPayDTO orderPayDTO) {
         String orderNo = orderPayDTO.getOrderNo();
-        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        Order order = loadOrder(orderNo);
+
+        //只有买家本人可以支付该订单
+        requireBuyer(order, MessageConstant.ONLY_BUYER_CAN_PAY);
+
         OrderPayVO orderPayVO = new OrderPayVO();
         BigDecimal totalAmount = order.getTotalAmount();
         User user = userMapper.findById(order.getBuyerId());
         User seller = userMapper.findById(order.getSellerId());
 
         //提高代码健壮性再来一次状态判断
-        if(order.getStatus() != Order.ORDER_STATUS_WAIT_PAY){
+        if(!Order.ORDER_STATUS_WAIT_PAY.equals(order.getStatus())){
             throw new OrderException(MessageConstant.ORDER_STATUS_CANT_PAY);
         }
 
         //余额支付方式需要核对支付密码，并且扣费
-        if(orderPayDTO.getPayType() == Order.PAY_TYPE_BALANCE){
+        boolean balancePay = Order.PAY_TYPE_BALANCE.equals(orderPayDTO.getPayType());
+        if(balancePay){
+            //先校验支付密码与余额：任何一项不通过都直接抛异常，不会推进订单状态
+            verifyPayPassword(user, orderPayDTO.getPayPassword());
             if(user.getBalance().compareTo(totalAmount) < 0){
                 throw new OrderException(MessageConstant.BALANCE_NOT_ENOUGH);
-            }else{
-                String payPassword = DigestUtils.md5DigestAsHex(orderPayDTO.getPayPassword().getBytes());
-                if(!payPassword.equals(user.getPassword())){
-                    throw new OrderException(MessageConstant.PASSWORD_ERROR);
-                }
-                //买家扣费，卖家加钱
-                user.setBalance(user.getBalance().subtract(totalAmount));
-                seller.setBalance(seller.getBalance().add(totalAmount));
             }
         }
 
         //todo 后续需要补充微信支付和支付宝支付的接口
 
-        order.setPayTime(LocalDateTime.now());
+        //原子占位：只有订单仍处于「待支付」时才能推进状态。
+        //并发下两个支付请求只有一个能把 status 由 2 改成 3，另一个影响行数为 0 直接失败，避免重复扣款
+        LocalDateTime payTime = LocalDateTime.now();
+        int affected = orderMapper.payIfMatch(orderNo, Order.ORDER_STATUS_WAIT_PAY,
+                orderPayDTO.getPayType(), payTime, Order.ORDER_STATUS_WAIT_DELIVER);
+        if(affected != 1){
+            throw new OrderException(MessageConstant.ORDER_STATUS_CANT_PAY);
+        }
+
+        if(balancePay){
+            //买家扣费，卖家加钱；与状态流转处于同一事务，后续异常会整体回滚
+            user.setBalance(user.getBalance().subtract(totalAmount));
+            seller.setBalance(seller.getBalance().add(totalAmount));
+            userMapper.update(user);
+            userMapper.update(seller);
+        }
+
+        order.setPayTime(payTime);
         order.setPayType(orderPayDTO.getPayType());
         order.setStatus(Order.ORDER_STATUS_WAIT_DELIVER);
 
-        //将更改信息写入数据库中
-        orderMapper.update(order);
-        userMapper.update(user);
-        userMapper.update(seller);
         BeanUtils.copyProperties(order,orderPayVO);
         orderPayVO.setStatusDesc(Order.ORDER_STATUS_WAIT_DELIVER_DESC);
         return orderPayVO;
@@ -710,16 +748,20 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderDeliverVO deliverOrder(OrderDeliverDTO orderDeliverDTO) {
         String orderNo = orderDeliverDTO.getOrderNo();
-        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        Order order = loadOrder(orderNo);
+
+        //只有卖家本人可以发货
+        requireSeller(order, MessageConstant.ONLY_SELLER_CAN_DELIVER);
+
         OrderDeliverVO orderDeliverVO = new OrderDeliverVO();
 
         //提高代码健壮性再来一次状态判断
-        if(order.getStatus() != Order.ORDER_STATUS_WAIT_DELIVER){
+        if(!Order.ORDER_STATUS_WAIT_DELIVER.equals(order.getStatus())){
             throw new OrderException(MessageConstant.ORDER_STATUS_CANT_DELIVER);
         }
         BeanUtils.copyProperties(orderDeliverDTO,order);
         //检验该订单的交货方式是面交还是快递和外卖跑腿
-        if(order.getDeliveryMethod() == Order.DELIVERY_METHOD_SELF_PICKUP){
+        if(Order.DELIVERY_METHOD_SELF_PICKUP.equals(order.getDeliveryMethod())){
             //如果该订单是面交方式，无需发货和收货，直接修改订单为已完成
             order.setStatus(Order.ORDER_STATUS_ALREADY_RECEIVE);
             order.setReceiveTime(LocalDateTime.now());
@@ -744,10 +786,14 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderReceiveVO receiveOrder(OrderReceiveDTO orderReceiveDTO) {
         String orderNo = orderReceiveDTO.getOrderNo();
-        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        Order order = loadOrder(orderNo);
+
+        //只有买家本人可以确认收货
+        requireBuyer(order, MessageConstant.ONLY_BUYER_CAN_RECEIVE);
+
         OrderReceiveVO orderReceiveVO = new OrderReceiveVO();
 
-        if(order.getStatus() != Order.ORDER_STATUS_WAIT_RECEIVE){
+        if(!Order.ORDER_STATUS_WAIT_RECEIVE.equals(order.getStatus())){
             throw new OrderException(MessageConstant.ORDER_STATUS_CANT_RECEIVE);
         }
         //补全属性
@@ -768,7 +814,11 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public OrderDetailVO getOrderDetail(String orderNo) {
-        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        Order order = loadOrder(orderNo);
+
+        //订单详情含真实姓名与手机号，只允许买卖双方查看
+        requireParticipant(order);
+
         OrderDetailVO orderDetailVO = new OrderDetailVO();
         Long productId = order.getProductId();
         Long sellerId = order.getSellerId();
@@ -819,9 +869,16 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public PageResult pageQuery(OrderPageQueryDTO orderPageQueryDTO) {
-        //设置默认值为我是买家
-        if(orderPageQueryDTO.getRole() == null || orderPageQueryDTO.getRole().isEmpty()){
+        //设置默认值为我是买家；role 只接受 buyer/seller，非法值按买家视角处理
+        if(!OrderPageQueryDTO.I_AM_SELLER.equals(orderPageQueryDTO.getRole())){
             orderPageQueryDTO.setRole(OrderPageQueryDTO.I_AM_BUYER);
+        }
+        //分页参数缺省时补默认值，避免 PageHelper 拆箱空指针
+        if(orderPageQueryDTO.getPage() == null){
+            orderPageQueryDTO.setPage(NumberConstant.DEFAULT_PAGE);
+        }
+        if(orderPageQueryDTO.getPageSize() == null){
+            orderPageQueryDTO.setPageSize(NumberConstant.DEFAULT_PAGE_SIZE);
         }
         PageHelper.startPage(orderPageQueryDTO.getPage(),orderPageQueryDTO.getPageSize());
 
@@ -891,6 +948,100 @@ public class OrderServiceImpl implements OrderService {
         return orderStatisticsVO;
     }
 
+
+    /**
+     * 校验支付密码
+     * <p>
+     * 新账号：pay_password 存的是 BCrypt 密文，直接比对；
+     * 历史账号：pay_password 为 NULL，按改版前逻辑用登录密码校验一次，
+     * 通过后立刻把 hash 升级成 BCrypt 写入（惰性迁移，无需停机刷数据）。
+     * @param user 买家
+     * @param rawPayPassword 用户输入的明文支付密码
+     */
+    private void verifyPayPassword(User user, String rawPayPassword) {
+        if (rawPayPassword == null || rawPayPassword.isEmpty()) {
+            throw new OrderException(MessageConstant.PAY_PASSWORD_REQUIRED);
+        }
+
+        String stored = user.getPayPassword();
+        if (stored != null && !stored.isEmpty()) {
+            boolean matched;
+            try {
+                matched = BCrypt.checkpw(rawPayPassword, stored);
+            } catch (IllegalArgumentException e) {
+                //存量脏数据（不是合法 BCrypt 串）按校验失败处理，不放行
+                matched = false;
+            }
+            if (!matched) {
+                log.warn("支付密码校验失败，userId={}", user.getId());
+                throw new OrderException(MessageConstant.PASSWORD_ERROR);
+            }
+            return;
+        }
+
+        //历史账号：尚未初始化支付密码，先用原逻辑校验登录密码
+        String legacyHash = DigestUtils.md5DigestAsHex(rawPayPassword.getBytes());
+        if (!legacyHash.equals(user.getPassword())) {
+            log.warn("历史账号支付密码校验失败，userId={}", user.getId());
+            throw new OrderException(MessageConstant.PASSWORD_ERROR);
+        }
+        //校验通过后升级为 BCrypt，由本方法的调用方随后 userMapper.update 落库
+        user.setPayPassword(BCrypt.hashpw(rawPayPassword));
+        log.info("用户{}首次余额支付，支付密码已由 MD5 升级为 BCrypt", user.getId());
+    }
+
+    /**
+     * 按订单号加载订单，不存在时抛业务异常，避免各方法重复判空
+     * @param orderNo 订单编号
+     * @return 订单实体
+     */
+    private Order loadOrder(String orderNo) {
+        Order order = orderMapper.getOrderByOrderNo(orderNo);
+        if (order == null) {
+            throw new OrderException(MessageConstant.ORDER_NOT_EXIST);
+        }
+        return order;
+    }
+
+    /**
+     * 校验当前登录用户是订单买家
+     * @param order 订单
+     * @param message 校验失败时的提示文案
+     */
+    private void requireBuyer(Order order, String message) {
+        Long currentUserId = BaseContext.getCurrentId();
+        if (currentUserId == null || !currentUserId.equals(order.getBuyerId())) {
+            log.warn("越权操作被拦截：用户{}不是订单{}的买家", currentUserId, order.getOrderNo());
+            throw new OrderException(message);
+        }
+    }
+
+    /**
+     * 校验当前登录用户是订单卖家
+     * @param order 订单
+     * @param message 校验失败时的提示文案
+     */
+    private void requireSeller(Order order, String message) {
+        Long currentUserId = BaseContext.getCurrentId();
+        if (currentUserId == null || !currentUserId.equals(order.getSellerId())) {
+            log.warn("越权操作被拦截：用户{}不是订单{}的卖家", currentUserId, order.getOrderNo());
+            throw new OrderException(message);
+        }
+    }
+
+    /**
+     * 校验当前登录用户是订单的买家或卖家
+     * @param order 订单
+     */
+    private void requireParticipant(Order order) {
+        Long currentUserId = BaseContext.getCurrentId();
+        boolean isBuyer = currentUserId != null && currentUserId.equals(order.getBuyerId());
+        boolean isSeller = currentUserId != null && currentUserId.equals(order.getSellerId());
+        if (!isBuyer && !isSeller) {
+            log.warn("越权查询被拦截：用户{}既不是订单{}的买家也不是卖家", currentUserId, order.getOrderNo());
+            throw new OrderException(MessageConstant.CANT_VIEW_OTHERS_ORDER);
+        }
+    }
 
     /**
      * 生成订单编号

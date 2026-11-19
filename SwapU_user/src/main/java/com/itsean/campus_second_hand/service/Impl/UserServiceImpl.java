@@ -1,9 +1,11 @@
 package com.itsean.campus_second_hand.service.impl;
 
+import cn.hutool.crypto.digest.BCrypt;
 import com.itsean.common.constant.MessageConstant;
 import com.itsean.common.constant.NumberConstant;
 import com.itsean.common.context.BaseContext;
 import com.itsean.pojo.dto.PasswordDTO;
+import com.itsean.pojo.dto.PayPasswordDTO;
 import com.itsean.pojo.dto.UserDTO;
 import com.itsean.pojo.dto.UserLoginDTO;
 import com.itsean.pojo.dto.UserRegisterDTO;
@@ -14,6 +16,7 @@ import com.itsean.campus_second_hand.mapper.UserMapper;
 import com.itsean.campus_second_hand.service.UserService;
 import com.itsean.pojo.vo.UserRegisterVO;
 import com.itsean.pojo.vo.UserProfileVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +24,7 @@ import org.springframework.util.DigestUtils;
 
 import java.time.LocalDateTime;
 
+@Slf4j
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -57,6 +61,9 @@ public class UserServiceImpl implements UserService {
             user.setStatus(NumberConstant.ACCOUNT_STATUS_NORMAL);
             user.setCreditScore(NumberConstant.FULL_CREDIT_SCORE);
             user.setPassword(DigestUtils.md5DigestAsHex(userRegisterDTO.getPassword().getBytes()));
+            //支付密码单独存一份 BCrypt 密文：初始值与登录密码相同，便于新用户直接支付，
+            //但两者是独立字段，之后改登录密码不会影响已单独设置过的支付密码
+            user.setPayPassword(BCrypt.hashpw(userRegisterDTO.getPassword()));
             userMapper.register(user);
 
         }else if(phoneRepeat == 1){
@@ -110,6 +117,8 @@ public class UserServiceImpl implements UserService {
         user.setPhone(phone);
         //密码隐私保护
         user.setPassword("****");
+        //支付密码密文绝不外传（实体上也有 @JsonIgnore 兜底）
+        user.setPayPassword(null);
         return user;
     }
 
@@ -153,6 +162,13 @@ public class UserServiceImpl implements UserService {
 
         //更新密码并上传数据库
         String encryptedNewPassword = DigestUtils.md5DigestAsHex(newPassword.getBytes());
+
+        //兼容处理：如果用户从未单独设置过支付密码（仍与旧登录密码相同），
+        //改登录密码时同步更新支付密码，避免「改完密码就无法支付」；一旦单独设置过则保持独立
+        if (user.getPayPassword() != null && BCrypt.checkpw(oldPassword, user.getPayPassword())) {
+            user.setPayPassword(BCrypt.hashpw(newPassword));
+        }
+
         user.setPassword(encryptedNewPassword);
         user.setUpdateTime(LocalDateTime.now());
         userMapper.update(user);
@@ -189,5 +205,40 @@ public class UserServiceImpl implements UserService {
         userProfileVO.setSoldCount(productMapper.countByUserIdAndStatus(id, NumberConstant.PRODUCT_STATUS_SOLD_OUT));
 
         return userProfileVO;
+    }
+
+    /**
+     * 设置/重置支付密码：先用登录密码确认身份，再以 BCrypt 落库
+     * @param payPasswordDTO 登录密码 + 新支付密码
+     */
+    @Override
+    public void setPayPassword(PayPasswordDTO payPasswordDTO) {
+        Long userId = BaseContext.getCurrentId();
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            throw new AccountRepeatException(MessageConstant.USER_NOT_EXIST);
+        }
+
+        //登录密码校验通过，才认为操作人是账号本人
+        String loginPasswordHash = DigestUtils.md5DigestAsHex(payPasswordDTO.getLoginPassword().getBytes());
+        if (!loginPasswordHash.equals(user.getPassword())) {
+            log.warn("用户{}设置支付密码失败：登录密码不正确", userId);
+            throw new AccountRepeatException(MessageConstant.PASSWORD_ERROR);
+        }
+
+        user.setPayPassword(BCrypt.hashpw(payPasswordDTO.getPayPassword()));
+        user.setUpdateTime(LocalDateTime.now());
+        userMapper.update(user);
+        log.info("用户{}已更新支付密码", userId);
+    }
+
+    /**
+     * 当前登录用户是否已初始化支付密码
+     * @return true 已设置
+     */
+    @Override
+    public boolean hasPayPassword() {
+        User user = userMapper.findById(BaseContext.getCurrentId());
+        return user != null && user.getPayPassword() != null && !user.getPayPassword().isEmpty();
     }
 }
