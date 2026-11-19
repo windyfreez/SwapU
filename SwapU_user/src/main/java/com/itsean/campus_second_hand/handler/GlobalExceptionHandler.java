@@ -4,8 +4,16 @@ import com.itsean.common.exception.AccountRepeatException;
 import com.itsean.common.exception.BaseException;
 import com.itsean.pojo.Result;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.BindException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Objects;
 
 /**
  * 全局异常处理
@@ -40,6 +48,59 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * @RequestBody 参数校验失败（@Valid + @NotNull/@Min 等）
+     * @param ex 异常
+     * @return 首个校验失败的提示文案
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Result handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        String msg = firstFieldError(ex.getBindingResult().getFieldErrors());
+        log.warn("请求体参数校验失败: {}", msg);
+        return Result.error(msg);
+    }
+
+    /**
+     * 查询参数/表单绑定校验失败
+     * @param ex 异常
+     * @return 首个校验失败的提示文案
+     */
+    @ExceptionHandler(BindException.class)
+    public Result handleBindException(BindException ex) {
+        String msg = firstFieldError(ex.getBindingResult().getFieldErrors());
+        log.warn("请求参数校验失败: {}", msg);
+        return Result.error(msg);
+    }
+
+    /**
+     * 方法参数级校验失败（如 @PathVariable + @Validated）
+     * @param ex 异常
+     * @return 首个校验失败的提示文案
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public Result handleConstraintViolation(ConstraintViolationException ex) {
+        String msg = "参数校验失败";
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            if (violation.getMessage() != null) {
+                msg = violation.getMessage();
+                break;
+            }
+        }
+        log.warn("参数校验失败: {}", msg);
+        return Result.error(msg);
+    }
+
+    /**
+     * 请求体不是合法 JSON 或字段类型不匹配，避免抛出 500
+     * @param ex 异常
+     * @return 统一失败结果
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public Result handleNotReadable(HttpMessageNotReadableException ex) {
+        log.warn("请求体解析失败: {}", ex.getMessage());
+        return Result.error("请求参数格式不正确");
+    }
+
+    /**
      * 兜底异常，禁止向客户端泄露堆栈信息
      * @param ex 异常
      * @return 统一失败结果
@@ -48,5 +109,18 @@ public class GlobalExceptionHandler {
     public Result handleException(Exception ex) {
         log.error("系统异常: ", ex);
         return Result.error("系统繁忙，请稍后重试");
+    }
+
+    /**
+     * 取第一个字段校验失败的提示文案
+     * @param fieldErrors 字段错误列表
+     * @return 提示文案
+     */
+    private String firstFieldError(java.util.List<FieldError> fieldErrors) {
+        return fieldErrors.stream()
+                .map(FieldError::getDefaultMessage)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse("参数校验失败");
     }
 }

@@ -23,6 +23,7 @@
 | student_id | varchar(20) |  | — | 学号 |
 | username | varchar(50) |  | — | 登录账号 |
 | password | varchar(255) |  | — | 登录密码 |
+| pay_password | varchar(100) |  | — | 支付密码（BCrypt 密文，与登录密码独立；NULL 表示历史账号未初始化） |
 | avatar | varchar(255) |  | — | 用户头像 |
 | phone | varchar(11) |  | — | 手机号 |
 | email | varchar(100) |  | — | 邮箱 |
@@ -265,6 +266,7 @@ CREATE TABLE `user` (
     student_id   VARCHAR(20)  COMMENT '学号',
     username     VARCHAR(50)  COMMENT '登录账号',
     password     VARCHAR(255) COMMENT '登录密码',
+    pay_password VARCHAR(100) COMMENT '支付密码（BCrypt 密文，与登录密码独立；NULL 表示历史账号未初始化）',
     avatar       VARCHAR(255) COMMENT '用户头像',
     phone        VARCHAR(11)  COMMENT '手机号',
     email        VARCHAR(100) COMMENT '邮箱',

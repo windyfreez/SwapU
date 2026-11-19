@@ -38,8 +38,8 @@ public interface UserMapper {
      * @param user
      * @return
      */
-    @Insert("insert into user (student_id, username, password, avatar, phone, email, college, balance, credit_score, status, create_time, update_time, nickname)\n" +
-            "values (#{studentId},#{username},#{password},#{avatar},#{phone},#{email},#{college},#{balance},#{creditScore},#{status},#{createTime},#{updateTime},#{nickname})")
+    @Insert("insert into user (student_id, username, password, pay_password, avatar, phone, email, college, balance, credit_score, status, create_time, update_time, nickname)\n" +
+            "values (#{studentId},#{username},#{password},#{payPassword},#{avatar},#{phone},#{email},#{college},#{balance},#{creditScore},#{status},#{createTime},#{updateTime},#{nickname})")
     void register(User user);
 
     /**

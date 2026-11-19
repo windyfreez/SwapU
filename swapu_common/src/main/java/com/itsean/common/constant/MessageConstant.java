@@ -91,6 +91,24 @@ public class MessageConstant {
     public static final String AUDIT_STATUS_FILTER_ERROR = "审核状态筛选值不合法";
     public static final String AUDIT_TYPE_FILTER_ERROR = "审核类型筛选值不合法";
 
+    // ===== 订单权限校验（P0 安全修复）=====
+    /** 非买家/卖家本人查询订单 */
+    public static final String CANT_VIEW_OTHERS_ORDER = "无权查看该订单";
+    /** 只有卖家可以确认接单 */
+    public static final String ONLY_SELLER_CAN_CONFIRM = "只有卖家本人可以确认接单";
+    /** 只有买家可以支付 */
+    public static final String ONLY_BUYER_CAN_PAY = "只有买家本人可以支付该订单";
+    /** 只有卖家可以发货 */
+    public static final String ONLY_SELLER_CAN_DELIVER = "只有卖家本人可以发货";
+    /** 只有买家可以确认收货 */
+    public static final String ONLY_BUYER_CAN_RECEIVE = "只有买家本人可以确认收货";
+    /** 订单状态不允许接单 */
+    public static final String ORDER_STATUS_CANT_CONFIRM = "该订单当前状态不支持卖家接单";
+    /** 购买数量非法（负数会导致反向加库存、订单金额为负） */
+    public static final String QUANTITY_INVALID = "购买数量必须大于0";
+    /** 余额支付未输入支付密码 */
+    public static final String PAY_PASSWORD_REQUIRED = "余额支付需要输入支付密码";
+
     // ===== 以下合并自 g-swapu_admin-MessageConstant.java =====
 
 }

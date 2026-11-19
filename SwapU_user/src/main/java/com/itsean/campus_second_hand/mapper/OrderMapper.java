@@ -127,4 +127,24 @@ public interface OrderMapper {
                                      @Param("expectStatus") Integer expectStatus,
                                      @Param("targetStatus") Integer targetStatus,
                                      @Param("reason") String reason);
+
+    /**
+     * 原子支付：仅当订单仍处于预期状态时才写入支付信息并推进状态
+     * <p>
+     * 并发下两个支付请求只有一个能把 status 从「待支付」改成「待发货」，
+     * 另一个影响行数为 0，从而避免重复扣款。
+     * @param orderNo       订单编号
+     * @param expectStatus  期望的当前状态（待支付）
+     * @param payType       支付方式
+     * @param payTime       支付时间
+     * @param targetStatus  目标状态（待发货）
+     * @return 影响行数，1 表示本次支付成功抢占
+     */
+    @Update("update orders set status = #{targetStatus}, pay_type = #{payType}, pay_time = #{payTime} " +
+            "where order_no = #{orderNo} and status = #{expectStatus}")
+    int payIfMatch(@Param("orderNo") String orderNo,
+                   @Param("expectStatus") Integer expectStatus,
+                   @Param("payType") Integer payType,
+                   @Param("payTime") LocalDateTime payTime,
+                   @Param("targetStatus") Integer targetStatus);
 }

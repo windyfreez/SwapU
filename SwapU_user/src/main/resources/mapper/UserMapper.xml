@@ -15,6 +15,10 @@
             <if test="password != null and password != ''">
                 password = #{password},
             </if>
+            <!-- 支付密码只能在设置/升级时写入；普通资料更新不传该字段，不会被覆盖 -->
+            <if test="payPassword != null and payPassword != ''">
+                pay_password = #{payPassword},
+            </if>
             <if test="avatar != null and avatar != ''">
                 avatar = #{avatar},
             </if>

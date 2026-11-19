@@ -535,7 +535,108 @@ gateway + (auth&user 合一) + product(+ai) + order(+message)
 
 **遗留（下一步）**
 
-- 剩余 35 个同名类中，**18 个是 `swapu_admin` 的死代码**（7 个 Service + 7 个 Impl + 4 个无引用的 Mapper/XML：AddressBook、Chat、Favorite、Order），删除后 admin 类数可从 82 降到约 60；
-- 另 17 个（`WebMvcConfiguration`、`JwtTokenUserInterceptor`、`GlobalExceptionHandler`、`JsonStringListTypeHandler`、`SimpleRandomSortUtil`、`OssConfiguration`、`RedisConfiguration`、`WebSocketConfiguration`、各 Mapper/Service/Controller）**职责本就不同，不应合并**，属于 Phase 1 抽 `swapu-common-web` 的范畴；
+- ~~剩余 35 个同名类中，**18 个是 `swapu_admin` 的死代码**~~ → 已完成，见下方 Phase 0-2；
+- 另 17 个中剩下的部分（`WebMvcConfiguration`、`JwtTokenUserInterceptor`、`GlobalExceptionHandler`、`JsonStringListTypeHandler`、`RedisConfiguration`、各 Mapper）**职责本就不同，不应合并**，属于 Phase 1 抽 `swapu-common-web` 的范畴；
 - `NumberConstant`/`StringConstant` 中评论状态存在两套命名（`COMMENT_STATUS_CHECKING/APPROVED/VIOLATION` 与 `PENDING/PUBLISHED/REJECTED`，值相同），已原样保留两份，建议后续统一命名。
+
+### Phase 0-2 已完成：删除 swapu_admin 死代码（2026-11-19）
+
+方法：不做"照名单删文件"，而是先算**引用闭包**（从 4 个 Controller + `@Configuration` + `@RestControllerAdvice` 出发，并补上"接口 → 实现类"这条边），再人工复核仅靠静态分析判不准的项。
+
+| 指标 | 本步前 | 本步后 |
+|---|---|---|
+| 后端 Java 类总数 | 236 | **213** |
+| `swapu_admin` 类数 | 82 | **60** |
+| 跨模块同名类 | 35 | **12** |
+
+**删除（26 个文件）**
+
+- 7 个 Service 接口 + 7 个 Impl：AddressBook、Chat、Favorite、Order、Product、ProductView、User；
+- 3 个 Mapper + 3 个 XML：AddressBook、Chat、Favorite；
+- 二阶死代码：`ChatWebSocketHandler`、`WebSocketConfiguration`（admin 前端无聊天）、`JwtTokenUserInterceptor`（admin 无用户端接口）、`OssConfiguration`（admin 无上传接口）、`SimpleRandomSortUtil`；
+- 用户端对称残留：`mapper/AdminMapper.java`（空接口、无 XML、零引用）。
+
+**静态分析没判准、靠人工复核留下的 2 个**
+
+| 类 | 自动判定 | 实际 | 依据 |
+|---|---|---|---|
+| `JsonStringListTypeHandler` | 死代码 | **必须保留** | 被存活的 `ProductMapper.xml`、`CommentMapper.xml` 以 `typeHandler=` 引用（XML 不在 Java 引用图里） |
+| `RedisConfiguration` | 存活的配置类 | **保留** | `CategoryServiceImpl` 有 5 处 Redis 调用 |
+
+**连带修正**
+
+- `WebMvcConfiguration` 去掉"用户端接口"Swagger 分组与用户端拦截器注册，只保留 `/admin/**` 一条链路；
+- `pom.xml` 移除 `spring-boot-starter-websocket` 与 `aliyun-sdk-oss`（OSS 由 `swapu_common` 统一提供）；
+- 清理 4 个空包目录（`context`、`properties`、`utils`、`entity/result`）。
+
+**剩余 12 个同名类的处置结论**：`CategoryController/Service(Impl)/Mapper` 是两端不同职责（用户端只读列表、管理端 CRUD），`*Mapper` 是两端各自查询同一批表，`WebMvcConfiguration`/`GlobalExceptionHandler`/`RedisConfiguration` 是各端 Web 层配置——均**不应合并**，属于 Phase 1 抽取公共 Web 组件的范围，且这几处需要在 `swapu-api` 定型后再动。
+
+### Phase 0-3 已完成：订单越权与参数校验（P0 安全，2026-11-19）
+
+**背景**：订单接口只校验"订单当前状态"，不校验"当前用户是不是这笔订单的买家/卖家"，任何登录用户拿到 `orderNo` 就能替别人发货、确认收货、查看含真实姓名手机号的详情。
+
+**接口级归属校验**
+
+| 接口 | 修复前的缺陷 | 修复后 |
+|---|---|---|
+| `POST /order/create` | `quantity` 无校验，传负数会让 Redis `DECRBY -n` **反向加库存**、且 `amount = 单价 × 负数` 为负 | DTO `@Min(1)` + service 层二次兜底 |
+| `POST /order/confirm` | 无身份校验、无状态校验（可把已支付订单打回待支付）；`freight` 为 null 时 NPE | 仅卖家 + 仅待接单；运费缺省按 0 |
+| `GET /order/{orderNo}` | 任何人可按单号查任意订单 | 仅买家/卖家 |
+| `GET /order/detail/{orderNo}` | 同上，且泄露双方姓名手机号 | 仅买家/卖家 |
+| `POST /order/pay` | 无买家校验；支付密码为空时 NPE 变 500 | 仅买家；空密码返回业务异常 |
+| `POST /order/deliver` | 任何人可替卖家发货 | 仅卖家 |
+| `POST /order/receive` | 任何人可替买家收货（直接完成交易） | 仅买家 |
+
+顺带把三处 `Integer` 引用比较（`order.getStatus() != 常量`）改为 `.equals()`，并给分页补默认值，避免 `PageHelper` 拆箱空指针。
+
+**参数校验**：`swapu_pojo` 引入 `jakarta.validation-api`，`SwapU_user` 引入 `spring-boot-starter-validation`；12 个订单接口全部加 `@Valid`，DTO 上加 `@NotBlank/@NotNull/@Min/@Max/@Size/@DecimalMin`；`GlobalExceptionHandler` 新增 `MethodArgumentNotValidException`、`BindException`、`ConstraintViolationException`、`HttpMessageNotReadableException` 处理，校验失败返回首个中文提示而不是"系统繁忙"。
+
+**一个差点造成回归的点**：给 `OrderDTO.deliveryMethod` 加 `@NotNull` 后，用户端下单页（`CreateOrder.vue`）根本不传该字段，会导致所有 UI 下单失败。已改为可选 + service 层默认「快递」，并逐一核对了前端 10 个订单接口的请求体与新约束是否兼容。
+
+**测试**：新增 17 个不依赖数据库的单元测试（Mockito + Bean Validation）：
+
+- `OrderAccessControlTest`（9 个）：买家/卖家可读、第三方读/发货/支付/收货被拒、订单不存在返回业务异常；
+- `OrderValidationTest`（8 个）：数量 0/负数被拒、配送方式可缺省、负数运费被拒等。
+
+**仍待处理**
+
+1. **假支付漏洞（未修）**：`payType=1/2`（支付宝/微信）时服务端不做任何资金操作，却直接把订单改成"待发货" → 等于白拿商品；前端也确实提供了这两个选项。建议先只放开余额支付，或在 UI 上禁用另外两种；
+2. ~~支付密码 == 登录密码，且都是无盐 MD5~~ → 已修，见 Phase 0-4；
+3. ~~`payOrder` 并发双付窗口~~ → 已修，见 Phase 0-4。
+
+### Phase 0-4 已完成：支付密码独立化 + 并发双付防护（2026-11-19）
+
+> ⚠️ **部署前置条件**：必须先执行 `SwapU_user/src/main/resources/sql/user_pay_password.sql`（`ALTER TABLE user ADD COLUMN pay_password ...`）。
+> 注册接口的 INSERT 已包含该列，**缺列会导致注册直接报 SQL 错误**。
+
+**① 支付密码与登录密码解耦（BCrypt）**
+
+| 项 | 改动 |
+|---|---|
+| 存储 | `user.pay_password VARCHAR(100)`：BCrypt 密文（`$2a$...`），与 `password` 完全独立的字段 |
+| 注册 | 新用户注册时写入 `BCrypt.hashpw(登录密码)`，因此可直接支付，无需额外操作 |
+| 支付校验 | 只读 `pay_password`，用 `BCrypt.checkpw` 比对；**不再读取登录密码字段** |
+| 存量账号 | `pay_password` 为 NULL 时按旧逻辑用登录密码校验一次，通过后立即把 hash 升级为 BCrypt 并随同事务落库（**惰性迁移，无需停机刷数据**） |
+| 改登录密码 | 若支付密码仍等于旧登录密码（说明用户从未单独设置过），同步更新；一旦用户单独设置过支付密码，改登录密码不再影响它 |
+| 新增接口 | `POST /user/pay-password`（登录密码验证身份后设置/重置支付密码，6-20 位）、`GET /user/pay-password/status` |
+| 防泄露 | `User.payPassword` 加 `@JsonIgnore`；同时给 `User.password` 也加了 `@JsonIgnore`——`GET /user/{id}` 原本会把登录密码的 MD5 哈希返回给任意登录用户，这是一个顺带修掉的真实泄露 |
+
+**② 并发支付窗口（原子占位）**
+
+原实现是"先查 status 判断 → 再 `update`"，两个并发请求可能同时通过检查、重复扣款。改为：
+
+```
+1) 校验：买家身份 → 状态为待支付 → 支付密码 → 余额
+2) 原子占位：update orders set status=3, pay_type=?, pay_time=?
+              where order_no=? and status=2      ← 只有一个请求 affected=1
+3) affected != 1 → 抛「该订单当前状态不支持支付」（不扣款、不推进）
+4) 余额划转（与 2、3 同一事务，异常整体回滚）
+```
+
+**测试**：`OrderPayTest`（6 个）覆盖——密码正确支付成功、密码错误拒绝且不推进、设置过支付密码后登录密码不再可用、历史账号惰性升级为 BCrypt、余额不足拒绝、保存并发竞争失败时不扣款。加上前述两个测试类，共 **23 个测试全绿**。
+
+**遗留**：登录密码本身仍是**无盐 MD5**（本次只迁移了支付密码）。建议后续用同一套惰性升级模式改造：登录时若 hash 不以 `$2` 开头则走 MD5 校验、通过后重写为 BCrypt。改完需同步调整 `payOrder` 里历史账号的 MD5 分支。
+
+
+
 

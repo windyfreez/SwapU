@@ -2,6 +2,7 @@ package com.itsean.campus_second_hand.controller.user;
 
 import com.itsean.common.constant.JwtClaimsConstant;
 import com.itsean.pojo.dto.PasswordDTO;
+import com.itsean.pojo.dto.PayPasswordDTO;
 import com.itsean.pojo.dto.UserDTO;
 import com.itsean.pojo.dto.UserLoginDTO;
 import com.itsean.pojo.dto.UserRegisterDTO;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -139,5 +141,29 @@ public class   UserController {
         return Result.success(userProfileVO);
     }
 
+    /**
+     * 设置/重置支付密码（需用登录密码验证身份）
+     * @param payPasswordDTO 登录密码 + 新支付密码
+     * @return 设置结果
+     */
+    @PostMapping("/pay-password")
+    @ApiOperation("设置或重置支付密码")
+    public Result setPayPassword(@Valid @RequestBody PayPasswordDTO payPasswordDTO){
+        log.info("设置支付密码");
+        userService.setPayPassword(payPasswordDTO);
+        return Result.success("支付密码设置成功");
+    }
+
+    /**
+     * 查询当前用户是否已设置支付密码
+     * @return hasPayPassword 标记
+     */
+    @GetMapping("/pay-password/status")
+    @ApiOperation("查询是否已设置支付密码")
+    public Result<Map<String, Boolean>> payPasswordStatus(){
+        Map<String, Boolean> data = new HashMap<>();
+        data.put("hasPayPassword", userService.hasPayPassword());
+        return Result.success(data);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.itsean.campus_second_hand.service;
 
 import com.itsean.pojo.dto.PasswordDTO;
+import com.itsean.pojo.dto.PayPasswordDTO;
 import com.itsean.pojo.dto.UserDTO;
 import com.itsean.pojo.dto.UserLoginDTO;
 import com.itsean.pojo.dto.UserRegisterDTO;
@@ -55,4 +56,16 @@ public interface UserService {
      * @return
      */
     UserProfileVO getUserProfile(Long id);
+
+    /**
+     * 设置/重置支付密码（需先用登录密码验证身份）
+     * @param payPasswordDTO 登录密码 + 新支付密码
+     */
+    void setPayPassword(PayPasswordDTO payPasswordDTO);
+
+    /**
+     * 当前登录用户是否已初始化支付密码
+     * @return true 已设置
+     */
+    boolean hasPayPassword();
 }

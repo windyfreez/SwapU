@@ -8,6 +8,7 @@ import com.itsean.pojo.Result;
 import com.itsean.campus_second_hand.service.OrderService;
 import com.itsean.pojo.vo.*;
 import com.itsean.campus_second_hand.vo.*;
+import javax.validation.Valid;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class OrderController {
      */
     @PostMapping("/create")
     @ApiOperation("创建订单")
-    public Result<OrderVO> createOrder(@RequestBody OrderDTO orderDTO){
+    public Result<OrderVO> createOrder(@Valid @RequestBody OrderDTO orderDTO){
         log.info("创建订单：{}",orderDTO);
         OrderVO orderVO = orderService.createOrder(orderDTO);
         return Result.success(orderVO);
@@ -55,7 +56,7 @@ public class OrderController {
      */
     @PostMapping("/confirm")
     @ApiOperation("确认接单")
-    public Result<OrderConfirmVO> confirmOrder(@RequestBody OrderConfirmDTO orderConfirmDTO){
+    public Result<OrderConfirmVO> confirmOrder(@Valid @RequestBody OrderConfirmDTO orderConfirmDTO){
         log.info("确认订单:{}",orderConfirmDTO);
         OrderConfirmVO orderConfirmVO = orderService.confirmOrder(orderConfirmDTO);
         return Result.success(orderConfirmVO);
@@ -68,7 +69,7 @@ public class OrderController {
      */
     @PostMapping("/cancel")
     @ApiOperation("取消订单")
-    public Result<OrderCancelVO> cancelOrder(@RequestBody OrderCancelDTO orderCancelDTO){
+    public Result<OrderCancelVO> cancelOrder(@Valid @RequestBody OrderCancelDTO orderCancelDTO){
         log.info("取消订单:{}",orderCancelDTO);
         OrderCancelVO orderCancelVO = orderService.cancelOrder(orderCancelDTO);
         return Result.success(orderCancelVO);
@@ -81,7 +82,7 @@ public class OrderController {
      */
     @PostMapping("/cancel/approve")
     @ApiOperation("卖家同意取消订单")
-    public Result<OrderCancelVO> approveCancel(@RequestBody OrderCancelApproveDTO orderCancelApproveDTO){
+    public Result<OrderCancelVO> approveCancel(@Valid @RequestBody OrderCancelApproveDTO orderCancelApproveDTO){
         log.info("卖家同意取消订单:{}",orderCancelApproveDTO);
         OrderCancelVO orderCancelVO = orderService.approveCancel(orderCancelApproveDTO);
         return Result.success(orderCancelVO);
@@ -94,7 +95,7 @@ public class OrderController {
      */
     @PostMapping("/cancel/reject")
     @ApiOperation("卖家拒绝取消订单")
-    public Result<OrderCancelVO> rejectCancel(@RequestBody OrderCancelRejectDTO orderCancelRejectDTO){
+    public Result<OrderCancelVO> rejectCancel(@Valid @RequestBody OrderCancelRejectDTO orderCancelRejectDTO){
         log.info("卖家拒绝取消订单:{}",orderCancelRejectDTO);
         OrderCancelVO orderCancelVO = orderService.rejectCancel(orderCancelRejectDTO);
         return Result.success(orderCancelVO);
@@ -107,7 +108,7 @@ public class OrderController {
      */
     @PostMapping("/pay")
     @ApiOperation("支付订单")
-    public Result<OrderPayVO> payOrder(@RequestBody OrderPayDTO orderPayDTO){
+    public Result<OrderPayVO> payOrder(@Valid @RequestBody OrderPayDTO orderPayDTO){
         log.info("支付订单:{}",orderPayDTO);
         OrderPayVO orderPayVO = orderService.payOrder(orderPayDTO);
         return Result.success(orderPayVO);
@@ -120,7 +121,7 @@ public class OrderController {
      */
     @PostMapping("/deliver")
     @ApiOperation("订单发货")
-    public Result<OrderDeliverVO> deliverOrder(@RequestBody OrderDeliverDTO orderDeliverDTO){
+    public Result<OrderDeliverVO> deliverOrder(@Valid @RequestBody OrderDeliverDTO orderDeliverDTO){
         log.info("发货订单:{}",orderDeliverDTO);
         OrderDeliverVO orderDeliverVO = orderService.deliverOrder(orderDeliverDTO);
         return Result.success(orderDeliverVO);
@@ -133,7 +134,7 @@ public class OrderController {
      */
     @PostMapping("/receive")
     @ApiOperation("确认收货")
-    public Result<OrderReceiveVO> receiveOrder(@RequestBody OrderReceiveDTO orderReceiveDTO){
+    public Result<OrderReceiveVO> receiveOrder(@Valid @RequestBody OrderReceiveDTO orderReceiveDTO){
         log.info("确认收货:{}",orderReceiveDTO);
         OrderReceiveVO orderReceiveVO = orderService.receiveOrder(orderReceiveDTO);
         return Result.success(orderReceiveVO);
@@ -146,7 +147,7 @@ public class OrderController {
      */
     @PostMapping("/refund/apply")
     @ApiOperation("申请退货退款")
-    public Result<OrderRefundVO> applyRefund(@RequestBody OrderRefundApplyDTO orderRefundApplyDTO){
+    public Result<OrderRefundVO> applyRefund(@Valid @RequestBody OrderRefundApplyDTO orderRefundApplyDTO){
         log.info("申请退货退款:{}",orderRefundApplyDTO);
         OrderRefundVO orderRefundVO = orderService.applyRefund(orderRefundApplyDTO);
         return Result.success(orderRefundVO);
@@ -159,7 +160,7 @@ public class OrderController {
      */
     @PostMapping("/refund/approve")
     @ApiOperation("卖家同意退货退款")
-    public Result<OrderRefundVO> approveRefund(@RequestBody OrderRefundApproveDTO orderRefundApproveDTO){
+    public Result<OrderRefundVO> approveRefund(@Valid @RequestBody OrderRefundApproveDTO orderRefundApproveDTO){
         log.info("卖家同意退货退款:{}",orderRefundApproveDTO);
         OrderRefundVO orderRefundVO = orderService.approveRefund(orderRefundApproveDTO);
         return Result.success(orderRefundVO);
@@ -172,7 +173,7 @@ public class OrderController {
      */
     @PostMapping("/refund/reject")
     @ApiOperation("卖家拒绝退货退款")
-    public Result<OrderRefundVO> rejectRefund(@RequestBody OrderRefundRejectDTO orderRefundRejectDTO){
+    public Result<OrderRefundVO> rejectRefund(@Valid @RequestBody OrderRefundRejectDTO orderRefundRejectDTO){
         log.info("卖家拒绝退货退款:{}",orderRefundRejectDTO);
         OrderRefundVO orderRefundVO = orderService.rejectRefund(orderRefundRejectDTO);
         return Result.success(orderRefundVO);
@@ -198,7 +199,7 @@ public class OrderController {
      */
     @ApiOperation("分页获取当前用户所有订单")
     @PostMapping("/pageQuery")
-    public Result<PageResult> pageQuery(OrderPageQueryDTO orderPageQueryDTO){
+    public Result<PageResult> pageQuery(@Valid OrderPageQueryDTO orderPageQueryDTO){
     	log.info("分页获取当前用户所有订单：{}",orderPageQueryDTO);
     	PageResult pageResult = orderService.pageQuery(orderPageQueryDTO);
     	return Result.success(pageResult);
