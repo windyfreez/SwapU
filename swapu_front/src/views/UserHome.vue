@@ -17,7 +17,7 @@
         <div class="card profile-card">
           <div class="profile-avatar">
             <img v-if="profile.avatar" :src="cleanImageUrl(profile.avatar)" :alt="displayName" />
-            <span v-else>👤</span>
+            <span v-else>{{ (displayName || '用').slice(0, 1) }}</span>
           </div>
 
           <div class="profile-main">
@@ -144,7 +144,7 @@
               <div v-for="item in comments" :key="item.id" class="comment-item">
                 <div class="comment-avatar" @click="goUserHome(item.senderId)">
                   <img v-if="item.senderAvatar" :src="cleanImageUrl(item.senderAvatar)" :alt="item.senderName" />
-                  <span v-else>👤</span>
+                  <span v-else>{{ (item.senderName || '用').slice(0, 1) }}</span>
                 </div>
                 <div class="comment-body">
                   <div class="comment-head">

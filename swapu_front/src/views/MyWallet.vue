@@ -1,5 +1,6 @@
 <template>
   <AccountLayout active="wallet">
+    <h1 class="page-title">我的钱包</h1>
     <div class="balance-card card">
       <div class="balance-label">账户余额（元）</div>
       <div class="balance-value">¥{{ userInfo.balance || '0.00' }}</div>
@@ -10,12 +11,10 @@
 
     <div class="menu-section card">
       <div class="menu-item">
-        <span class="menu-icon">📊</span>
         <span class="menu-text">收支明细</span>
         <span class="menu-arrow">›</span>
       </div>
       <div class="menu-item">
-        <span class="menu-icon">🔄</span>
         <span class="menu-text">提现</span>
         <span class="menu-arrow">›</span>
       </div>
@@ -147,7 +146,7 @@ onMounted(() => {
 <style scoped>
 .balance-card {
   padding: 32px 36px;
-  background: linear-gradient(120deg, #2563eb 0%, #3b82f6 100%);
+  background: var(--c-primary-dark);
   border: none;
   color: #fff;
   margin-bottom: 20px;

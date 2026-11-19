@@ -1,5 +1,6 @@
 <template>
   <AccountLayout active="comments">
+    <h1 class="page-title">我的评价</h1>
     <div class="card comments-card">
       <div class="card-title">
         我发出的评价

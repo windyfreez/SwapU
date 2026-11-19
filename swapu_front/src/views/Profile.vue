@@ -1,56 +1,72 @@
 <template>
-  <AccountLayout active="home">
+  <AccountLayout active="home" :show-user="false">
     <template v-if="!isLoggedIn">
       <div class="card login-prompt">
-        <div class="prompt-icon">👤</div>
-        <p>登录后享受更多服务</p>
+        <span class="login-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-6 8-6s8 2 8 6" />
+          </svg>
+        </span>
+        <h2>登录后查看个人中心</h2>
+        <p>登录后可查看发布、订单、收藏与足迹。</p>
         <div class="prompt-buttons">
-          <button class="btn btn-outline" @click="goToRegister">注册</button>
           <button class="btn btn-primary" @click="goToLogin">登录</button>
+          <button class="btn" @click="goToRegister">注册</button>
         </div>
       </div>
     </template>
 
     <template v-else>
-      <div class="dashboard-intro">
-        <div><span class="dashboard-kicker">PERSONAL SPACE</span><h1>你好，{{ userInfo.nickname || userInfo.username }}。</h1><p>{{ userInfo.college || '校园生活，从发现一件好物开始。' }}</p></div>
-        <button class="edit-profile-link" @click="goToEditProfile">编辑资料 →</button>
-      </div>
-      <div class="profile-summary">
-        <div class="stats-row">
-          <div class="stat-item link" @click="goToMyProducts">
-            <span class="stat-value">{{ orderStats.publishCount }}</span>
-            <span class="stat-label">在售</span>
+      <!-- 账户头图：左侧身份 + 右侧速览，和首页 banner 同一套 -->
+      <section class="account-hero">
+        <div class="hero-identity">
+          <div class="hero-avatar">
+            <img v-if="userInfo.avatar" :src="userInfo.avatar" alt="头像" />
+            <span v-else>{{ (userInfo.nickname || userInfo.username || '我').slice(0, 1) }}</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item link" @click="goToMyProducts">
-            <span class="stat-value">{{ orderStats.soldCount }}</span>
-            <span class="stat-label">已售</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item link" @click="goToMyFavorites">
-            <span class="stat-value">{{ orderStats.favoriteCount }}</span>
-            <span class="stat-label">收藏</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item link" @click="goToMyFootprints">
-            <span class="stat-value">{{ orderStats.footprintCount }}</span>
-            <span class="stat-label">足迹</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-value credit">{{ userInfo.creditScore || 100 }}</span>
-            <span class="stat-label">信用分</span>
+          <div class="hero-copy">
+            <p class="hero-kicker">个人中心</p>
+            <h1>你好，{{ userInfo.nickname || userInfo.username || '同学' }}。</h1>
+            <p class="hero-meta">
+              {{ userInfo.college || '校园生活，从发现一件好物开始。' }}<template v-if="userInfo.studentId"> · 学号 {{ userInfo.studentId }}</template>
+            </p>
+            <div class="hero-actions">
+              <span class="credit-chip">信用分 {{ userInfo.creditScore || 100 }}</span>
+              <button type="button" class="hero-edit" @click="goToEditProfile">编辑资料</button>
+            </div>
           </div>
         </div>
-      </div>
 
-      <!-- 内容预览:最近足迹 / 在售商品 -->
+        <aside class="hero-stats">
+          <p class="hero-stats-title">账户速览</p>
+          <div class="hero-stats-grid">
+            <button type="button" class="stat-cell" @click="goToMyProducts">
+              <strong>{{ displayStats.publishCount }}</strong>
+              <span>在售</span>
+            </button>
+            <button type="button" class="stat-cell" @click="goToMyProducts">
+              <strong>{{ displayStats.soldCount }}</strong>
+              <span>已售</span>
+            </button>
+            <button type="button" class="stat-cell" @click="goToMyFavorites">
+              <strong>{{ displayStats.favoriteCount }}</strong>
+              <span>收藏</span>
+            </button>
+            <button type="button" class="stat-cell" @click="goToMyFootprints">
+              <strong>{{ displayStats.footprintCount }}</strong>
+              <span>足迹</span>
+            </button>
+          </div>
+        </aside>
+      </section>
+
+      <!-- 最近足迹 / 在售商品：两张白卡 -->
       <div class="preview-grid">
-        <div class="preview-panel">
-          <div class="preview-header">
-            <h3>👣 最近足迹</h3>
-            <router-link to="/my-footprints" class="more-link">查看更多 ›</router-link>
+        <section class="preview-panel card">
+          <div class="panel-head">
+            <h2>最近足迹</h2>
+            <router-link to="/my-footprints" class="panel-more">查看更多 <span class="arrow" aria-hidden="true">›</span></router-link>
           </div>
           <div v-if="footprintPreview.length > 0" class="preview-list">
             <div
@@ -72,12 +88,12 @@
             <span>暂无浏览记录</span>
             <router-link to="/" class="text-link">去逛逛</router-link>
           </div>
-        </div>
+        </section>
 
-        <div class="preview-panel">
-          <div class="preview-header">
-            <h3>📦 在售商品</h3>
-            <router-link to="/my-products" class="more-link">查看更多 ›</router-link>
+        <section class="preview-panel card">
+          <div class="panel-head">
+            <h2>在售商品</h2>
+            <router-link to="/my-products" class="panel-more">查看更多 <span class="arrow" aria-hidden="true">›</span></router-link>
           </div>
           <div v-if="onSalePreview.length > 0" class="preview-list">
             <div
@@ -99,14 +115,14 @@
             <span>暂无在售商品</span>
             <router-link to="/sell" class="text-link">去发布</router-link>
           </div>
-        </div>
+        </section>
       </div>
     </template>
   </AccountLayout>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AccountLayout from '../components/AccountLayout.vue'
 
@@ -121,6 +137,55 @@ const orderStats = reactive({
   soldCount: 0,
   favoriteCount: 0,
   footprintCount: 0
+})
+
+// 展示用数字：数据到达后做一次 700ms 的递增动画
+const displayStats = reactive({
+  publishCount: 0,
+  soldCount: 0,
+  favoriteCount: 0,
+  footprintCount: 0
+})
+
+const prefersReducedMotion =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+let statsFrame = null
+
+const animateStats = () => {
+  if (typeof window === 'undefined') return
+
+  if (prefersReducedMotion) {
+    Object.assign(displayStats, orderStats)
+    return
+  }
+
+  if (statsFrame) cancelAnimationFrame(statsFrame)
+
+  const from = { ...displayStats }
+  const startedAt = performance.now()
+  const duration = 700
+
+  const tick = (now) => {
+    const progress = Math.min((now - startedAt) / duration, 1)
+    const eased = 1 - Math.pow(1 - progress, 3)
+
+    displayStats.publishCount = Math.round(from.publishCount + (orderStats.publishCount - from.publishCount) * eased)
+    displayStats.soldCount = Math.round(from.soldCount + (orderStats.soldCount - from.soldCount) * eased)
+    displayStats.favoriteCount = Math.round(from.favoriteCount + (orderStats.favoriteCount - from.favoriteCount) * eased)
+    displayStats.footprintCount = Math.round(from.footprintCount + (orderStats.footprintCount - from.footprintCount) * eased)
+
+    if (progress < 1) statsFrame = requestAnimationFrame(tick)
+  }
+
+  statsFrame = requestAnimationFrame(tick)
+}
+
+watch(orderStats, animateStats, { deep: true })
+
+onUnmounted(() => {
+  if (statsFrame) cancelAnimationFrame(statsFrame)
 })
 
 const userInfo = reactive({
@@ -314,187 +379,339 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* ============================================
+   「我的」：沿用首页的深蓝头、白卡和蓝色强调
+   ============================================ */
+
+/* 入场动画：头图先出现，预览卡延迟 120ms 跟上；只播一次 */
+@keyframes account-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 未登录 */
 .login-prompt {
-  padding: 60px 20px;
+  max-width: 560px;
+  margin: 8px auto;
+  padding: 56px 24px;
   text-align: center;
+  animation: account-rise 0.45s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
 
-.prompt-icon {
-  font-size: 56px;
-  margin-bottom: 14px;
-}
-
-.login-prompt p {
-  font-size: 16px;
-  color: var(--c-text-2);
-  margin-bottom: 24px;
-}
-
-.prompt-buttons {
-  display: inline-flex;
-  gap: 14px;
-}
-
-/* 个人仪表盘 */
-.dashboard-intro {
+.login-icon {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 4px 0 28px;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.dashboard-kicker { color: var(--c-primary); font-size: 10px; letter-spacing: 1.8px; font-weight: 700; }
-.dashboard-intro h1 {
-  margin: 5px 0 3px;
-  font-size: 30px;
-  font-weight: 700;
-  color: var(--c-text);
-}
-.dashboard-intro p { font-size: 13px; color: var(--c-text-3); }
-.edit-profile-link { border: 0; border-bottom: 1px solid var(--c-primary); padding: 0 0 3px; background: transparent; color: var(--c-primary); font-size: 13px; }
-.edit-profile-link:hover { color: var(--c-primary-hover); }
-
-.profile-summary { margin: 26px 0 36px; }
-.stats-row {
-  display: flex;
-  align-items: center;
-}
-
-.stat-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 18px 0;
-}
-
-.stat-item.link {
-  cursor: pointer;
-  transition: color 0.15s;
-}
-
-.stat-item.link:hover {
-  background: transparent;
-}
-
-.stat-item.link:hover .stat-value {
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: var(--c-primary-light);
   color: var(--c-primary);
 }
 
-.stat-value {
-  font-size: 22px;
-  font-weight: 700;
-  color: var(--c-text);
-  transition: color 0.15s;
+.login-icon svg {
+  width: 30px;
+  height: 30px;
 }
 
-.stat-value.credit {
-  color: var(--c-warning);
-}
-
-.stat-label {
-  font-size: 12px;
-  color: var(--c-text-3);
-  margin-top: 2px;
-}
-
-.stat-divider {
-  width: 1px;
-  height: 32px;
-  background: var(--c-border);
-}
-
-/* 内容预览 */
-.preview-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 38px;
-  margin-top: 12px;
-}
-
-.preview-panel {
-  overflow: hidden;
-}
-
-.preview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0 13px;
-  border-bottom: 1px solid var(--c-border);
-}
-
-.preview-header h3 {
-  font-size: 20px;
+.login-prompt h2 {
+  font-size: 18px;
   font-weight: 600;
   color: var(--c-text);
 }
 
-.more-link {
-  font-size: 13px;
-  color: var(--c-primary);
-  cursor: pointer;
+.login-prompt p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: var(--c-text-2);
 }
 
-.more-link:hover {
+.prompt-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.prompt-buttons .btn {
+  min-width: 120px;
+}
+
+/* 蓝色账户头图 */
+.account-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 32px;
+  align-items: center;
+  padding: 28px 32px;
+  border-radius: 12px;
+  background: var(--c-primary-dark);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: account-rise 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+
+.hero-identity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+}
+
+.hero-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 600;
+  overflow: hidden;
+}
+
+.hero-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-copy {
+  min-width: 0;
+}
+
+.hero-kicker {
+  font-size: 13px;
+  color: #bfdbfe;
+}
+
+.hero-copy h1 {
+  margin: 6px 0 4px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: #fff;
+}
+
+.hero-meta {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #dbe7ff;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.credit-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #dbe7ff;
+  font-size: 12px;
+}
+
+.hero-edit {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 6px;
+  background: transparent;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.hero-edit:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* 右侧白色速览卡 */
+.hero-stats {
+  padding: 16px 18px;
+  border-radius: 8px;
+  background: var(--c-card);
+  color: var(--c-text);
+  box-shadow: 0 18px 40px rgba(2, 12, 40, 0.25);
+}
+
+.hero-stats-title {
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: var(--c-text-2);
+}
+
+.hero-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.stat-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--c-text);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+.stat-cell:hover {
+  background: var(--c-hover);
+}
+
+.stat-cell:active {
+  background: var(--c-primary-light);
+}
+
+.stat-cell strong {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.18s ease;
+}
+
+.stat-cell:hover strong {
+  color: var(--c-primary);
+}
+
+.stat-cell span {
+  font-size: 12px;
+  color: var(--c-text-2);
+}
+
+/* 预览卡片 */
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+  animation: account-rise 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 0.12s both;
+}
+
+.preview-panel {
+  padding: 16px 18px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.panel-head h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.panel-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  color: var(--c-primary);
+  transition: color 0.15s;
+}
+
+.panel-more .arrow {
+  display: inline-block;
+  transition: transform 0.18s ease;
+}
+
+.panel-more:hover {
   color: var(--c-primary-hover);
+}
+
+.panel-more:hover .arrow {
+  transform: translateX(2px);
 }
 
 .preview-list {
   display: flex;
-  gap: 16px;
-  overflow-x: auto;
-  padding: 0 0 8px;
+  flex-direction: column;
 }
 
 .preview-item {
-  display: block;
-  flex: 0 0 136px;
-  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background-color 0.18s ease;
 }
 
 .preview-item:hover {
-  background: transparent;
+  background: var(--c-hover);
 }
 
 .preview-thumb {
-  width: 136px;
-  height: 108px;
-  border-radius: 0;
+  flex-shrink: 0;
+  width: 64px;
+  height: 48px;
+  border-radius: 4px;
   overflow: hidden;
   background: var(--c-disabled-bg);
-  flex-shrink: 0;
 }
 
 .preview-thumb img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.35s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.preview-item:hover .preview-thumb img {
+  transform: scale(1.06);
 }
 
 .preview-info {
-  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 1px;
-  padding-top: 8px;
+  gap: 2px;
+  min-width: 0;
 }
 
 .preview-title {
-  font-size: 13px;
+  font-size: 14px;
   color: var(--c-text);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .preview-price {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--c-primary);
+  color: var(--c-danger);
+  font-variant-numeric: tabular-nums;
 }
 
 .preview-empty {
@@ -502,15 +719,94 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 34px 16px;
+  padding: 36px 12px;
   font-size: 13px;
-  color: var(--c-text-3);
+  color: var(--c-text-2);
 }
 
-/* 窄屏降级 */
-@media (max-width: 1100px) {
+/* 深蓝头图内白色焦点环，白卡里用主色 */
+.account-hero :focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+.preview-panel :focus-visible,
+.login-prompt :focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+  .account-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+    padding: 24px;
+  }
+
   .preview-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 620px) {
+  .account-hero {
+    padding: 20px;
+    border-radius: 10px;
+  }
+
+  .hero-identity {
+    gap: 14px;
+  }
+
+  .hero-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 20px;
+  }
+
+  .hero-copy h1 {
+    font-size: 22px;
+  }
+
+  .hero-meta {
+    font-size: 13px;
+  }
+
+  .hero-stats {
+    padding: 14px;
+  }
+
+  .stat-cell strong {
+    font-size: 22px;
+  }
+
+  .login-prompt {
+    padding: 40px 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .account-hero,
+  .preview-grid,
+  .login-prompt {
+    animation: none;
+  }
+
+  .stat-cell,
+  .stat-cell strong,
+  .preview-item,
+  .preview-thumb img,
+  .panel-more,
+  .panel-more .arrow,
+  .hero-edit {
+    transition: none;
+  }
+
+  .preview-item:hover .preview-thumb img {
+    transform: none;
+  }
+
+  .panel-more:hover .arrow {
+    transform: none;
   }
 }
 </style>

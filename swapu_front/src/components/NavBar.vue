@@ -34,33 +34,25 @@
         >
           {{ layoutLabel }}
         </button>
-        <!-- 主题切换:浅色 / 深色,按钮与导航栏同色,只保留边框 -->
-        <button
-          class="btn theme-toggle"
-          :title="isDark ? '切换到浅色模式' : '切换到深色模式'"
-          @click="toggleTheme"
-        >
-          <span class="theme-text">{{ isDark ? '深色模式' : '浅色模式' }}</span>
-        </button>
         <template v-if="loggedIn">
           <div class="user-menu" ref="menuRef" @click="menuOpen = !menuOpen">
             <div class="user-avatar">
               <img v-if="user.avatar" :src="user.avatar" alt="头像" />
-              <span v-else>👤</span>
+              <span v-else>{{ (user.nickname || user.username || '我').slice(0, 1) }}</span>
             </div>
             <span class="user-name">{{ user.nickname || user.username || '用户' }}</span>
             <span class="caret" :class="{ up: menuOpen }">▾</span>
-            <div v-if="menuOpen" class="dropdown">
-              <router-link v-for="item in menuItems" :key="item.to" :to="item.to" class="dropdown-item" @click="menuOpen = false">
-                <span class="dropdown-icon">{{ item.icon }}</span>
-                {{ item.label }}
-              </router-link>
-              <div class="dropdown-divider"></div>
-              <div class="dropdown-item" @click="handleLogout">
-                <span class="dropdown-icon">🚪</span>
-                退出登录
+            <transition name="dropdown">
+              <div v-if="menuOpen" class="dropdown">
+                <router-link v-for="item in menuItems" :key="item.to" :to="item.to" class="dropdown-item" @click="menuOpen = false">
+                  {{ item.label }}
+                </router-link>
+                <div class="dropdown-divider"></div>
+                <div class="dropdown-item" @click="handleLogout">
+                  退出登录
+                </div>
               </div>
-            </div>
+            </transition>
           </div>
         </template>
         <template v-else>
@@ -88,17 +80,6 @@ const loggedIn = ref(false)
 const user = ref({})
 const menuOpen = ref(false)
 const menuRef = ref(null)
-
-// 主题:浅色 / 深色,偏好持久化到 localStorage('theme')
-const isDark = ref(localStorage.getItem('theme') === 'dark')
-
-const applyTheme = (dark) => {
-  isDark.value = dark
-  document.documentElement.dataset.theme = dark ? 'dark' : 'light'
-  localStorage.setItem('theme', dark ? 'dark' : 'light')
-}
-
-const toggleTheme = () => applyTheme(!isDark.value)
 
 // 显示模式:自动 / 电脑版 / 手机版,偏好持久化到 localStorage('layout')
 const layoutPref = ref(getLayoutPreference())
@@ -164,8 +145,6 @@ const handleClickOutside = (event) => {
 }
 
 onMounted(() => {
-  // 刷新后恢复已保存的主题
-  applyTheme(isDark.value)
   loadUser()
   document.addEventListener('click', handleClickOutside)
   window.addEventListener('layout-change', syncLayout)
@@ -183,9 +162,15 @@ onUnmounted(() => {
   top: 0;
   z-index: 900;
   height: var(--nav-height);
-  background: rgba(255, 255, 255, .96);
-  border-bottom: 1px solid #e8eef8;
-  box-shadow: 0 2px 12px rgba(31, 69, 125, 0.06);
+  background: var(--c-primary-dark);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(15, 36, 76, 0.18);
+}
+
+/* 深蓝底上统一白色焦点环 */
+.navbar :focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 .navbar-inner {
@@ -210,7 +195,7 @@ onUnmounted(() => {
 .brand-name {
   font-size: 19px;
   font-weight: 700;
-  color: #10244c;
+  color: #fff;
   letter-spacing: 1px;
 }
 
@@ -218,7 +203,7 @@ onUnmounted(() => {
   font-style: normal;
   font-size: 12px;
   font-weight: 600;
-  color: var(--c-primary);
+  color: #bfdbfe;
   margin-left: 6px;
   letter-spacing: 0.5px;
 }
@@ -234,20 +219,20 @@ onUnmounted(() => {
 .nav-link {
   padding: 8px 16px;
   font-size: 15px;
-  color: #60708d;
-  border-radius: var(--radius);
-  transition: all 0.2s;
+  color: rgba(255, 255, 255, 0.78);
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
 }
 
 .nav-link:hover {
-  color: var(--c-primary);
-  background: var(--c-primary-light);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .nav-link.active {
-  color: var(--c-primary);
+  color: var(--c-primary-dark);
   font-weight: 600;
-  background: var(--c-primary-light);
+  background: #fff;
 }
 
 /* 搜索 */
@@ -257,16 +242,16 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   height: 38px;
-  border: 1px solid #dce5f2;
-  border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #fff;
   overflow: hidden;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .nav-search:focus-within {
-  border-color: var(--c-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.28);
 }
 
 .nav-search input {
@@ -279,6 +264,10 @@ onUnmounted(() => {
   padding: 0 14px;
   font-size: 14px;
   color: var(--c-text);
+}
+
+.nav-search input::placeholder {
+  color: var(--c-text-2);
 }
 
 .nav-search .search-btn {
@@ -296,17 +285,6 @@ onUnmounted(() => {
   background: var(--c-primary-light);
 }
 
-/* 深色主题下搜索框随主题变深,保证输入文字可读 */
-[data-theme='dark'] .nav-search {
-  background: var(--c-input-bg);
-  border-color: var(--c-border-strong);
-}
-
-[data-theme='dark'] .nav-search:focus-within {
-  border-color: var(--c-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.35);
-}
-
 /* 用户区 */
 .nav-user {
   display: flex;
@@ -316,25 +294,23 @@ onUnmounted(() => {
   flex-shrink: 0;
 }
 
-/* 显示模式 / 主题切换按钮:与导航栏同色——背景透明,直接露出导航栏渐变,只保留一圈边框
-   描边、文字、悬停配色对齐导航栏既有风格(.nav-link / .user-menu / .nav-search) */
-.navbar .theme-toggle,
+/* 显示模式切换按钮：深蓝底上的透明描边按钮 */
 .navbar .layout-toggle {
   height: 34px;
   padding: 0 14px;
   font-size: 13px;
   flex-shrink: 0;
-  background: #fff;
-  border-color: #dce5f2;
-  color: #60708d;
+  border-radius: 6px;
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.35);
+  color: #fff;
 }
 
 /* 覆盖全局 .btn:hover 的浅色底,避免悬停时变回白底卡片 */
-.navbar .theme-toggle:hover,
 .navbar .layout-toggle:hover {
-  background: var(--c-primary-light);
-  border-color: var(--c-primary);
-  color: var(--c-primary);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #fff;
 }
 
 /* 手机版:顶栏分两行——第一行品牌 + 搜索框,第二行显示模式/主题/登录注册,
@@ -371,7 +347,7 @@ html[data-layout='mobile'] .nav-search {
   max-width: none;
 }
 
-/* 显示模式/主题/登录注册整体换到第二行并靠右,与电脑版的位置习惯一致 */
+/* 显示模式/登录注册整体换到第二行并靠右,与电脑版的位置习惯一致 */
 html[data-layout='mobile'] .nav-user {
   order: 3;
   justify-content: flex-end;
@@ -384,25 +360,26 @@ html[data-layout='mobile'] .nav-search input {
 
 .login-link {
   font-size: 14px;
-  color: #60708d;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .login-link:hover {
-  color: var(--c-primary);
+  color: #fff;
   text-decoration: underline;
 }
 
 .btn-register {
-  background: var(--c-primary);
-  border-color: var(--c-primary);
-  color: #fff;
+  border-radius: 6px;
+  background: #fff;
+  border-color: #fff;
+  color: var(--c-primary-dark);
   font-weight: 600;
 }
 
 .btn-register:hover {
-  background: var(--c-primary-hover);
-  border-color: var(--c-primary-hover);
-  color: #fff;
+  background: var(--c-primary-light);
+  border-color: var(--c-primary-light);
+  color: var(--c-primary-dark);
 }
 
 .user-menu {
@@ -411,21 +388,21 @@ html[data-layout='mobile'] .nav-search input {
   align-items: center;
   gap: 8px;
   padding: 6px 10px;
-  border-radius: var(--radius);
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
   user-select: none;
 }
 
 .user-menu:hover {
-  background: var(--c-primary-light);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .user-avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.18);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -441,7 +418,7 @@ html[data-layout='mobile'] .nav-search input {
 
 .user-name {
   font-size: 14px;
-  color: #304467;
+  color: #fff;
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -450,7 +427,7 @@ html[data-layout='mobile'] .nav-search input {
 
 .caret {
   font-size: 12px;
-  color: #71809a;
+  color: rgba(255, 255, 255, 0.7);
   transition: transform 0.2s;
 }
 
@@ -469,6 +446,18 @@ html[data-layout='mobile'] .nav-search input {
   box-shadow: var(--shadow-md);
   padding: 6px;
   z-index: 1000;
+}
+
+/* 用户菜单展开/收起：160ms 位移淡入 */
+.dropdown-enter-active,
+.dropdown-leave-active {
+  transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
 }
 
 .dropdown-item {
@@ -504,11 +493,6 @@ html[data-layout='mobile'] .nav-search input {
     display: none;
   }
 
-  /* 按钮只有文字,窄屏不再隐藏(隐藏会变成空边框),只压缩内边距 */
-  .navbar .theme-toggle {
-    padding: 0 10px;
-  }
-
   .nav-link {
     padding: 8px 10px;
     font-size: 14px;
@@ -517,6 +501,13 @@ html[data-layout='mobile'] .nav-search input {
   .user-name,
   .caret {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dropdown-enter-active,
+  .dropdown-leave-active {
+    transition-duration: 0.01ms;
   }
 }
 </style>

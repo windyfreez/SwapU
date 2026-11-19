@@ -149,12 +149,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.page-title {
-  font-size: 22px;
-  font-weight: 600;
-  margin-bottom: 20px;
-}
-
 .footprint-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));

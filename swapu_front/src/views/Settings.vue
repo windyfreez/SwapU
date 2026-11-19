@@ -1,18 +1,16 @@
 <template>
   <AccountLayout active="settings">
+    <h1 class="page-title">设置</h1>
     <div class="menu-section card">
       <div class="menu-item" @click="goToEditProfile">
-        <span class="menu-icon">✏️</span>
         <span class="menu-text">修改资料</span>
         <span class="menu-arrow">›</span>
       </div>
       <div class="menu-item">
-        <span class="menu-icon">❓</span>
         <span class="menu-text">帮助中心</span>
         <span class="menu-arrow">›</span>
       </div>
       <div class="menu-item">
-        <span class="menu-icon">👤</span>
         <span class="menu-text">关于我们</span>
         <span class="menu-arrow">›</span>
       </div>

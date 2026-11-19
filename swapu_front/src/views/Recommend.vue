@@ -1,6 +1,7 @@
 <template>
   <div class="recommend-page">
     <div class="container">
+      <h1 class="page-title">为你推荐</h1>
       <div v-if="loading && goods.length === 0" class="loading-state">
         <p>推荐加载中...</p>
       </div>

@@ -58,7 +58,7 @@
             <div class="section-title">买家信息</div>
             <div class="user-row">
               <img v-if="buyerInfo?.avatar" :src="buyerInfo.avatar" class="info-avatar" />
-              <span v-else class="info-avatar info-avatar-fallback">👤</span>
+              <span v-else class="info-avatar info-avatar-fallback">{{ (buyerInfo?.nickname || buyerInfo?.username || order.buyerName || '买').slice(0, 1) }}</span>
               <span class="info-value">{{ buyerInfo?.nickname || buyerInfo?.username || order.buyerName }}</span>
             </div>
           </div>
@@ -66,7 +66,7 @@
             <div class="section-title">卖家信息</div>
             <div class="user-row">
               <img v-if="sellerInfo?.avatar" :src="sellerInfo.avatar" class="info-avatar" />
-              <span v-else class="info-avatar info-avatar-fallback">👤</span>
+              <span v-else class="info-avatar info-avatar-fallback">{{ (sellerInfo?.nickname || sellerInfo?.username || order.sellerName || '卖').slice(0, 1) }}</span>
               <span class="info-value">{{ sellerInfo?.nickname || sellerInfo?.username || order.sellerName }}</span>
             </div>
           </div>
@@ -872,8 +872,9 @@ onMounted(() => {
 /* 状态条 */
 .status-card {
   padding: 24px 28px;
-  background: linear-gradient(120deg, var(--c-primary-light) 0%, var(--c-primary-dark) 100%);
-  border: 1px solid var(--c-primary);
+  background: var(--c-primary-dark);
+  border: none;
+  color: #fff;
 }
 
 .status-badge {
@@ -938,13 +939,13 @@ onMounted(() => {
 
 .order-no {
   font-size: 14px;
-  color: var(--c-text-2);
+  color: #dbe7ff;
   margin-bottom: 4px;
 }
 
 .create-time {
   font-size: 13px;
-  color: var(--c-text-3);
+  color: #bfdbfe;
 }
 
 /* 通用卡片 */

@@ -1,125 +1,121 @@
 <template>
-  <div class="auth-page">
-    <div class="auth-card">
-      <div class="auth-brand">
-        <div class="auth-logo">🔄</div>
-        <h1>注册账号</h1>
-        <p>加入 SwapU 云市集,开启云端集市之旅</p>
-      </div>
+  <AuthShell wide>
+    <h2 class="auth-title">注册账号</h2>
+    <p class="auth-subtitle">加入 SwapU，开启校园好物循环。</p>
 
-      <form @submit.prevent="handleRegister" class="auth-form">
-        <div class="form-grid">
-          <div class="form-group">
-            <label class="form-label">学号 <span class="required">*</span></label>
-            <input
-              type="text"
-              v-model="form.studentId"
-              placeholder="请输入学号"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">用户名 <span class="required">*</span></label>
-            <input
-              type="text"
-              v-model="form.username"
-              placeholder="2-20个字符"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">昵称</label>
-            <input
-              type="text"
-              v-model="form.nickname"
-              placeholder="请输入昵称"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">手机号 <span class="required">*</span></label>
-            <input
-              type="tel"
-              v-model="form.phone"
-              placeholder="请输入手机号"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">密码 <span class="required">*</span></label>
-            <input
-              type="password"
-              v-model="form.password"
-              placeholder="6-20位"
-              class="form-input"
-            />
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">确认密码 <span class="required">*</span></label>
-            <input
-              type="password"
-              v-model="form.confirmPassword"
-              placeholder="再次输入密码"
-              class="form-input"
-            />
-          </div>
-        </div>
-
+    <form @submit.prevent="handleRegister" class="auth-form">
+      <div class="form-grid">
         <div class="form-group">
-          <label class="form-label">邮箱 <span class="required">*</span></label>
+          <label class="form-label">学号 <span class="required">*</span></label>
           <input
-            type="email"
-            v-model="form.email"
+            type="text"
+            v-model="form.studentId"
+            placeholder="请输入学号"
             class="form-input"
           />
         </div>
 
         <div class="form-group">
-          <label class="form-label">学院 <span class="required">*</span></label>
-          <select v-model="form.college" class="form-select">
-            <option value="">请选择学院</option>
-            <option value="计算机学院">计算机学院</option>
-            <option value="软件学院">软件学院</option>
-            <option value="电子信息学院">电子信息学院</option>
-            <option value="经济管理学院">经济管理学院</option>
-            <option value="外国语学院">外国语学院</option>
-            <option value="文学院">文学院</option>
-            <option value="理学院">理学院</option>
-            <option value="工学院">工学院</option>
-            <option value="艺术学院">艺术学院</option>
-            <option value="其他">其他</option>
-          </select>
+          <label class="form-label">用户名 <span class="required">*</span></label>
+          <input
+            type="text"
+            v-model="form.username"
+            placeholder="2-20个字符"
+            class="form-input"
+          />
         </div>
 
-        <label class="agree-checkbox">
-          <input type="checkbox" v-model="agree" />
-          <span>我已阅读并同意</span>
-          <span class="text-link">《用户协议》</span>
-          <span>和</span>
-          <span class="text-link">《隐私政策》</span>
-        </label>
+        <div class="form-group">
+          <label class="form-label">昵称</label>
+          <input
+            type="text"
+            v-model="form.nickname"
+            placeholder="请输入昵称"
+            class="form-input"
+          />
+        </div>
 
-        <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isLoading">
-          {{ isLoading ? '注册中...' : '注 册' }}
-        </button>
-      </form>
+        <div class="form-group">
+          <label class="form-label">手机号 <span class="required">*</span></label>
+          <input
+            type="tel"
+            v-model="form.phone"
+            placeholder="请输入手机号"
+            class="form-input"
+          />
+        </div>
 
-      <div class="auth-footer">
-        <span>已有账号？</span>
-        <span class="text-link" @click="goToLogin">去登录</span>
+        <div class="form-group">
+          <label class="form-label">密码 <span class="required">*</span></label>
+          <input
+            type="password"
+            v-model="form.password"
+            placeholder="6-20位"
+            class="form-input"
+          />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">确认密码 <span class="required">*</span></label>
+          <input
+            type="password"
+            v-model="form.confirmPassword"
+            placeholder="再次输入密码"
+            class="form-input"
+          />
+        </div>
       </div>
+
+      <div class="form-group">
+        <label class="form-label">邮箱 <span class="required">*</span></label>
+        <input
+          type="email"
+          v-model="form.email"
+          class="form-input"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">学院 <span class="required">*</span></label>
+        <select v-model="form.college" class="form-select">
+          <option value="">请选择学院</option>
+          <option value="计算机学院">计算机学院</option>
+          <option value="软件学院">软件学院</option>
+          <option value="电子信息学院">电子信息学院</option>
+          <option value="经济管理学院">经济管理学院</option>
+          <option value="外国语学院">外国语学院</option>
+          <option value="文学院">文学院</option>
+          <option value="理学院">理学院</option>
+          <option value="工学院">工学院</option>
+          <option value="艺术学院">艺术学院</option>
+          <option value="其他">其他</option>
+        </select>
+      </div>
+
+      <label class="agree-checkbox">
+        <input type="checkbox" v-model="agree" />
+        <span>我已阅读并同意</span>
+        <span class="text-link">《用户协议》</span>
+        <span>和</span>
+        <span class="text-link">《隐私政策》</span>
+      </label>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isLoading">
+        {{ isLoading ? '注册中...' : '注 册' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span>已有账号？</span>
+      <span class="text-link" @click="goToLogin">去登录</span>
     </div>
-  </div>
+  </AuthShell>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import AuthShell from '../components/AuthShell.vue'
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -222,44 +218,17 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, var(--c-hover) 0%, var(--c-primary-light) 100%);
-  padding: 24px 20px;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 560px;
-  background: var(--c-card);
-  border-radius: 16px;
-  padding: 40px 44px 32px;
-  box-shadow: 0 8px 40px rgba(16, 24, 40, 0.1);
-}
-
-.auth-brand {
-  text-align: center;
-  margin-bottom: 28px;
-}
-
-.auth-logo {
-  font-size: 44px;
-  margin-bottom: 10px;
-}
-
-.auth-brand h1 {
-  font-size: 22px;
+.auth-title {
+  font-size: 24px;
   font-weight: 700;
+  line-height: 1.3;
   color: var(--c-text);
-  margin-bottom: 6px;
 }
 
-.auth-brand p {
-  font-size: 13px;
-  color: var(--c-text-3);
+.auth-subtitle {
+  margin: 6px 0 24px;
+  font-size: 14px;
+  color: var(--c-text-2);
 }
 
 .form-grid {
@@ -277,9 +246,9 @@ const goToLogin = () => {
   align-items: center;
   flex-wrap: wrap;
   gap: 4px;
+  margin-bottom: 20px;
   font-size: 13px;
   color: var(--c-text-2);
-  margin-bottom: 20px;
   cursor: pointer;
 }
 
@@ -297,10 +266,6 @@ const goToLogin = () => {
 @media (max-width: 560px) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-
-  .auth-card {
-    padding: 28px 22px 24px;
   }
 }
 </style>

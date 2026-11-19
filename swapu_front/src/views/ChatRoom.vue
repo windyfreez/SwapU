@@ -8,7 +8,7 @@
           <div class="user-info" @click="showOtherUserInfo">
             <div class="avatar">
               <img v-if="targetUser.avatar" :src="targetUser.avatar" alt="头像" />
-              <span v-else>👤</span>
+              <span v-else>{{ (targetUser.nickname || '用').slice(0, 1) }}</span>
             </div>
             <div class="user-detail">
               <span class="nickname">{{ targetUser.nickname }}</span>
@@ -27,7 +27,7 @@
           >
             <div class="avatar-small" @click="isMyMessage(msg) ? showMyInfo() : showOtherUserInfo()">
               <img v-if="getAvatar(msg)" :src="getAvatar(msg)" alt="头像" />
-              <span v-else>👤</span>
+              <span v-else>{{ (msg.fromUserNickname || '用').slice(0, 1) }}</span>
             </div>
             <div class="message-content">
               <span v-if="!isMyMessage(msg)" class="sender-name">{{ msg.fromUserNickname }}</span>
@@ -63,7 +63,7 @@
         <div class="modal-content">
           <div class="user-avatar-large">
             <img v-if="otherUserInfo.avatar" :src="otherUserInfo.avatar" alt="头像" />
-            <span v-else>👤</span>
+            <span v-else>{{ (otherUserInfo.nickname || '用').slice(0, 1) }}</span>
           </div>
           <div class="user-detail">
             <h2>{{ otherUserInfo.nickname }}</h2>

@@ -2,7 +2,11 @@
   <div class="app-shell" :class="{ 'app-shell-mobile': showTabBar }">
     <NavBar v-if="showChrome" />
     <main class="app-main">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="page" mode="out-in" appear>
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </main>
     <footer v-if="showChrome" class="app-footer">
       <div class="container footer-inner">
@@ -57,6 +61,24 @@ onUnmounted(() => window.removeEventListener('layout-change', syncLayout))
 
 .app-main {
   flex: 1;
+}
+
+/* 路由切换：整页淡入上移，只做一次 */
+.page-enter-active {
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+
+.page-leave-active {
+  transition: opacity 0.14s ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-leave-to {
+  opacity: 0;
 }
 
 .app-footer {

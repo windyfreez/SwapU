@@ -1,12 +1,13 @@
 <template>
   <AccountLayout active="profile">
+    <h1 class="page-title">编辑资料</h1>
     <form class="edit-form card" @submit.prevent="handleSave">
       <div class="form-group">
         <label class="form-label">头像</label>
         <div class="avatar-upload">
           <div class="avatar-preview" @click="triggerUpload">
             <img v-if="form.avatar" :src="form.avatar" alt="头像" />
-            <span v-else>👤</span>
+            <span v-else>{{ (form.nickname || '我').slice(0, 1) }}</span>
           </div>
           <div class="upload-info">
             <button type="button" class="btn btn-outline btn-sm upload-btn" @click="triggerUpload">

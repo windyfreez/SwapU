@@ -327,11 +327,43 @@ onMounted(() => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
+  padding: 18px 24px;
+  border-radius: 12px;
+  background: var(--c-primary-dark);
 }
 
 .address-header .page-title {
-  margin-bottom: 0;
+  margin: 0;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 20px;
+}
+
+.address-header .btn {
+  background: #fff;
+  border-color: #fff;
+  color: var(--c-primary-dark);
+}
+
+.address-header .btn:hover {
+  background: var(--c-primary-light);
+  border-color: var(--c-primary-light);
+  color: var(--c-primary-dark);
+}
+
+@media (max-width: 768px) {
+  .address-header {
+    padding: 16px 18px;
+    border-radius: 10px;
+  }
+
+  .address-header .page-title {
+    font-size: 18px;
+  }
 }
 
 .address-grid {

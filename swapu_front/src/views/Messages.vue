@@ -12,7 +12,7 @@
         >
           <div class="avatar">
             <img v-if="session.avatar" :src="session.avatar" alt="头像" />
-            <span v-else>👤</span>
+            <span v-else>{{ (session.nickname || session.username || '用').slice(0, 1) }}</span>
           </div>
           <div class="session-content">
             <div class="session-header">

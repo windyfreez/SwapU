@@ -10,7 +10,7 @@
       >
         <div class="toast-avatar">
           <img v-if="toast.avatar" :src="toast.avatar" alt="头像" />
-          <span v-else>👤</span>
+          <span v-else>{{ (toast.nickname || '友').slice(0, 1) }}</span>
         </div>
         <div class="toast-body">
           <div class="toast-head">

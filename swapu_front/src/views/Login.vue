@@ -1,57 +1,53 @@
 <template>
-  <div class="auth-page">
-    <div class="auth-card">
-      <div class="auth-brand">
-        <div class="auth-logo">🔄</div>
-        <h1>SwapU 云市集</h1>
-        <p>云端集市 · 让好物触手可及</p>
+  <AuthShell>
+    <h2 class="auth-title">登录</h2>
+    <p class="auth-subtitle">欢迎回来，继续逛市集。</p>
+
+    <form @submit.prevent="handleLogin" class="auth-form">
+      <div class="form-group">
+        <label class="form-label">用户名</label>
+        <input
+          type="text"
+          v-model="form.username"
+          placeholder="请输入用户名"
+          class="form-input"
+        />
       </div>
 
-      <form @submit.prevent="handleLogin" class="auth-form">
-        <div class="form-group">
-          <label class="form-label">用户名</label>
-          <input
-            type="text"
-            v-model="form.username"
-            placeholder="请输入用户名"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">密码</label>
-          <input
-            type="password"
-            v-model="form.password"
-            placeholder="请输入密码"
-            class="form-input"
-          />
-        </div>
-
-        <div class="form-options">
-          <label class="checkbox">
-            <input type="checkbox" v-model="rememberMe" />
-            <span>记住我</span>
-          </label>
-          <span class="forgot-pwd text-link">忘记密码？</span>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isLoading">
-          {{ isLoading ? '登录中...' : '登 录' }}
-        </button>
-      </form>
-
-      <div class="auth-footer">
-        <span>还没有账号？</span>
-        <span class="text-link" @click="goToRegister">立即注册</span>
+      <div class="form-group">
+        <label class="form-label">密码</label>
+        <input
+          type="password"
+          v-model="form.password"
+          placeholder="请输入密码"
+          class="form-input"
+        />
       </div>
+
+      <div class="form-options">
+        <label class="checkbox">
+          <input type="checkbox" v-model="rememberMe" />
+          <span>记住我</span>
+        </label>
+        <span class="forgot-pwd text-link">忘记密码？</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg btn-block" :disabled="isLoading">
+        {{ isLoading ? '登录中...' : '登 录' }}
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      <span>还没有账号？</span>
+      <span class="text-link" @click="goToRegister">立即注册</span>
     </div>
-  </div>
+  </AuthShell>
 </template>
 
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import AuthShell from '../components/AuthShell.vue'
 
 const router = useRouter()
 const isLoading = ref(false)
@@ -123,45 +119,17 @@ const goToRegister = () => {
 </script>
 
 <style scoped>
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(160deg, var(--c-hover) 0%, var(--c-primary-light) 100%);
-  padding: 20px;
-}
-
-.auth-card {
-  width: 100%;
-  max-width: 420px;
-  background: var(--c-card);
-  border-radius: 16px;
-  padding: 44px 40px 36px;
-  box-shadow: 0 8px 40px rgba(16, 24, 40, 0.1);
-}
-
-.auth-brand {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.auth-logo {
-  font-size: 52px;
-  margin-bottom: 12px;
-}
-
-.auth-brand h1 {
+.auth-title {
   font-size: 24px;
   font-weight: 700;
+  line-height: 1.3;
   color: var(--c-text);
-  letter-spacing: 1px;
-  margin-bottom: 6px;
 }
 
-.auth-brand p {
-  font-size: 13px;
-  color: var(--c-text-3);
+.auth-subtitle {
+  margin: 6px 0 24px;
+  font-size: 14px;
+  color: var(--c-text-2);
 }
 
 .form-options {
