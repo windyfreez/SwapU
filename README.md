@@ -1,16 +1,17 @@
 <div align="center">
 
   <img width="366" height="366" alt="logo" src="https://github.com/user-attachments/assets/0649d632-c079-4d02-932f-1431019b4145" />
-
   
   <h1>SwapU 云市集</h1>
-  <p><b>一个采用前后端分离架构设计的云端市集平台</b></p>
+  <p><b>面向校园场景的 C2C 二手交易平台 · 前后端分离 + 双端（用户端 / 管理端）</b></p>
 
-  <img src="https://img.shields.io/badge/Java-Spring%20Boot-brightgreen.svg?style=flat-square&logo=springboot">
-  <img src="https://img.shields.io/badge/MyBatis-Framework-orange.svg?style=flat-square&logo=mybatis">
-  <img src="https://img.shields.io/badge/MySQL-Database-blue.svg?style=flat-square&logo=mysql">
+  <img src="https://img.shields.io/badge/Java-17-brightgreen.svg?style=flat-square&logo=openjdk">
+  <img src="https://img.shields.io/badge/Spring%20Boot-2.7.15-brightgreen.svg?style=flat-square&logo=springboot">
+  <img src="https://img.shields.io/badge/MyBatis-Framework-orange.svg?style=flat-square">
+  <img src="https://img.shields.io/badge/MySQL-8.0-blue.svg?style=flat-square&logo=mysql">
   <img src="https://img.shields.io/badge/Redis-Cache-red.svg?style=flat-square&logo=redis">
-  <img src="https://img.shields.io/badge/Vue.js-Frontend-green.svg?style=flat-square&logo=vuedotjs">
+  <img src="https://img.shields.io/badge/RabbitMQ-Async-orange.svg?style=flat-square&logo=rabbitmq">
+  <img src="https://img.shields.io/badge/Vue.js-3.2-green.svg?style=flat-square&logo=vuedotjs">
   
   <div style="margin-top: 10px;">
     <img src="https://img.shields.io/github/stars/windyfreez/SwapU?style=social">
@@ -23,388 +24,338 @@
 
 ## 项目简介
 
-SwapU 是一个面向校园场景的 C2C 二手交易平台，基于 Spring Boot 构建，集成 Spring AI 智能推荐、Redis 缓存与 Lua 脚本、RabbitMQ 异步消息处理及 WebSocket 实时通信等技术，提供商品发布、浏览、点赞、订单交易、买卖双方实时聊天与个性化商品推荐等功能。项目围绕交易场景中的信息匹配效率、热点数据访问与异步业务处理进行设计，通过用户行为分析与大语言模型语义重排序提升商品推荐的相关性，并结合缓存优化、行为数据异步批量落库及高并发库存控制等方案，探索 AI 能力与传统 Java 后端业务系统的深度融合。
+SwapU 是一个面向校园场景的 C2C 二手交易平台，采用**前后端分离 + 双端应用**架构：用户端负责商品浏览、交易与沟通，管理端负责内容审核、运营与平台治理。
+
+项目以「工程化」而非「功能堆砌」为目标，围绕四条技术主线展开：
+
+| 主线 | 解决的问题 | 关键实现 |
+| :--- | :--- | :--- |
+| **交易一致性** | 高并发下单场景下的超卖与订单状态错乱 | Redis + Lua 原子预扣库存、RabbitMQ 异步落库、DB 条件更新保证状态流转幂等、定时对账兜底 |
+| **热点读性能** | 商品详情与热门列表的重复查询压力 | 热点商品缓存 + 详情缓存 + 浏览量异步批量回写，缓存失效后回源数据库 |
+| **异步与削峰** | 行为埋点、库存变更等非主链路写操作拖慢响应 | Redis 缓冲 + 定时批量落库 + 消息队列消费 |
+| **智能化能力** | 商品与用户兴趣的匹配效率 | 用户行为画像（时间衰减加权）、多路召回 + 固定权重融合、LLM 语义重排序与 AI 客服（失败自动降级） |
+
+**工程规模（截至当前版本）**
+
+| 指标 | 数值 |
+| :--- | :--- |
+| 后端模块 | 2 个可执行应用（用户端 / 管理端）+ 2 个公共模块 |
+| REST 接口 | **87 个**（用户端 57 / 管理端 30） |
+| Java 代码 | **247 个类 / 约 1.43 万行** |
+| 数据库表 | **13 张** |
+| 前端工程 | 2 个独立 Vue 3 项目，共 32 个页面 |
+| 单元测试 | **74 个**（用户端 24 / 管理端 50），覆盖权限、订单越权、支付、统计等领域 |
+
+设计上强调**边界与可维护性**：严格 `Controller → Service → Mapper` 分层、统一响应体 `Result{code,msg,data}`、全局异常收敛、常量三件套（文案 / 数值 / 字符串）、敏感配置外置（`application.yml` 不入库，仅提交 `.example` 模板）。
 
 ## 功能特性
-- 📱 **用户模块**：注册、登录、密码修改、个人信息管理、收藏管理
-- 🛒 **商品模块**：发布、浏览、分类查询、编辑、下架、删除、热门推荐、个性化推荐、分页查询
-- 📋 **订单模块**：创建、支付、取消、确认接单、发货、确认收货、订单详情、订单统计
-- 💬 **聊天模块**：实时消息、会话列表、历史消息、消息已读状态同步、系统助手
-- 📍 **地址模块**：收货地址管理（增删改查、默认地址设置）
-- 🛡️ **管理端模块**：管理员登录、商品/评论审核、审核流水、分类管理、用户管理、管理员管理与操作日志；三种角色（超级管理员 / 运营管理员 / 普通管理员）按权限点鉴权
+
+**用户端**
+
+- 📱 **账号体系**：注册、登录（JWT）、修改资料、修改密码、独立支付密码（BCrypt，与登录密码解耦）
+- 🛒 **商品交易**：发布、编辑、上下架、删除、分类筛选、多维排序、分页、商品详情、浏览足迹
+- 📋 **订单流转**：下单、余额支付、卖家接单、发货、确认收货、取消（含卖家审核）、退货退款（含卖家审核）、超时自动取消、订单统计
+- 💬 **即时沟通**：WebSocket 实时消息、会话列表、历史消息、已读同步、系统小助手（订单状态自动提醒）
+- 🎯 **推荐与智能**：行为埋点 → 用户画像 → 多路召回 → LLM 语义重排；AI 客服悬浮窗
+- ⭐ **社区能力**：收藏、评论（审核后可见）、他人主页
+
+**管理端**
+
+- 🛡️ **RBAC 权限体系**：超级管理员 / 运营管理员 / 普通管理员三种角色，四个权限点（审核 / 分类 / 用户 / 管理员），接口级拦截 + 越权 403
+- ✅ **内容审核**：商品审核、评论审核、审核流水追溯
+- 🗂️ **运营管理**：分类 CRUD 与启停、用户查询 / 启停 / 信用分调整 / 交易统计
+- 👥 **账号治理**：管理员增删改启停、逻辑删除、禁止自我提权、至少保留一名启用超管、操作日志审计
+- 📊 **数据看板**：核心指标总览、流量趋势折线、商品状态分布、分类成交额 Top N（ECharts 按需引入）
+
+**平台能力**
+
+- 库存预扣减 + 异步落库 + 对账补偿，热点商品缓存，浏览量批量同步
+- 统一鉴权（双端独立密钥）、统一异常与参数校验、操作日志与行为日志
+- 一套代码支撑两个独立前端与两个后端进程，公共模型与基础设施复用
 
 ## 项目结构
-- SwapU_user：用户端所有服务，包括用户管理、商品、订单、聊天、地址模块
-- swapu_admin：管理端所有服务，包括管理员管理（含角色权限与操作日志）、商品/评论审核、分类管理、用户管理（平台统计接口尚未实现）
-- swapu_front：用户端前端页面
-- swapu_admin_front：管理端前端页面（Vue 3 + Vite 独立项目，`npm run dev` 启动）
-- swapu_pojo：用于存放dto、vo、entity实体类
-- swapu_common：用于存放工具类、配置类等公共部分
-- screenshot：前端页面展示、文档图片资源
-- study：存放项目文档，包括接口文档、优化指南、数据库表设计
+
+| 模块 | 类型 | 说明 |
+| :--- | :--- | :--- |
+| `SwapU_user` | Spring Boot 应用（:8080） | 用户端服务：账号、商品、订单、聊天、推荐、AI 客服 |
+| `swapu_admin` | Spring Boot 应用（:8081） | 管理端服务：管理员与 RBAC、审核、分类、用户管理、操作日志、平台统计 |
+| `swapu_pojo` | 依赖库 | 共享模型：`entity` / `dto` / `vo` / 统一分页结果 |
+| `swapu_common` | 依赖库 | 共享基础设施：常量三件套、异常基类、JWT / OSS 工具、上下文、配置属性 |
+| `swapu_front` | Vue 3 SPA（:5173） | 用户端前端，22 个页面 |
+| `swapu_admin_front` | Vue 3 SPA（:5174） | 管理端前端，10 个页面，含 ECharts 图表 |
+| `docs` | 文档 | 接口文档、数据库设计、编码规范、优化说明、TODO、RBAC 方案、微服务方案 |
+| `screenshot` | 资源 | 页面截图 |
+
+工程约定：
+
+- 后端严格分层，`controller` 不写业务、`service` 不碰 Servlet API、`entity` 不直接对外暴露；
+- 请求 / 响应 / 持久化三件套分离（DTO / VO / Entity），跨层转换统一 `BeanUtils.copyProperties`；
+- 数据库敏感配置通过 `.example` 模板提供，真实 `application.yml` 已被 `.gitignore` 排除；
+- 每个功能变更配套单元测试，管理端权限与订单安全相关逻辑全部有回归用例。
 
 ## 项目文档
 
+| 文档 | 内容 |
+| :--- | :--- |
+| [用户端接口文档](docs/swapu_interface_doc.md) | 用户端 57 个接口的请求/响应与错误码 |
+| [管理端接口清单](docs/swapu_admin_api_inventory.md) | 管理端 30 个接口（源码核对版，含鉴权与权限点） |
+| [管理端接口设计稿](docs/swapu_admin_interface_doc.md) | 早期设计稿，与清单冲突时以清单为准 |
+| [数据库设计](docs/swapu_database.md) | 13 张表的字段、索引、ER 关系与建表 SQL |
+| [编码规范](docs/swapu_coding_conventions.md) | 分层、命名、注解、异常、常量、日志等约定 |
+| [性能优化说明](docs/swapu_optimization.md) | 缓存策略、库存预扣减、推荐链路的设计取舍 |
+| [RBAC 方案与实施记录](docs/swapu_admin_rbac.md) | 角色权限模型、鉴权链路、逻辑删除、操作日志、分阶段实施 |
+| [微服务改造方案](docs/swapu-microservices-plan.md) | 服务划分、鉴权载体、一致性与分阶段路线（规划） |
 
 ## 项目地址
 
-本项目的所有代码已经托管到Github和gitee上 ，欢迎大家 Star 和 Fork 支持~
-- GitHub地址：https://github.com/windyfreez/SwapU
-- gitee地址：https://gitee.com/OriginalPlayer/SwapU
+本项目的所有代码已经托管到 GitHub 和 Gitee 上，欢迎 Star 和 Fork 支持~
+
+- GitHub：https://github.com/windyfreez/SwapU
+- Gitee：https://gitee.com/OriginalPlayer/SwapU
 
 ## 技术选型
 
 ### 后端技术
 
-| 技术名称 | 实现功能 | 官网网址 |
-| :------- | :------- | :------- |
-| Spring Boot | 后端核心业务逻辑处理框架，提供 RESTful API | https://spring.io/projects/spring-boot |
-| MyBatis | 持久化方案，负责与 MySQL 数据库的数据交互 | https://mybatis.org/ |
-| MySQL | 业务数据持久化存储（用户、商品、订单、聊天记录等） | https://www.mysql.com/ |
-| Redis | 高性能缓存中间件，缓存 Token、热门商品、库存、浏览量等 | https://redis.io/ |
-| JWT (JSON Web Token) | 用户身份认证与权限校验，配合拦截器校验用户 Token | https://jwt.io/ |
-| WebSocket | 实现买卖双方全双工实时通信，支持即时消息交互 | https://spring.io/guides/gs/messaging-stomp-websocket/ |
-| 阿里云 OSS | 对象存储服务，提供商品图片上传与访问 | https://www.aliyun.com/product/oss |
-| Spring Schedule | 定时任务调度，用于热门商品统计、浏览量同步、订单状态维护 | https://spring.io/projects/spring-framework |
-| slf4j | 日志门面接口，统一日志管理 | https://www.slf4j.org/ |
-| Lombok | 自动生成 getter/setter/toString 等样板代码，简化开发 | https://projectlombok.org/ |
+| 技术 | 版本 | 实现功能 |
+| :--- | :--- | :--- |
+| Spring Boot | 2.7.15 | 应用基础框架、自动配置、RESTful API |
+| MyBatis | 2.3.2 (starter) | 持久层，注解 + XML 动态 SQL |
+| PageHelper | 1.4.7 | 物理分页 |
+| MySQL | 8.0 | 业务数据持久化（13 张表） |
+| Redis | 6.x | 热点商品缓存、库存预扣减（Lua）、行为缓冲、AI 调用限流 |
+| RabbitMQ | 3.9+ | 库存变更异步落库、削峰填谷 |
+| WebSocket | Spring WebSocket | 买卖双方全双工实时通信 |
+| JWT (jjwt) | 0.9.1 | 双端身份认证，用户端与管理端独立密钥 |
+| Hutool | 5.7.17 | BCrypt 摘要、HTTP 客户端（DeepSeek）、集合工具 |
+| 阿里云 OSS | 3.17.4 | 商品图片对象存储 |
+| Spring Schedule | 内置 | 热门商品刷新、浏览量同步、订单超时关闭、库存对账 |
+| knife4j / springfox | 3.0.2 | 在线接口文档（`/doc.html`） |
+| Lombok | 内置 | 简化样板代码 |
+| Bean Validation | 内置 | 请求参数校验（`@Valid` + 约束注解） |
 
 ### 前端技术
 
-| 技术名称 | 实现功能 | 官网网址 |
-| :------- | :------- | :------- |
-| Vue 3 | 构建响应式用户界面，前端核心框架 | https://vuejs.org/ |
-| Element Plus | 提供 UI 组件库，快速搭建页面 | https://element-plus.org/ |
-| Nginx | 静态资源服务器与反向代理，部署前端应用 | https://nginx.org/ |
-
-
-
----
+| 技术 | 版本 | 实现功能 |
+| :--- | :--- | :--- |
+| Vue 3 | 3.2 | 组合式 API（`<script setup>`）构建响应式界面 |
+| Vue Router | 4.x | 集中式路由与权限守卫 |
+| Vite | 3.x | 开发服务器、HMR、生产构建、接口代理 |
+| ECharts | 6.1（仅管理端） | 折线图 / 饼图 / 条形图，按需引入 + 路由级懒加载 |
+| 原生 CSS | — | 手写设计系统（CSS 变量 + 组件化样式），未引入 UI 组件库 |
+| Nginx | 1.22 | 静态资源托管与反向代理 |
 
 ### 系统架构图
 
 ```mermaid
 flowchart TB
-
-%% ==========================
-%% 用户层
-%% ==========================
-
-A[用户端 Client<br/>Vue3 + Element Plus]
-
-A --> B[Nginx<br/>反向代理/静态资源]
-
-
-%% ==========================
-%% 网关层
-%% ==========================
-
-B --> C[Spring Boot Application]
-
-
-%% ==========================
-%% Controller层
-%% ==========================
-
-subgraph Controller Layer
-
-C --> C1[UserController<br/>用户模块]
-
-C --> C2[ProductController<br/>商品模块]
-
-C --> C3[OrderController<br/>订单模块]
-
-C --> C4[ChatController<br/>聊天模块]
-
-end
-
-
-%% ==========================
-%% Service层
-%% ==========================
-
-subgraph Service Layer
-
-C1 --> S1[UserService<br/>用户认证/信息管理]
-
-C2 --> S2[ProductService<br/>商品生命周期管理]
-
-C3 --> S3[OrderService<br/>订单交易流程]
-
-C4 --> S4[ChatService<br/>消息处理]
-
-end
-
-
-
-%% ==========================
-%% Redis缓存
-%% ==========================
-
-subgraph Redis Cache Layer
-
-S2 --> R1[(Redis)]
-
-R1 --> R2[热点商品缓存<br/>Hot Product Cache]
-
-R1 --> R3[商品详情缓存<br/>Product Detail Cache]
-
-R1 --> R4[库存预扣减<br/>Stock Control]
-
-end
-
-
-
-%% ==========================
-%% WebSocket
-%% ==========================
-
-subgraph RealTime Communication
-
-S4 --> W[WebSocket Server]
-
-W --> M1[在线用户Session管理]
-
-W --> M2[实时消息推送]
-
-end
-
-
-
-%% ==========================
-%% 数据层
-%% ==========================
-
-subgraph Data Persistence Layer
-
-S1 --> DB[(MySQL)]
-
-S2 --> DB
-
-S3 --> DB
-
-S4 --> DB
-
-
-DB --> T1[user用户表]
-
-DB --> T2[product商品表]
-
-DB --> T3[order订单表]
-
-DB --> T4[message消息表]
-
-end
-
-
-
-%% ==========================
-%% 高并发扩展
-%% ==========================
-
-subgraph High Concurrency Optimization
-
-S3 --> MQ[RabbitMQ<br/>异步订单处理]
-
-MQ --> Consumer[订单消费者]
-
-Consumer --> DB
-
-end
-
-
-
-%% ==========================
-%% 文件存储
-%% ==========================
-
-subgraph Storage
-
-S2 --> OSS[对象存储<br/>商品图片]
-
-end
+    subgraph client["客户端层"]
+        direction TB
+        U["用户端 SPA<br/>Vue 3 + Vite<br/>:5173"]
+        A["管理端 SPA<br/>Vue 3 + Vite + ECharts<br/>:5174"]
+        NG["Nginx<br/>静态资源托管 / 反向代理"]
+    end
+
+    subgraph app["应用层 · Spring Boot 2.7 / JDK 17"]
+        direction TB
+        US["SwapU_user :8080<br/>账号 · 商品 · 订单 · 聊天<br/>推荐 · AI 客服"]
+        AS["swapu_admin :8081<br/>管理员 · RBAC · 审核<br/>分类 · 用户 · 统计 · 日志"]
+        PJ["swapu_pojo<br/>entity · dto · vo · PageResult"]
+        CM["swapu_common<br/>常量 · 异常 · JWT · OSS · 上下文"]
+    end
+
+    subgraph middleware["中间件与外部服务"]
+        direction TB
+        RD[("Redis<br/>热点缓存 · 库存预扣<br/>行为缓冲 · 限流")]
+        MQ[("RabbitMQ<br/>库存变更异步落库")]
+        OSS[("阿里云 OSS<br/>商品图片")]
+        LLM["DeepSeek API<br/>AI 客服 · 语义重排"]
+    end
+
+    subgraph data["数据层"]
+        DB[("MySQL 8.0<br/>campus · 13 张表")]
+    end
+
+    U --> NG
+    A --> NG
+    NG --> US
+    NG --> AS
+    US --> PJ
+    AS --> PJ
+    US --> CM
+    AS --> CM
+    US --> RD
+    AS --> RD
+    US --> MQ
+    US --> OSS
+    US --> LLM
+    US --> DB
+    AS --> DB
+    MQ --> DB
 ```
+
 ### 数据库ER图：
+
 ```mermaid
 erDiagram
-
     USER {
-        bigint id PK "用户ID"
-        varchar student_id "学号"
-        varchar username "用户名"
-        varchar password "密码"
-        varchar avatar "头像"
-        varchar phone "手机号"
-        varchar email "邮箱"
-        varchar college "学院"
+        bigint id PK "主键"
+        varchar username "登录账号"
+        varchar nickname "昵称"
         decimal balance "余额"
         int credit_score "信用分"
-        tinyint status "状态"
-        varchar nickname "昵称"
-        datetime create_time
-        datetime update_time
+        tinyint status "1正常 0禁用"
     }
-
-
-    CATEGORY {
-        int id PK "分类ID"
-        varchar name "分类名称"
-        int sort "排序"
-        tinyint status "状态"
-        datetime create_time
-        datetime update_time
-        bigint create_user
-        bigint update_user
-    }
-
-
-    PRODUCT {
-        bigint id PK "商品ID"
-        bigint user_id FK "发布用户"
-        varchar title "商品标题"
-        text description "商品描述"
-        int category_id FK "分类ID"
-        decimal price "售价"
-        decimal original_price "原价"
-        json images "商品图片"
-        varchar product_condition "商品成色"
-        tinyint status "商品状态"
-        int view_count "浏览量"
-        tinyint is_top "是否置顶"
-        int quantity "库存"
-        datetime create_time
-        datetime update_time
-    }
-
-
-    ORDERS {
-        bigint order_id PK "订单ID"
-        varchar order_no "订单编号"
-        bigint product_id FK "商品ID"
-        varchar product_title
-        varchar product_image
-        int quantity "购买数量"
-
-        bigint buyer_id FK "买家ID"
-        bigint seller_id FK "卖家ID"
-
-        decimal unit_price
-        decimal amount
-        decimal freight
-        decimal total_amount
-
-        int status "订单状态"
-
-        datetime create_time
-        datetime pay_time
-        datetime cancel_time
-        datetime deliver_time
-        datetime confirm_time
-        datetime receive_time
-
-        bigint address_id FK
-        varchar logistics_company
-        varchar logistics_no
-    }
-
-
 
     ADDRESS_BOOK {
-        bigint id PK "地址ID"
-        bigint user_id FK "用户ID"
+        bigint id PK "主键"
+        bigint user_id FK "所属用户"
         varchar consignee "收货人"
         varchar phone "手机号"
-
-        varchar province_name
-        varchar city_name
-        varchar district_name
-
         varchar detail "详细地址"
-
-        varchar label
-        tinyint is_default
+        tinyint is_default "是否默认"
     }
 
+    ADMIN {
+        bigint id PK "主键"
+        varchar username "登录账号"
+        varchar password "BCrypt 密文"
+        tinyint role "1超管 2普通 3运营"
+        tinyint status "1启用 0禁用"
+        tinyint deleted "逻辑删除"
+    }
 
+    ADMIN_OPERATION_LOG {
+        bigint id PK "主键"
+        bigint admin_id FK "操作人"
+        varchar admin_username "操作人快照"
+        varchar action "动作类型"
+        bigint target_id "对象ID"
+        varchar detail "变更摘要"
+        varchar ip "操作IP"
+        datetime create_time "操作时间"
+    }
+
+    CATEGORY {
+        int id PK "主键"
+        varchar name "分类名称"
+        int sort "排序值"
+        tinyint status "1启用 0禁用"
+    }
+
+    PRODUCT {
+        bigint id PK "主键"
+        bigint user_id FK "发布用户"
+        int category_id FK "所属分类"
+        varchar title "标题"
+        decimal price "售价"
+        decimal original_price "原价"
+        json images "图片列表"
+        tinyint status "0待审 1在售 2已售 3下架 4驳回"
+        int view_count "浏览量"
+        int quantity "库存"
+    }
+
+    ORDERS {
+        bigint order_id PK "主键"
+        varchar order_no "订单编号"
+        bigint product_id FK "商品"
+        bigint buyer_id FK "买家"
+        bigint seller_id FK "卖家"
+        bigint address_id FK "收货地址"
+        decimal total_amount "订单金额"
+        tinyint status "1待确认 2待支付 3待发货 4待收货 5已收货 6取消 7退货审核 8已退款 9取消审核"
+        tinyint pay_type "1支付宝 2微信 3余额"
+        datetime receive_time "收货时间"
+    }
 
     FAVORITE {
-        bigint id PK
-        bigint user_id FK
-        bigint product_id FK
-        datetime create_time
+        bigint id PK "主键"
+        bigint user_id FK "用户"
+        bigint product_id FK "商品"
     }
 
+    COMMENT {
+        bigint id PK "主键"
+        bigint product_id FK "商品"
+        bigint user_id FK "评论人"
+        tinyint status "0待审 1已发布 2驳回"
+        int like_count "点赞数"
+    }
 
+    AUDIT_RECORD {
+        bigint id PK "主键"
+        tinyint type "1商品 2评论 3头像"
+        bigint target_id "被审对象"
+        tinyint result "1通过 2驳回"
+        bigint reviewer_id FK "审核人"
+        datetime review_time "审核时间"
+    }
 
     CHAT_MESSAGE {
-        bigint id PK
-
-        bigint from_user_id FK "发送用户"
-
-        bigint to_user_id FK "接收用户"
-
-        bigint product_id FK "商品ID"
-
-        text message
-
-        tinyint message_type
-
-        tinyint is_read
-
-        datetime create_time
+        bigint id PK "主键"
+        bigint from_user_id FK "发送方"
+        bigint to_user_id FK "接收方"
+        bigint product_id FK "关联商品"
+        tinyint message_type "消息类型"
+        tinyint is_read "是否已读"
+        datetime create_time "发送时间"
     }
 
+    STOCK_CHANGE_LOG {
+        bigint id PK "主键"
+        varchar change_no "变更单号"
+        varchar order_no FK "关联订单"
+        bigint product_id FK "商品"
+        int quantity "变更数量"
+        tinyint status "0待落库 1已落库"
+    }
 
-
-    %% =====================
-    %% Relationship
-    %% =====================
-
+    USER_BEHAVIOR_LOG {
+        bigint id PK "主键"
+        bigint user_id FK "用户"
+        bigint product_id FK "商品"
+        bigint category_id "分类"
+        tinyint behavior_type "1浏览 2收藏 3购买 4搜索"
+        datetime create_time "发生时间"
+    }
 
     USER ||--o{ PRODUCT : "发布"
-
-    CATEGORY ||--o{ PRODUCT : "分类"
-
-    USER ||--o{ ORDERS : "买家"
-
-    USER ||--o{ ORDERS : "卖家"
-
-    PRODUCT ||--o{ ORDERS : "生成订单"
-
-
-    USER ||--o{ FAVORITE : "收藏"
-
-    PRODUCT ||--o{ FAVORITE : "被收藏"
-
-
+    CATEGORY ||--o{ PRODUCT : "归属"
+    USER ||--o{ ORDERS : "买入"
+    USER ||--o{ ORDERS : "卖出"
+    PRODUCT ||--o{ ORDERS : "下单快照"
+    ADDRESS_BOOK ||--o{ ORDERS : "收货地址"
     USER ||--o{ ADDRESS_BOOK : "拥有"
-
-
+    USER ||--o{ FAVORITE : "收藏"
+    PRODUCT ||--o{ FAVORITE : "被收藏"
+    USER ||--o{ COMMENT : "发表"
+    PRODUCT ||--o{ COMMENT : "被评论"
     USER ||--o{ CHAT_MESSAGE : "发送"
-
     USER ||--o{ CHAT_MESSAGE : "接收"
-
-
     PRODUCT ||--o{ CHAT_MESSAGE : "咨询"
-
-    ADDRESS_BOOK ||--o{ ORDERS : "配送地址"
+    PRODUCT ||--o{ STOCK_CHANGE_LOG : "库存变更"
+    ORDERS ||--o{ STOCK_CHANGE_LOG : "触发"
+    USER ||--o{ USER_BEHAVIOR_LOG : "产生"
+    PRODUCT ||--o{ USER_BEHAVIOR_LOG : "关联"
+    ADMIN ||--o{ ADMIN_OPERATION_LOG : "操作"
+    ADMIN ||--o{ AUDIT_RECORD : "审核"
 ```
 
 ## 业务架构
-我们将业务逻辑拆解为五个核心协作模块：
 
-本系统采用模块化设计思想，将业务功能划分为用户管理、商品管理、订单管理、即时通讯以及辅助服务五个核心模块，各模块相互协作，共同完成校园二手交易平台的业务闭环。
+系统按业务边界拆分为五个协作模块，模块之间通过 Service 接口与共享模型交互，共同支撑"发布 → 审核 → 交易 → 沟通 → 结算"的完整闭环。
 
 ### 用户管理模块
 
-用户管理模块负责系统用户的身份认证与基础信息维护，是平台运行的基础模块。系统支持用户注册、登录、密码修改以及个人信息更新等功能，并通过 JWT 实现用户身份认证与权限校验。同时，用户可查看个人资料以及管理自己的收藏商品，为后续商品浏览和交易活动提供支持。
+用户管理模块承担身份认证与基础资料维护，是平台运行的前提。系统基于 JWT 实现无状态鉴权，用户端与管理端使用独立密钥与独立拦截器，互不越界；密码与支付密码分离存储，支付密码采用 BCrypt 加盐摘要，并支持历史账号的惰性升级。模块同时提供收藏管理、足迹查询与公开主页，为商品浏览与交易行为提供身份与偏好基础。
 
 <img width="1892" height="899" alt="屏幕截图 2026-09-05 132349" src="https://github.com/user-attachments/assets/f54afbcd-6c2c-4ed7-9f15-0d3641e66533" />
 <img width="1892" height="899" alt="屏幕截图 2026-09-05 132338" src="https://github.com/user-attachments/assets/a4daf817-5f5a-4c0d-92bb-abd65d875e2d" />
 
 ### 商品管理模块
 
-商品管理模块负责闲置商品信息的发布、维护与展示。系统提供商品分类查询、商品发布、商品编辑、商品下架、商品删除以及商品详情查看等功能，并支持分页查询和热门商品推荐。通过规范化管理商品信息，提高了商品展示效果和用户检索效率，为买卖双方提供便捷的交易环境。
+商品管理模块覆盖商品全生命周期：发布后进入待审核队列，审核通过后上架销售；支持分类筛选、价格区间、成色与多字段排序，列表仅返回封面图、详情才返回完整图集以控制传输体积。热门商品与详情走 Redis 缓存，浏览量在内存累加后由定时任务批量回写，避免高频写放大。管理端在此基础上提供审核、分类维护与状态治理能力。
 
 <img width="1892" height="899" alt="屏幕截图 2026-09-05 132331" src="https://github.com/user-attachments/assets/a2cf5a51-2b52-4416-b1fb-c10b7aebec12" />
 <img width="1892" height="899" alt="屏幕截图 2026-09-05 131908" src="https://github.com/user-attachments/assets/e524ef55-0146-429a-a325-1c7088891601" />
@@ -412,330 +363,205 @@ erDiagram
 
 ### 订单管理模块
 
-订单管理模块用于实现交易流程的标准化管理。买家可在线创建订单、支付订单或取消订单；卖家可对订单进行确认接单和发货操作；买家在收到商品后可确认收货，从而完成整个交易流程。系统还支持订单详情查询、订单分页查询以及订单统计分析等功能，实现交易全过程的可追溯管理。
+订单模块以状态机驱动交易流转：`待确认 → 待支付 → 待发货 → 待收货 → 已收货`，并支持取消申请、退货退款两条逆向流程。核心设计有三点：**条件更新代替"先查后改"**，通过 `where status = ?` 保证并发下状态只流转一次；**下单即锁定库存**，Redis 预扣减挡住超卖请求，DB 侧仍有 `quantity >= ?` 兜底；**超时自动关单**由定时任务扫描并回补库存，已支付订单同步退款。
 
 <img width="1892" height="899" alt="屏幕截图 2026-09-05 132318" src="https://github.com/user-attachments/assets/b75badfa-0cdd-45ca-863d-f2a68085de1b" />
 
-
 ### 即时通讯模块
 
-即时通讯模块基于 WebSocket 技术实现买卖双方的实时消息交互。系统支持会话列表查询、历史消息查询、消息发送以及消息已读状态同步等功能。聊天消息在数据库中进行持久化存储，确保用户能够随时查看历史沟通记录，提高交易沟通效率和用户体验。同时“系统小助手”会在每个商品的流程流转完成后提醒相应用户进行下一步流转
+即时通讯模块基于 WebSocket 实现买卖双方全双工通信，采用"发送走 HTTP、接收走 WebSocket"的混合模式：发送方拿到同步响应，接收方由服务端主动推送，兼顾可靠性与实时性。会话按商品维度组织，消息持久化后支持历史回溯与已读同步；"系统小助手"作为平台侧虚拟会话，在订单每个节点自动向对应角色推送下一步提示。
 
 <img width="1892" height="899" alt="屏幕截图 2026-09-05 132001" src="https://github.com/user-attachments/assets/ab1bd1b2-a418-4313-b0f6-257a57acbf62" />
 
-
 ### 辅助服务模块
 
-辅助服务模块为系统其他业务模块提供公共支撑能力。系统集成对象存储服务（OSS）实现商品图片上传与访问；利用 Redis 实现热点数据缓存、用户状态缓存以及热门商品缓存，提高系统访问性能；通过定时任务机制完成热门商品统计、浏览量同步以及订单状态维护等后台任务，保障系统稳定运行。
+辅助服务模块为业务模块提供横切支撑：对象存储承载图片、Redis 承载热点缓存与库存计数、消息队列承载异步写、定时任务承载对账与补偿。此外，模块封装了统一响应体、全局异常处理、参数校验、操作日志与行为埋点等基础设施，使业务代码只关注领域逻辑。
 
 ### 商品交易流程图
+
 ```mermaid
 sequenceDiagram
-
     autonumber
+    participant B as 买家
+    participant F as 用户端 SPA
+    participant S as SwapU_user
+    participant R as Redis
+    participant Q as RabbitMQ
+    participant D as MySQL
+    participant W as WebSocket
+    participant SL as 卖家
 
-    participant Buyer as 买家用户
-    participant Front as Vue3前端
-    participant API as SpringBoot服务
-    participant Redis as Redis缓存
-    participant DB as MySQL数据库
-    participant WS as WebSocket服务
-    participant Seller as 卖家用户
-
-
-    %% =========================
-    %% 商品浏览阶段
-    %% =========================
-
-    rect rgb(240,248,255)
-
-    Note over Buyer,Seller: 商品浏览与咨询阶段
-
-
-    Buyer->>Front: 浏览商品列表
-
-    Front->>API: 请求商品分页数据
-
-    API->>Redis: 查询商品缓存
-
-
+    B->>F: 浏览商品详情
+    F->>S: GET /product/detail/{id}
+    S->>R: 读取热点商品缓存
     alt 缓存命中
+        R-->>S: 返回缓存数据
+    else 缓存未命中
+        S->>D: 查询商品
+        S->>R: 回填缓存
+    end
+    S-->>F: 商品详情
+    S->>R: 浏览量自增（异步批量回写）
 
-        Redis-->>API: 返回商品数据
-
-    else 缓存不存在
-
-        API->>DB: 查询商品信息
-
-        DB-->>API: 返回商品数据
-
-        API->>Redis: 写入商品缓存
-
+    B->>F: 提交订单
+    F->>S: POST /order/create
+    S->>R: Lua 原子预扣库存
+    alt 库存不足
+        R-->>S: 返回 0
+        S-->>F: 库存不足，下单失败
+    else 扣减成功
+        S->>D: 写订单 + 库存变更日志
+        S->>Q: 投递库存变更消息
+        Q->>D: 异步扣减库存（幂等）
+        S-->>F: 下单成功
     end
 
-
-    API-->>Front: 返回商品列表
-
-    Front-->>Buyer: 展示商品
-
-
-    Buyer->>Front: 查看商品详情
-
-    Front->>API: 请求商品详情
-
-    API->>Redis: 查询热点商品缓存
-
-
-    Redis-->>API: 返回详情数据
-
-    API-->>Front: 返回商品详情
-
-    Front-->>Buyer: 展示详情页面
-
-
-    end
-
-
-
-    %% =========================
-    %% 实时沟通阶段
-    %% =========================
-
-
-    rect rgb(255,250,240)
-
-    Note over Buyer,Seller: 买卖双方实时沟通
-
-
-    Buyer->>WS: 建立WebSocket连接
-
-    WS->>Seller: 推送在线状态
-
-
-    Buyer->>WS: 咨询商品信息
-
-    WS->>Seller: 实时转发消息
-
-
-    Seller->>WS: 回复消息
-
-    WS->>Buyer: 推送回复内容
-
-
-    WS->>DB: 保存聊天记录
-
-
-    end
-
-
-
-    %% =========================
-    %% 创建订单阶段
-    %% =========================
-
-
-    rect rgb(240,255,240)
-
-    Note over Buyer,Seller: 交易订单创建
-
-
-    Buyer->>Front: 点击购买商品
-
-    Front->>API: 创建订单请求
-
-
-    API->>Redis: 校验库存
-
-
-    alt 库存充足
-
-        Redis-->>API: 扣减库存成功
-
-
-        API->>DB: 创建订单记录
-
-
-        DB-->>API: 返回订单信息
-
-
-        API-->>Front: 创建订单成功
-
-
-    else 库存不足
-
-
-        Redis-->>API: 库存不足
-
-        API-->>Front: 返回失败提示
-
-
-    end
-
-
-    end
-
-
-
-    %% =========================
-    %% 卖家处理阶段
-    %% =========================
-
-
-    rect rgb(255,245,245)
-
-    Note over Buyer,Seller: 卖家确认交易
-
-
-    API->>Seller: 推送新订单通知
-
-
-    Seller->>API: 确认接单
-
-
-    API->>DB: 更新订单状态
-
-
-    DB-->>API: 更新成功
-
-
-    API-->>Buyer: 通知订单状态变化
-
-
-    end
-
-
-
-    %% =========================
-    %% 发货收货阶段
-    %% =========================
-
-
-    rect rgb(245,245,255)
-
-    Note over Buyer,Seller: 商品交付阶段
-
-
-    Seller->>API: 提交发货信息
-
-
-    API->>DB: 更新物流信息
-
-
-    DB-->>API: 保存物流数据
-
-
-    API-->>Buyer: 推送发货通知
-
-
-
-    Buyer->>API: 确认收货
-
-
-    API->>DB: 更新订单完成状态
-
-
-    DB-->>API: 交易完成
-
-
-    API-->>Seller: 通知交易完成
-
-
-    end
-
+    B->>F: 余额支付
+    F->>S: POST /order/pay
+    S->>D: 条件更新状态为待发货
+    S->>W: 推送系统消息
+    W-->>SL: 提醒尽快发货
+
+    SL->>F: 确认发货
+    F->>S: POST /order/deliver
+    S->>D: 状态流转为待收货
+    S->>W: 推送系统消息
+    W-->>B: 提醒注意物流
+
+    B->>F: 确认收货
+    F->>S: POST /order/receive
+    S->>D: 状态流转为已收货
+    S->>W: 推送系统消息
+    W-->>SL: 交易完成通知
 ```
+
 ## 环境搭建
 
 ### 开发工具
 
-|     工具     |       说明        |                             官网                             |
-| :----------: | :---------------: | :----------------------------------------------------------: |
-|     IDEA     |    Java开发IDE    |           https://www.jetbrains.com/idea/download            |
-|   WebStorm   |    前端开发IDE    |             https://www.jetbrains.com/webstorm/              |
-| RedisDesktop |  Redis可视化工具  | [ https://redisdesktop.com/download](https://redisdesktop.com/download) |
-|    DataGrip    |  数据库开发工具   |               [https://www.jetbrains.com/datagrip/download](https://www.jetbrains.com/datagrip/download)               |
+| 工具 | 说明 | 官网 |
+| :---: | :---: | :--- |
+| IDEA | Java 开发 IDE | https://www.jetbrains.com/idea/download |
+| WebStorm | 前端开发 IDE | https://www.jetbrains.com/webstorm/ |
+| RedisInsight | Redis 可视化工具 | https://redis.com/redis-enterprise/redis-insight/ |
+| DataGrip | 数据库开发工具 | https://www.jetbrains.com/datagrip/download |
 
 ### 开发环境
 
-|     工具      |  版本号   |                             下载                             |
-| :-----------: |:------:| :----------------------------------------------------------: |
-|      JDK      |   17   | [https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) |
-|     Maven     | 3.3.0+ |                   http://maven.apache.org/                   |
-|     MySQL     |  5.6   |                    https://www.mysql.com/                    |
-|   RabbitMQ    |  3.9+  |            http://www.rabbitmq.com/download.html             |
-|     Nginx     | 1.22.1 |              http://nginx.org/en/download.html               |
-|     Redis     | 3.3.0  |                  https://redis.io/download                   |       
+| 工具 | 版本号 | 下载地址 |
+| :---: | :---: | :--- |
+| JDK | 17 | https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html |
+| Maven | 3.8+ | https://maven.apache.org/download.cgi |
+| MySQL | 8.0+ | https://www.mysql.com/downloads/ |
+| Redis | 6.0+ | https://redis.io/download |
+| RabbitMQ | 3.9+ | https://www.rabbitmq.com/download.html |
+| Node.js | 18 LTS | https://nodejs.org/zh-cn/download |
+| Nginx | 1.22+ | https://nginx.org/en/download.html |
 
 ## 快速开始
 
 ### 环境要求
-- JDK 17+
-- Maven 3.3.0+
-- MySQL 5.6+
-- Redis 3.3.0+
-- Node.js 16+
+
+- JDK 17+、Maven 3.8+
+- MySQL 8.0+（需支持 `JSON` 类型）
+- Redis 6.0+、RabbitMQ 3.9+
+- Node.js 18 LTS+（两个前端均使用 Vite 3）
+- 如需图片上传与 AI 能力，还需准备阿里云 OSS 与 DeepSeek API Key（可选，缺失时相关功能不可用）
 
 ### 后端启动
 
 ```bash
-# 克隆项目
+# 1. 克隆项目
 git clone https://github.com/windyfreez/SwapU.git
-
-# 进入项目目录
 cd SwapU
 
-# 创建数据库
-CREATE DATABASE swapu CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+# 2. 创建数据库（注意库名为 campus）
+mysql -u root -p -e "CREATE DATABASE campus CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 
-# 修改数据库配置
-# 编辑 src/main/resources/application.yml
-# 配置数据库连接信息（username、password）
-# 配置Redis连接信息（host、port）
-# 配置阿里云OSS信息（endpoint、accessKeyId、accessKeySecret、bucketName）
+# 3. 初始化表结构（按顺序执行，缺表/缺列会导致启动或登录失败）
+mysql -u root -p campus < swapu_admin/src/main/resources/sql/admin.sql
+mysql -u root -p campus < swapu_admin/src/main/resources/sql/admin_v2.sql
+mysql -u root -p campus < swapu_admin/src/main/resources/sql/admin_operation_log.sql
+mysql -u root -p campus < SwapU_user/src/main/resources/sql/user_pay_password.sql
+mysql -u root -p campus < SwapU_user/src/main/resources/sql/stock_change_log.sql
+# 其余业务表见 docs/swapu_database.md 的建表 SQL
 
-# 启动后端
-mvn spring-boot:run
+# 4. 准备配置文件（仓库只提交模板，真实配置不入库）
+cp SwapU_user/src/main/resources/application.yml.example   SwapU_user/src/main/resources/application.yml
+cp swapu_admin/src/main/resources/application.yml.example  swapu_admin/src/main/resources/application.yml
+# 按需填写：数据库账号密码、Redis、RabbitMQ、OSS（可用环境变量 ALIYUN_ACCESS_KEY_ID 注入）、DeepSeek API Key
+
+# 5. 构建并启动（两个应用分别启动）
+mvn -pl swapu_pojo,swapu_common -am install -DskipTests
+mvn -pl SwapU_user  spring-boot:run     # 用户端 :8080
+mvn -pl swapu_admin spring-boot:run     # 管理端 :8081
 ```
 
 ### 前端启动
 
 ```bash
-# 进入前端目录
-cd front
-
-# 安装依赖
+# 用户端
+cd swapu_front
 npm install
+npm run dev            # http://localhost:5173
 
-# 启动开发服务器
-npm run dev
+# 管理端（新开一个终端）
+cd swapu_admin_front
+npm install
+npm run dev            # http://localhost:5174
 ```
+
+> 两个前端分别通过 Vite proxy 转发到 8080（用户端）与 8081（管理端），无需额外配置 CORS。
 
 ### 访问地址
 
-| 服务 | 地址 |
-| :--- | :--- |
-| 前端 | http://localhost:5173 |
-| 后端API | http://localhost:8080 |
-| Swagger文档 | http://localhost:8080/doc.html |
-| Redis | localhost:6379 |
+| 服务 | 地址 | 说明 |
+| :--- | :--- | :--- |
+| 用户端前端 | http://localhost:5173 | Vue 3 SPA |
+| 管理端前端 | http://localhost:5174 | Vue 3 SPA + ECharts |
+| 用户端 API | http://localhost:8080 | REST + WebSocket |
+| 管理端 API | http://localhost:8081 | REST |
+| 用户端接口文档 | http://localhost:8080/doc.html | knife4j |
+| 管理端接口文档 | http://localhost:8081/doc.html | knife4j |
+| MySQL | localhost:3306/campus | 13 张业务表 |
+| Redis | localhost:6379 | 缓存与库存 |
+
+> 管理员账号由 `sql/admin.sql` 初始化。**首次登录后请立即修改密码**，并在生产环境替换 JWT 密钥与数据库凭据。
 
 ### 部署说明
 
 ```bash
-# 前端打包
-cd front
-npm run build
+# 1. 后端打包（两个可执行 jar）
+mvn -pl SwapU_user  -am clean package -DskipTests
+mvn -pl swapu_admin -am clean package -DskipTests
+java -jar SwapU_user/target/*.jar      # :8080
+java -jar swapu_admin/target/*.jar     # :8081
 
-# Nginx配置
-# 将前端dist目录部署到Nginx
-# 配置反向代理指向后端API
+# 2. 前端打包
+cd swapu_front        && npm ci && npm run build   # 产物 dist/
+cd swapu_admin_front  && npm ci && npm run build   # 产物 dist/
 ```
+
+Nginx 建议配置：静态资源分别托管两个 `dist`，`/api`、`/product`、`/order`、`/user`、`/ws` 反向代理到 8080，`/admin` 反向代理到 8081；WebSocket 需开启 `Upgrade` 头透传。
+
+生产环境还需注意：
+
+- 将 `application.yml` 中的数据库、Redis、JWT 密钥替换为环境变量注入；
+- 关闭或限制 knife4j 文档（管理端已支持 `knife4j.production=true`）；
+- 库存对账、订单超时关闭等定时任务是单机模型，多实例部署前需要引入分布式锁或改为消息驱动。
 
 ## 贡献指南
 
-欢迎贡献代码！请遵循以下步骤：
+欢迎贡献代码！请遵循以下流程：
 
 1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 打开 Pull Request
+2. 创建特性分支：`git checkout -b feature/AmazingFeature`
+3. 提交更改：`git commit -m 'feat: add some feature'`（建议遵循 Conventional Commits）
+4. 推送到分支：`git push origin feature/AmazingFeature`
+5. 发起 Pull Request，并在描述中说明动机、方案与验证方式
+
+提交前建议自检：
+
+- `mvn -pl swapu_pojo,swapu_common,SwapU_user,swapu_admin -am clean test-compile` 能通过；
+- 涉及管理端权限、订单状态的改动补充对应单元测试；
+- 新增接口同步更新 `docs/` 下的接口清单。

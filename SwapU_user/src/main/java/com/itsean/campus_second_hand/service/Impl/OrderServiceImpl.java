@@ -920,10 +920,15 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public OrderStatisticsVO getOrderStatistics() {
         Long currentUserId = BaseContext.getCurrentId();
+        //买家视角：待支付、待收货、已完成
         Integer waitPay = orderMapper.countByStatusAndBuyerUserId(Order.ORDER_STATUS_WAIT_PAY,currentUserId);
         Integer waitReceive = orderMapper.countByStatusAndBuyerUserId(Order.ORDER_STATUS_WAIT_RECEIVE,currentUserId);
-        Integer waitDeliver = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_WAIT_DELIVER,currentUserId);
         Integer buyCompleted = orderMapper.countByStatusAndBuyerUserId(Order.ORDER_STATUS_ALREADY_RECEIVE,currentUserId);
+        //卖家视角：待确认、待发货、退货审核中、取消申请中、已完成
+        Integer waitAccept = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_WAIT_ACCEPT,currentUserId);
+        Integer waitDeliver = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_WAIT_DELIVER,currentUserId);
+        Integer refundApplying = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_REFUND_APPLYING,currentUserId);
+        Integer cancelApplying = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_CANCEL_APPLYING,currentUserId);
         Integer sellCompleted = orderMapper.countByStatusAndSellerUserId(Order.ORDER_STATUS_ALREADY_RECEIVE,currentUserId);
         BigDecimal totalCostAmount = orderMapper.sumCostAmountByUserId(currentUserId);
         BigDecimal totalSellAmount = orderMapper.sumSellAmountByUserId(currentUserId);
@@ -936,6 +941,9 @@ public class OrderServiceImpl implements OrderService {
                 .waitPay(waitPay)
                 .waitReceive(waitReceive)
                 .waitDeliver(waitDeliver)
+                .waitAccept(waitAccept)
+                .refundApplying(refundApplying)
+                .cancelApplying(cancelApplying)
                 .buyCompleted(buyCompleted)
                 .sellCompleted(sellCompleted)
                 .totalCostAmount(totalCostAmount)
