@@ -357,9 +357,12 @@ const orderStatistics = reactive({
   sellCompleted: 0,
   totalCostAmount: 0,
   totalSellAmount: 0,
+  waitAccept: 0,
   waitDeliver: 0,
   waitPay: 0,
-  waitReceive: 0
+  waitReceive: 0,
+  refundApplying: 0,
+  cancelApplying: 0
 })
 
 const statusTabs = [
@@ -449,21 +452,30 @@ const switchStatus = (status) => {
   fetchOrders()
 }
 
+/**
+ * 红圈数字必须等于「当前角色 + 该状态」在列表里的条数，否则会出现
+ * “列表是空的、tab 上却挂着红圈”这种错位。
+ *
+ * 买家视角：待付款(2)、待收货(4)、已完成(5 买家侧)
+ * 卖家视角：待确认(1)、待发货(3)、退货审核中(7)、取消申请中(9)、已完成(5 卖家侧)
+ * 其余状态对当前角色没有待办动作，不显示红圈。
+ */
 const getStatCount = (status) => {
-  switch (status) {
-    case 2:
-      return orderStatistics.waitPay || 0
-    case 3:
-      return orderStatistics.waitDeliver || 0
-    case 4:
-      return orderStatistics.waitReceive || 0
-    case 5:
-      return currentRole.value === 'buyer' 
-        ? (orderStatistics.buyCompleted || 0)
-        : (orderStatistics.sellCompleted || 0)
-    default:
-      return 0
+  const stats = orderStatistics
+
+  if (currentRole.value === 'buyer') {
+    if (status === 2) return stats.waitPay || 0
+    if (status === 4) return stats.waitReceive || 0
+    if (status === 5) return stats.buyCompleted || 0
+    return 0
   }
+
+  if (status === 1) return stats.waitAccept || 0
+  if (status === 3) return stats.waitDeliver || 0
+  if (status === 7) return stats.refundApplying || 0
+  if (status === 9) return stats.cancelApplying || 0
+  if (status === 5) return stats.sellCompleted || 0
+  return 0
 }
 
 const fetchOrderStatistics = async () => {

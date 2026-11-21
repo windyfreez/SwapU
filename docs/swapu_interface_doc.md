@@ -1271,13 +1271,25 @@ GET /api/v1/order/list?page=1&size=20&status=2&role=seller
 | code | Integer | 状态码 |
 | message | String | 响应信息 |
 | data | Object | 统计数据 |
-| data.waitPay | Integer | 待付款数量 |
-| data.waitReceive | Integer | 待收货数量 |
-| data.buyCompleted | Integer | 已完成数量 |
+| data.waitPay | Integer | 待付款数量（买家视角，status=2） |
+| data.waitReceive | Integer | 待收货数量（买家视角，status=4） |
+| data.buyCompleted | Integer | 已收货数量（买家视角，status=5） |
 | data.totalCostAmount | BigDecimal | 累计消费金额 |
-| data.waitDeliver | Integer | 待发货数量 |
-| data.sellCompleted | Integer | 已完成数量 |
+| data.waitAccept | Integer | 待确认数量（卖家视角，status=1） |
+| data.waitDeliver | Integer | 待发货数量（卖家视角，status=3） |
+| data.refundApplying | Integer | 退货审核中数量（卖家视角，status=7） |
+| data.cancelApplying | Integer | 取消申请中数量（卖家视角，status=9） |
+| data.sellCompleted | Integer | 已收货数量（卖家视角，status=5） |
 | data.totalSellAmount | BigDecimal | 累计销售额 |
+| data.publishCount | Integer | 在售商品数 |
+| data.soldCount | Integer | 已售商品数 |
+| data.favoriteCount | Integer | 收藏数 |
+| data.footprintCount | Integer | 足迹数 |
+
+> **Tab 红圈取数规则**：红圈数字必须按「当前角色 + 该状态」取，否则会出现"列表是空的、Tab 上却挂着红圈"。
+> - 买家：`waitPay` / `waitReceive` / `buyCompleted`
+> - 卖家：`waitAccept` / `waitDeliver` / `refundApplying` / `cancelApplying` / `sellCompleted`
+> - 其余状态下当前角色没有待办动作，不显示红圈。
 
 #### 响应示例
 ```json
@@ -1285,17 +1297,20 @@ GET /api/v1/order/list?page=1&size=20&status=2&role=seller
   "code": 200,
   "message": "success",
   "data": {
-    "asBuyer": {
-      "waitPay": 2,
-      "waitReceive": 1,
-      "completed": 15,
-      "totalAmount": 3250.00
-    },
-    "asSeller": {
-      "waitDeliver": 3,
-      "completed": 8,
-      "totalAmount": 1850.00
-    }
+    "waitPay": 2,
+    "waitReceive": 1,
+    "buyCompleted": 15,
+    "totalCostAmount": 3250.00,
+    "waitAccept": 1,
+    "waitDeliver": 3,
+    "refundApplying": 0,
+    "cancelApplying": 0,
+    "sellCompleted": 8,
+    "totalSellAmount": 1850.00,
+    "publishCount": 4,
+    "soldCount": 8,
+    "favoriteCount": 6,
+    "footprintCount": 12
   }
 }
 ```
