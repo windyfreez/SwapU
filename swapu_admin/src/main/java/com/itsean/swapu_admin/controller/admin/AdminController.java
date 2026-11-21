@@ -11,11 +11,14 @@ import com.itsean.swapu_admin.dto.AdminPasswordDTO;
 import com.itsean.swapu_admin.dto.AdminStatusDTO;
 import com.itsean.pojo.entity.Admin;
 import com.itsean.common.properties.JwtProperties;
+import com.itsean.swapu_admin.annotation.RequirePermission;
+import com.itsean.swapu_admin.constant.AdminPermission;
 import com.itsean.swapu_admin.service.AdminService;
 import com.itsean.common.utils.JwtUtil;
 import com.itsean.swapu_admin.vo.AdminAddVO;
 import com.itsean.swapu_admin.vo.AdminInfoVO;
 import com.itsean.swapu_admin.vo.AdminLoginVO;
+import com.itsean.swapu_admin.vo.AdminMeVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -89,6 +92,7 @@ public class AdminController {
      * @return 新增管理员的ID
      */
     @PostMapping
+    @RequirePermission(AdminPermission.ADMIN_MANAGE)
     @ApiOperation("新增管理员")
     public Result<AdminAddVO> addAdmin(@RequestBody AdminDTO adminDTO) {
         log.info("新增管理员：{}", adminDTO.getUsername());
@@ -102,6 +106,7 @@ public class AdminController {
      * @return 分页结果
      */
     @GetMapping("/page")
+    @RequirePermission(AdminPermission.ADMIN_MANAGE)
     @ApiOperation("分页查询管理员")
     public Result<PageResult> pageQuery(AdminPageQueryDTO adminPageQueryDTO) {
         log.info("分页查询管理员：{}", adminPageQueryDTO);
@@ -116,6 +121,7 @@ public class AdminController {
      * @return 操作结果
      */
     @PutMapping
+    @RequirePermission(AdminPermission.ADMIN_MANAGE)
     @ApiOperation("修改管理员")
     public Result update(@RequestBody AdminDTO adminDTO) {
         log.info("修改管理员：{}", adminDTO.getId());
@@ -130,6 +136,7 @@ public class AdminController {
      * @return 操作结果
      */
     @PutMapping("/{id}/status")
+    @RequirePermission(AdminPermission.ADMIN_MANAGE)
     @ApiOperation("启用/禁用管理员")
     public Result updateStatus(@ApiParam(value = "管理员ID", example = "1") @PathVariable Long id,
                                @RequestBody AdminStatusDTO adminStatusDTO) {
@@ -144,6 +151,7 @@ public class AdminController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
+    @RequirePermission(AdminPermission.ADMIN_MANAGE)
     @ApiOperation("删除管理员")
     public Result deleteById(@ApiParam(value = "管理员ID", example = "1") @PathVariable Long id) {
         log.info("删除管理员：{}", id);
@@ -165,9 +173,26 @@ public class AdminController {
     }
 
     /**
+     * 当前登录管理员的信息与权限
+     * <p>
+     * 前端用它作为菜单与路由守卫的唯一数据源；不标注权限注解，登录即可访问。
+     *
+     * @return 当前管理员信息 + 权限点列表
+     */
+    @GetMapping("/me")
+    @ApiOperation("获取当前登录管理员信息与权限")
+    public Result<AdminMeVO> me() {
+        log.info("获取当前管理员信息，adminId：{}", BaseContext.getCurrentId());
+        return Result.success(adminService.currentAdmin());
+    }
+
+    /**
      * 根据id查询管理员详细信息
-     * @param id
-     * @return
+     * <p>
+     * 本人可查自己；查他人需要管理员管理权限（在 Service 层校验）。
+     *
+     * @param id 管理员ID
+     * @return 管理员信息
      */
     @GetMapping("/{id}")
     @ApiOperation("根据id获取管理员详细信息")

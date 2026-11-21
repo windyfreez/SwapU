@@ -30,9 +30,16 @@ public class Admin {
 
     private String avatar;//头像地址
 
-    private Integer role;//角色：1超级管理员 2普通管理员
+    private Integer role;//角色：1超级管理员 2普通管理员 3运营管理员（审核+分类管理+用户管理）
 
     private Integer status;//状态：1启用 0禁用
+
+    /**
+     * 逻辑删除标记：0 正常，1 已删除。
+     * 登录、鉴权、列表查询都会过滤掉已删除记录；删除时账号名会被改写以释放原名。
+     */
+    @JsonIgnore
+    private Integer deleted;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")

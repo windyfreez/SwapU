@@ -1,7 +1,8 @@
 # SwapU 管理端接口清单（前端开发版）
 
-> 依据：`swapu_admin` 源码逐接口核对，核对时间 2026-11-18；覆盖 `controller/admin` 下全部 4 个 Controller。
+> 依据：`swapu_admin` 源码逐接口核对，核对时间 2026-11-21；覆盖 `controller/admin` 下全部 5 个 Controller（管理员 / 审核 / 分类 / 用户 / 操作日志）。
 > 本文只描述**代码里真实存在**的接口。旧稿 [`swapu_admin_interface_doc.md`](./swapu_admin_interface_doc.md) 是最初设计稿，其中「平台统计」「头像审核」等尚未实现，与本文冲突时以本文和源码为准。
+> **2026-11 新增权限体系**：三种角色 + 四个权限点，接口按权限点鉴权，越权返回 `code=403`；角色与权限矩阵见 [`swapu_admin_rbac.md`](./swapu_admin_rbac.md)。
 > 文中路径均为后端真实路径，不含任何前端代理前缀。
 
 ---
@@ -11,19 +12,20 @@
 | 项 | 结论 |
 | --- | --- |
 | 服务端口 | `8081`（用户端是 `8080`，两个服务独立） |
-| Controller 数 | 4 个：管理员 / 审核 / 分类 / 用户管理 |
-| 接口总数 | **24 个**（管理员 8 + 审核 6 + 分类 5 + 用户 5） |
-| 鉴权 | 请求头 `token: <adminJwt>`；仅 `POST /admin/login` 放行 |
+| Controller 数 | 5 个：管理员 / 审核 / 分类 / 用户管理 / 管理员操作日志 |
+| 接口总数 | **26 个**（管理员 9 + 审核 6 + 分类 5 + 用户 5 + 操作日志 1） |
+| 鉴权 | 两道拦截器：① JWT 验签（仅 `POST /admin/login` 放行）② 权限点校验（越权返回 `code=403`） |
+| 角色 | 1 超级管理员（全部权限）/ 3 运营管理员（审核 + 分类 + 用户）/ 2 普通管理员（仅审核） |
 | 响应 | `{ code, msg, data }`，成功 `code=200`；分页 `data = { total, records }` |
 | 未鉴权/过期 | **HTTP 401** + `{code:401,msg:"未登录或登录已过期"}` |
-| 已实现功能 | 管理员登录与账号管理、商品审核、评论审核、审核流水、分类 CRUD/启停、用户查询/启停/信用分/交易统计 |
+| 已实现功能 | 管理员登录与账号管理、管理员操作日志、商品审核、评论审核、审核流水、分类 CRUD/启停、用户查询/启停/信用分/交易统计 |
 | 未实现功能 | **平台统计（工作台图表）0 个接口**、**头像审核 0 个接口**、订单/商品运营管理接口 |
 | 初始超管 | `root / 123456`（见 `swapu_admin/src/main/resources/sql/admin.sql`） |
 
 ### 前端必须注意的 6 个坑
 
 1. **分页参数不是都有默认值**：`GET /admin/page`、`GET /admin/user/page` 的 DTO 没有默认值，前端必须始终传 `pageNum`、`pageSize`；审核列表和流水列表才有默认值 `1 / 10`。
-2. **HTTP 401 和业务 code=401 含义不同**：HTTP 401 才是登录失效（清 token 回登录页）；HTTP 200 且 `code=401` 多数是参数校验失败或「仅超管可操作」，只提示 `msg`，**不要登出**。
+2. **HTTP 401 和业务 code 含义不同**：HTTP 401 才是登录失效（清 token 回登录页）；HTTP 200 且 `code=403` 表示**当前角色无权限**（提示 `msg`，不要登出）；`code=401` 多为参数校验失败等业务失败（同样只提示）。
 3. **token 存储键要加命名空间**：用户端已占用 `localStorage` 的 `token`、`userInfo`、`userId`。管理端若并入同一站点，必须改用 `adminToken`、`adminInfo`，否则两套登录态互相覆盖。
 4. **成功提示在 `data` 不在 `msg`**：新增/修改/删除类接口返回 `msg:"success"`，真正的中文提示在 `data`（如 `"分类删除成功"`）；`data` 也可能是 `null`，前端不要依赖它。
 5. **没有统计接口**：工作台的「成交额、今日订单、流量趋势、商品状态分布」目前**无后端接口**，不能按旧文档直接开发图表页。
@@ -81,7 +83,7 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | --- | --- | --- | --- |
 | 成功 | 200 | 200 | 取 `data` |
 | 未登录 / token 过期 | 401 | 401 | 清 `adminToken`、`adminInfo`，跳 `/admin/login` |
-| 业务校验失败 | 200 | 401 / 4101-4403 | 直接展示 `msg`；`code=401` 多为参数或权限问题，**不要登出** |
+| 业务校验失败 | 200 | 401 / 403 / 4101-4403 | 直接展示 `msg`；`code=401` 多为参数问题，`code=403` 是角色无权限，**都不要登出** |
 | 未捕获异常 | 200 | 401 | `msg = "系统繁忙，请稍后重试"` |
 
 - 分页：`data = { "total": 100, "records": [...] }`，没有 `pages`、`pageNum`，页码由前端按 `total / pageSize` 计算。
@@ -91,12 +93,14 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 
 | code | 含义 |
 | --- | --- |
-| 401 | 未登录 / token 失效 / 无权限 / 通用参数校验失败（重载码，需结合 msg） |
+| 401 | 未登录 / token 失效 / 通用参数校验失败（重载码，需结合 msg） |
+| **403** | **当前角色无该操作权限（权限点不足）** |
 | 4101 | 账号或密码错误 |
 | 4102 | 账号已被禁用 |
 | 4103 | 用户名已存在 |
-| 4104 | 不能禁用或删除自己 |
+| 4104 | 不能禁用/删除自己，或不能修改自己的角色 |
 | 4105 | 至少保留一名启用的超级管理员 |
+| **4106** | **角色取值不合法（只允许 1/2/3）** |
 | 4200 | 审核参数不合法（状态筛选值、审核结论、驳回原因超长等） |
 | 4201 | 审核对象不存在（商品/评论） |
 | 4202 | 驳回时必须填写原因 |
@@ -112,7 +116,9 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 
 | 字典 | 取值 |
 | --- | --- |
-| 管理员角色 `admin.role` | 1 超级管理员，2 普通管理员 |
+| 管理员角色 `admin.role` | 1 超级管理员，2 普通管理员，3 运营管理员 |
+| 权限点 `AdminPermission` | `AUDIT` 审核、`CATEGORY_MANAGE` 分类管理、`USER_MANAGE` 用户管理、`ADMIN_MANAGE` 管理员管理 |
+| 管理员操作日志动作 `admin_operation_log.action` | `CREATE` 新增管理员、`UPDATE` 修改管理员、`STATUS` 启停管理员、`DELETE` 删除管理员、`RESET_PASSWORD` 修改密码 |
 | 管理员状态 `admin.status` | 1 启用，0 禁用 |
 | 商品状态 `product.status` | 0 待审核，1 在售（审核通过），2 已售出，3 已下架，4 审核驳回 |
 | 评论状态 `comment.status` | 0 待审核，1 已发布，2 审核驳回 |
@@ -131,41 +137,44 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | `GET /admin/audit/product/page` | 1 | 10 | 发布时间倒序 |
 | `GET /admin/audit/comment/page` | 1 | 10 | 评论时间倒序 |
 | `GET /admin/audit/record/page` | 1 | 10 | 审核时间倒序 |
+| `GET /admin/operation-log/page` | 1 | 10（上限 100） | 操作时间倒序 |
 
 ---
 
-## 2. 接口总表（24 个）
+## 2. 接口总表（26 个）
 
-| 编号 | 模块 | 方法 | 路径 | 用途 | 登录 | 超管 | 对应页面 |
+| 编号 | 模块 | 方法 | 路径 | 用途 | 登录 | 权限点 | 对应页面 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| ADM-01 | 管理员 | POST | `/admin/login` | 管理员登录 | 否 | - | 管理端登录 |
-| ADM-02 | 管理员 | POST | `/admin` | 新增管理员 | 是 | 是 | 管理员管理 |
-| ADM-03 | 管理员 | GET | `/admin/page` | 分页查询管理员 | 是 | 否 | 管理员管理 |
-| ADM-04 | 管理员 | PUT | `/admin` | 修改管理员/重置密码 | 是 | 是 | 管理员管理 |
-| ADM-05 | 管理员 | PUT | `/admin/{id}/status` | 启用/禁用管理员 | 是 | 是 | 管理员管理 |
-| ADM-06 | 管理员 | DELETE | `/admin/{id}` | 删除管理员 | 是 | 是 | 管理员管理 |
-| ADM-07 | 管理员 | PUT | `/admin/password` | 修改自己的密码 | 是 | 否 | 个人设置 |
-| ADM-08 | 管理员 | GET | `/admin/{id}` | 管理员详情回显 | 是 | 否 | 管理员管理/个人设置 |
-| AUD-01 | 审核 | GET | `/admin/audit/product/page` | 商品审核列表 | 是 | 否 | 商品审核 |
-| AUD-02 | 审核 | GET | `/admin/audit/product/{id}` | 商品审核详情 | 是 | 否 | 商品审核 |
-| AUD-03 | 审核 | POST | `/admin/audit/product/review` | 商品通过/驳回 | 是 | 否 | 商品审核 |
-| AUD-04 | 审核 | GET | `/admin/audit/comment/page` | 评论审核列表 | 是 | 否 | 评论审核 |
-| AUD-05 | 审核 | POST | `/admin/audit/comment/review` | 评论通过/驳回 | 是 | 否 | 评论审核 |
-| AUD-06 | 审核 | GET | `/admin/audit/record/page` | 审核流水 | 是 | 否 | 审核流水 |
-| CAT-01 | 分类 | GET | `/admin/category/list` | 分类列表（含停用） | 是 | 否 | 分类管理 |
-| CAT-02 | 分类 | POST | `/admin/category` | 新增分类 | 是 | 否 | 分类管理 |
-| CAT-03 | 分类 | PUT | `/admin/category` | 修改分类 | 是 | 否 | 分类管理 |
-| CAT-04 | 分类 | PUT | `/admin/category/{id}/status` | 启用/禁用分类 | 是 | 否 | 分类管理 |
-| CAT-05 | 分类 | DELETE | `/admin/category/{id}` | 删除分类 | 是 | 否 | 分类管理 |
-| USR-01 | 用户 | GET | `/admin/user/page` | 分页查询用户 | 是 | 否 | 用户管理 |
-| USR-02 | 用户 | GET | `/admin/user/{id}` | 用户详情 | 是 | 否 | 用户管理 |
-| USR-03 | 用户 | PUT | `/admin/user/{id}/status` | 启用/禁用用户 | 是 | 否 | 用户管理 |
-| USR-04 | 用户 | PUT | `/admin/user/{id}/credit-score` | 修改信用分 | 是 | 否 | 用户管理 |
-| USR-05 | 用户 | GET | `/admin/user/{id}/trade-statistics` | 用户交易统计 | 是 | 否 | 用户管理 |
+| ADM-01 | 管理员 | POST | `/admin/login` | 管理员登录 | 否 | 公开 | 管理端登录 |
+| ADM-02 | 管理员 | POST | `/admin` | 新增管理员 | 是 | `ADMIN_MANAGE` | 管理员管理 |
+| ADM-03 | 管理员 | GET | `/admin/page` | 分页查询管理员 | 是 | `ADMIN_MANAGE` | 管理员管理 |
+| ADM-04 | 管理员 | PUT | `/admin` | 修改管理员/重置密码 | 是 | `ADMIN_MANAGE` | 管理员管理 |
+| ADM-05 | 管理员 | PUT | `/admin/{id}/status` | 启用/禁用管理员 | 是 | `ADMIN_MANAGE` | 管理员管理 |
+| ADM-06 | 管理员 | DELETE | `/admin/{id}` | 删除管理员（逻辑删除） | 是 | `ADMIN_MANAGE` | 管理员管理 |
+| ADM-07 | 管理员 | PUT | `/admin/password` | 修改自己的密码 | 是 | 自助 | 个人设置 |
+| ADM-08 | 管理员 | GET | `/admin/{id}` | 管理员详情回显 | 是 | 本人 或 `ADMIN_MANAGE` | 管理员管理/个人设置 |
+| ADM-09 | 管理员 | GET | `/admin/me` | 当前登录管理员信息与权限 | 是 | 自助 | 全局（菜单/路由守卫） |
+| AUD-01 | 审核 | GET | `/admin/audit/product/page` | 商品审核列表 | 是 | `AUDIT` | 商品审核 |
+| AUD-02 | 审核 | GET | `/admin/audit/product/{id}` | 商品审核详情 | 是 | `AUDIT` | 商品审核 |
+| AUD-03 | 审核 | POST | `/admin/audit/product/review` | 商品通过/驳回 | 是 | `AUDIT` | 商品审核 |
+| AUD-04 | 审核 | GET | `/admin/audit/comment/page` | 评论审核列表 | 是 | `AUDIT` | 评论审核 |
+| AUD-05 | 审核 | POST | `/admin/audit/comment/review` | 评论通过/驳回 | 是 | `AUDIT` | 评论审核 |
+| AUD-06 | 审核 | GET | `/admin/audit/record/page` | 审核流水 | 是 | `AUDIT` | 审核流水 |
+| CAT-01 | 分类 | GET | `/admin/category/list` | 分类列表（含停用） | 是 | 登录即可（只读字典） | 分类管理/审核页筛选 |
+| CAT-02 | 分类 | POST | `/admin/category` | 新增分类 | 是 | `CATEGORY_MANAGE` | 分类管理 |
+| CAT-03 | 分类 | PUT | `/admin/category` | 修改分类 | 是 | `CATEGORY_MANAGE` | 分类管理 |
+| CAT-04 | 分类 | PUT | `/admin/category/{id}/status` | 启用/禁用分类 | 是 | `CATEGORY_MANAGE` | 分类管理 |
+| CAT-05 | 分类 | DELETE | `/admin/category/{id}` | 删除分类 | 是 | `CATEGORY_MANAGE` | 分类管理 |
+| USR-01 | 用户 | GET | `/admin/user/page` | 分页查询用户 | 是 | `USER_MANAGE` | 用户管理 |
+| USR-02 | 用户 | GET | `/admin/user/{id}` | 用户详情 | 是 | `USER_MANAGE` | 用户管理 |
+| USR-03 | 用户 | PUT | `/admin/user/{id}/status` | 启用/禁用用户 | 是 | `USER_MANAGE` | 用户管理 |
+| USR-04 | 用户 | PUT | `/admin/user/{id}/credit-score` | 修改信用分 | 是 | `USER_MANAGE` | 用户管理 |
+| USR-05 | 用户 | GET | `/admin/user/{id}/trade-statistics` | 用户交易统计 | 是 | `USER_MANAGE` | 用户管理 |
+| LOG-01 | 操作日志 | GET | `/admin/operation-log/page` | 分页查询管理员操作日志 | 是 | `ADMIN_MANAGE` | 操作日志 |
 
 ---
 
-## 3. 管理员模块（8 个）
+## 3. 管理员模块（9 个）
 
 ### ADM-01 管理员登录
 
@@ -191,12 +200,12 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | adminInfo.username | string | 账号 |
 | adminInfo.name | string | 姓名 |
 | adminInfo.avatar | string/null | 头像 URL |
-| adminInfo.role | number | 1 超管，2 普通 |
+| adminInfo.role | number | 1 超管，2 普通，3 运营 |
 
 - 错误：`4101` 账号或密码错误（账号为空也返回它）、`4102` 账号已被禁用。
-- 前端：登录成功后按 1.2 保存 `adminToken`、`adminInfo`，按 `role` 决定是否展示管理员管理入口。
+- 前端：登录成功后保存 `adminToken`、`adminInfo`，**再调 `GET /admin/me` 拉取 `permissions`**，菜单与路由守卫按权限点判断（不要硬编码 `role === 1`）。
 
-### ADM-02 新增管理员（超管）
+### ADM-02 新增管理员（`ADMIN_MANAGE`）
 
 - **POST** `/admin`，请求体：
 
@@ -206,12 +215,12 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | password | string | 是 | 6-20 位 |
 | name | string | 否 | 姓名 |
 | avatar | string | 否 | 头像 URL |
-| role | number | 否 | 1 超管 / 2 普通，默认 2 |
+| role | number | 否 | 1 超管 / 2 普通 / 3 运营，默认 2 |
 
 - 响应 `data`：`{ "adminId": 3 }`
-- 错误：`401` 非超管（无操作权限）/ 账号或密码长度不合法、`4103` 用户名已存在。
+- 错误：`403` 当前角色无 `ADMIN_MANAGE` / 账号或密码长度不合法、`4103` 用户名已存在、`4106` 角色取值不合法。
 
-### ADM-03 分页查询管理员
+### ADM-03 分页查询管理员（`ADMIN_MANAGE`）
 
 - **GET** `/admin/page`
 - Query：
@@ -221,13 +230,13 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | pageNum | number | **是** | 从 1 开始，DTO 无默认值 |
 | pageSize | number | **是** | 每页条数 |
 | username | string | 否 | 账号模糊查询 |
-| role | number | 否 | 1 / 2 |
+| role | number | 否 | 1 / 2 / 3 |
 | status | number | 否 | 1 / 0 |
 
 - 响应 `data.records[]`：`id`、`username`、`name`、`avatar`、`role`、`status`、`createTime`（**没有 updateTime、password**）。
-- 这个接口**不校验超管**，任意已登录管理员可查；新增/改/删按钮再按 `role=1` 控制。
+- 该接口需要 `ADMIN_MANAGE`，普通管理员与运营管理员均无权访问；已逻辑删除的账号不会出现在列表中。
 
-### ADM-04 修改管理员（超管）
+### ADM-04 修改管理员（`ADMIN_MANAGE`）
 
 - **PUT** `/admin`，请求体：
 
@@ -236,24 +245,24 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | id | number | 是 | 管理员 ID |
 | name | string | 否 | 传空字符串不会更新 |
 | avatar | string | 否 | 传空字符串不会更新 |
-| role | number | 否 | 修改角色 |
+| role | number | 否 | 修改角色：1 / 2 / 3；**不能改自己的角色** |
 | password | string | 否 | 传入则重置密码，6-20 位 |
 
 - **username 不可修改**（Mapper 不更新该列），前端编辑表单里账号应只读。
-- 错误：`401` 非超管 / 管理员不存在 / 密码长度不合法；`4105` 把最后一名启用的超级管理员降级。
+- 错误：`403` 当前角色无 `ADMIN_MANAGE` / 管理员不存在 / 密码长度不合法；`4104` 尝试修改自己的角色；`4105` 把最后一名启用的超级管理员降级为任意非超管角色；`4106` 角色取值不合法。
 - 成功响应 `data` 为字符串 `"管理员信息修改成功"`，`msg` 仍是 `success`。
 
-### ADM-05 启用/禁用管理员（超管）
+### ADM-05 启用/禁用管理员（`ADMIN_MANAGE`）
 
 - **PUT** `/admin/{id}/status`，请求体 `{ "status": 1 }`（1 启用 / 0 禁用）
-- 错误：`401` 非超管 / 管理员不存在 / 状态值不合法；`4104` 不能禁用自己；`4105` 不能禁用最后一名启用的超管。
+- 错误：`403` 当前角色无 `ADMIN_MANAGE` / 管理员不存在 / 状态值不合法；`4104` 不能禁用自己；`4105` 不能禁用最后一名启用的超管。
 - 响应 `data`：`"管理员状态修改成功"`。
 
-### ADM-06 删除管理员（超管）
+### ADM-06 删除管理员（`ADMIN_MANAGE`）
 
 - **DELETE** `/admin/{id}`
-- 物理删除。
-- 错误：`401` 非超管 / 管理员不存在；`4104` 不能删除自己；`4105` 不能删除最后一名启用的超管。
+- **逻辑删除**：置 `deleted=1`，同时把账号名改写为 `原账号_del_{id}` 以释放原账号名（删除后可重新创建同名账号）；记录保留，审核流水里的 `reviewer_id` 仍可追溯。
+- 错误：`403` 当前角色无 `ADMIN_MANAGE` / 管理员不存在；`4104` 不能删除自己；`4105` 不能删除最后一名启用的超管。
 - 响应 `data`：`"管理员删除成功"`。
 
 ### ADM-07 修改自己的密码
@@ -271,9 +280,39 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 ### ADM-08 管理员详情
 
 - **GET** `/admin/{id}`
-- 响应 `data`：`id`、`username`、`name`、`avatar`、`role`、`status`、`createTime`、`updateTime`（`password` 被 `@JsonIgnore` 排除）。
-- **id 不存在时返回 `code=200, data=null`，不报错**，前端需处理空数据。
-- 任意已登录管理员可查。
+- 响应 `data`：`id`、`username`、`name`、`avatar`、`role`、`status`、`createTime`、`updateTime`（`password`、`deleted` 被 `@JsonIgnore` 排除）。
+- **id 不存在时返回业务错误 `管理员不存在`**（逻辑删除的账号也视为不存在）。
+- 权限：**本人可查自己**；查他人需要 `ADMIN_MANAGE`，否则 `403`。
+
+### ADM-09 当前登录管理员信息与权限
+
+- **GET** `/admin/me`
+- 响应 `data`：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | long | 管理员 ID |
+| username | string | 登录账号 |
+| name | string | 姓名 |
+| avatar | string | 头像 URL |
+| role | int | 1 超级管理员 / 2 普通管理员 / 3 运营管理员 |
+| roleLabel | string | 角色中文名 |
+| permissions | string[] | 权限点列表，如 `["ADMIN_MANAGE","AUDIT",...]` |
+
+- 前端用它作为**菜单与路由守卫的唯一数据源**：登录后调一次、进入后台布局时再调一次。
+- 账号被禁用后调用会返回 `4102`（即使 token 未过期）。
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "id": 1, "username": "root", "name": "超级管理员", "avatar": "",
+    "role": 1, "roleLabel": "超级管理员",
+    "permissions": ["ADMIN_MANAGE", "AUDIT", "CATEGORY_MANAGE", "USER_MANAGE"]
+  }
+}
+```
 
 ---
 
@@ -564,6 +603,58 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 
 ---
 
+## 6.1 管理员操作日志（1 个）
+
+### LOG-01 分页查询管理员操作日志（`ADMIN_MANAGE`）
+
+- **GET** `/admin/operation-log/page`
+- Query：
+
+| 字段 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| pageNum | number | 否 | 默认 1 |
+| pageSize | number | 否 | 默认 10，**上限 100** |
+| action | string | 否 | `CREATE` / `UPDATE` / `STATUS` / `DELETE` / `RESET_PASSWORD` |
+| adminUsername | string | 否 | 操作人账号，模糊匹配 |
+| startTime | string | 否 | ISO 时间，如 `2026-11-21T10:00` |
+| endTime | string | 否 | ISO 时间 |
+
+- 响应 `data.records[]`：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| id | number | 日志 ID |
+| adminId | number | 操作人 ID |
+| adminUsername | string | 操作人账号快照（账号改名/删除后仍可读） |
+| action | string | 动作码 |
+| actionDesc | string | 动作中文名（后端已翻译） |
+| targetType | string | 对象类型，目前只有 `ADMIN` |
+| targetId | number | 对象 ID |
+| detail | string | 变更摘要，如 `role:2->3`、`status:1->0`、`password:reset`（**不含密码明文**） |
+| ip | string/null | 操作 IP，非 Web 线程为空 |
+| createTime | string | 操作时间 `yyyy-MM-dd HH:mm:ss` |
+
+- 记录范围：管理员管理的 5 类写操作（新增/修改/启停/删除/改自己密码）。
+- 错误：`403` 当前角色无 `ADMIN_MANAGE`（运营与普通管理员均无权查看）。
+
+```json
+{
+  "code": 200,
+  "msg": "success",
+  "data": {
+    "total": 1,
+    "records": [{
+      "id": 12, "adminId": 1, "adminUsername": "root",
+      "action": "UPDATE", "actionDesc": "修改管理员",
+      "targetType": "ADMIN", "targetId": 3,
+      "detail": "role:2->3", "ip": "127.0.0.1", "createTime": "2026-11-21 19:40:12"
+    }]
+  }
+}
+```
+
+---
+
 ## 7. 规划但未实现的接口（前端不能依赖）
 
 以下内容只存在于旧设计稿或 TODO，**当前源码中没有 Controller/Service 实现**，开发页面时必须先补后端或降级。
@@ -789,14 +880,17 @@ const showChrome = computed(() =>
 - [ ] 驳回原因必填且 ≤500 字
 - [ ] 分类禁用/删除的 `4302` 有明确提示
 - [ ] 信用分修改限制 0-100
-- [ ] 普通管理员看不到管理员管理写操作
+- [ ] 普通管理员（角色 2）只看到工作台与审核菜单，直接输入 `/admin/users` 会被弹回工作台
+- [ ] 运营管理员（角色 3）能看到分类管理与用户管理，但看不到管理员管理与操作日志
+- [ ] 操作日志页能按动作筛选，且 `detail` 里的变更摘要可读
+- [ ] 角色被降级后重新进入后台（或刷新），菜单按新权限变化
 - [ ] 刷新 `/admin/...` 页面不会 404（代理 bypass 生效）
 
 ---
 
 ## 9. 建议的下一步
 
-1. 已确认管理端前端**独立为 `swapu_admin_front`**，登录页、`AdminLayout`、路由守卫和 API 层已搭建。
-2. 先落地登录页 + `AdminLayout` + 路由守卫 + `request.js`，跑通 ADM-01。
-3. 按「商品审核 → 评论审核 → 分类管理 → 用户管理 → 管理员管理」顺序开发；工作台等统计接口补齐后再做。
-4. 后端待补接口优先级：平台总览/流量趋势 > 商品状态分布 > 分类销售分布；头像审核可暂缓。
+1. 管理端前端 `swapu_admin_front` 已完成：登录页、`AdminLayout`、路由守卫（按权限点）、API 层、六个业务页面、操作日志页。
+2. RBAC 已落地：三角色 + 四权限点、接口拦截、逻辑删除、管理员操作日志；细节见 [`swapu_admin_rbac.md`](./swapu_admin_rbac.md)。
+3. 后端待补接口优先级：平台总览/流量趋势 > 商品状态分布 > 分类销售分布；头像审核可暂缓。
+4. 可选的工程化改进：给管理端补接口级集成测试（当前 40 个单测覆盖权限/CRUD/日志，但无前端自动化测试）。

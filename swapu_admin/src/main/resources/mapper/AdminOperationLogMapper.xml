@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.swapu_admin.mapper.AdminOperationLogMapper">
+
+    <resultMap id="AdminOperationLogVOMap" type="com.itsean.swapu_admin.vo.AdminOperationLogVO">
+        <id property="id" column="id"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="adminUsername" column="admin_username"/>
+        <result property="action" column="action"/>
+        <result property="targetType" column="target_type"/>
+        <result property="targetId" column="target_id"/>
+        <result property="detail" column="detail"/>
+        <result property="ip" column="ip"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO admin_operation_log (admin_id, admin_username, action, target_type, target_id, detail, ip, create_time)
+        VALUES (#{adminId}, #{adminUsername,jdbcType=VARCHAR}, #{action}, #{targetType,jdbcType=VARCHAR},
+                #{targetId,jdbcType=BIGINT}, #{detail,jdbcType=VARCHAR}, #{ip,jdbcType=VARCHAR}, #{createTime})
+    </insert>
+
+    <select id="pageQuery" resultMap="AdminOperationLogVOMap">
+        SELECT id, admin_id, admin_username, action, target_type, target_id, detail, ip, create_time
+        FROM admin_operation_log
+        <where>
+            <if test="action != null and action != ''">
+                AND action = #{action}
+            </if>
+            <if test="adminUsername != null and adminUsername != ''">
+                AND admin_username LIKE CONCAT('%', #{adminUsername}, '%')
+            </if>
+            <if test="startTime != null">
+                AND create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime != null">
+                AND create_time &lt;= #{endTime}
+            </if>
+        </where>
+        ORDER BY create_time DESC, id DESC
+    </select>
+
+</mapper>

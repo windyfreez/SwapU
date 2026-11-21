@@ -10,8 +10,9 @@
 | password | varchar(255) |  | — | 登录密码 |
 | name | varchar(50) |  | — | 管理员姓名 |
 | avatar | varchar(255) |  | — | 管理员头像 |
-| role | tinyint |  | — | 管理员角色：图中备注为不同级别的管理员角色 |
-| status | tinyint |  | — | 管理员状态：图中备注为启用/禁用 |
+| role | tinyint |  | — | 管理员角色：1超级管理员 2普通管理员 3运营管理员 |
+| status | tinyint |  | — | 管理员状态：1启用 0禁用 |
+| deleted | tinyint |  | ✓ | 逻辑删除：0正常 1已删除（默认0） |
 | create_time | datetime |  | — | 创建时间 |
 | update_time | datetime |  | — | 更新时间 |
 
@@ -204,6 +205,22 @@ ER 图未清晰显示全部状态码，建议以项目代码中的枚举或订�
 
 > `audit_record` 通过 `(type, target_id)` 多态关联被审对象（商品/评论/用户），不设置外键；`idx_audit_record_type_target` 用于按对象查历史流水，`idx_audit_record_reviewer` 用于按审核人筛选。
 
+## 12.1 admin_operation_log（管理员操作日志表）
+
+| 字段名 | 类型 | 主键 | 非空 | 说明 |
+|---|---|---|:---:|---|
+| id | bigint | ✓ | 是 | 日志 ID |
+| admin_id | bigint |  | 是 | 操作人 ID（`admin.id`） |
+| admin_username | varchar(50) |  | — | 操作人账号快照（账号改名/逻辑删除后仍可追溯） |
+| action | varchar(32) |  | 是 | 动作：CREATE / UPDATE / STATUS / DELETE / RESET_PASSWORD |
+| target_type | varchar(32) |  | — | 对象类型，目前只有 ADMIN |
+| target_id | bigint |  | — | 对象 ID |
+| detail | varchar(500) |  | — | 变更摘要，如 `role:2->3`，不含密码明文 |
+| ip | varchar(64) |  | — | 操作 IP（优先取 `X-Forwarded-For` 第一段） |
+| create_time | datetime |  | 是 | 操作时间 |
+
+> 只记录「管理员管理」相关的写操作，查询类操作不入库，避免日志量失控。日志与业务**不在同一事务**：写入失败只记错误日志，不阻断管理员操作。
+
 ## 13. ER 关系说明
 
 | 关系 | 关联字段 | 关系说明 |
@@ -249,11 +266,12 @@ ER 图未清晰显示全部状态码，建议以项目代码中的枚举或订�
 CREATE TABLE admin (
     id          BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '管理员ID',
     username    VARCHAR(50)  COMMENT '管理员账号',
-    password    VARCHAR(255) COMMENT '登录密码',
+    password    VARCHAR(255) COMMENT '登录密码（BCrypt 密文）',
     name        VARCHAR(50)  COMMENT '管理员姓名',
     avatar      VARCHAR(255) COMMENT '管理员头像',
-    role        TINYINT      COMMENT '管理员角色',
-    status      TINYINT      COMMENT '管理员状态',
+    role        TINYINT      COMMENT '管理员角色：1超级管理员 2普通管理员 3运营管理员',
+    status      TINYINT      COMMENT '管理员状态：1启用 0禁用',
+    deleted     TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0正常 1已删除',
     create_time DATETIME     COMMENT '创建时间',
     update_time DATETIME     COMMENT '更新时间'
 ) COMMENT='管理员表';
@@ -471,6 +489,24 @@ CREATE TABLE IF NOT EXISTS audit_record
     KEY idx_audit_record_reviewer (reviewer_id),
     KEY idx_audit_record_review_time (review_time)
 ) COMMENT='审核流水表';
+
+-- =========================
+-- 12.1 管理员操作日志表
+-- =========================
+CREATE TABLE IF NOT EXISTS admin_operation_log
+(
+    id             BIGINT AUTO_INCREMENT COMMENT '日志ID' PRIMARY KEY,
+    admin_id       BIGINT       NOT NULL COMMENT '操作人ID（admin.id）',
+    admin_username VARCHAR(50)  DEFAULT NULL COMMENT '操作人账号快照',
+    action         VARCHAR(32)  NOT NULL COMMENT '动作：CREATE/UPDATE/STATUS/DELETE/RESET_PASSWORD',
+    target_type    VARCHAR(32)  DEFAULT NULL COMMENT '对象类型：ADMIN',
+    target_id      BIGINT       DEFAULT NULL COMMENT '对象ID',
+    detail         VARCHAR(500) DEFAULT NULL COMMENT '变更摘要，如 role:2->3',
+    ip             VARCHAR(64)  DEFAULT NULL COMMENT '操作IP',
+    create_time    DATETIME     NOT NULL COMMENT '操作时间',
+    KEY idx_admin_time (admin_id, create_time),
+    KEY idx_time (create_time)
+) COMMENT='管理员操作日志表';
 ```
 
 ### SQL 使用说明

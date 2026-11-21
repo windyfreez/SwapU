@@ -56,4 +56,11 @@ public class StringConstant {
 
     // ===== 以下合并自 g-swapu_admin-StringConstant.java =====
 
+    // ===== 管理员角色与账号 =====
+    public static final String ADMIN_ROLE_SUPER_DESC = "超级管理员";
+    public static final String ADMIN_ROLE_NORMAL_DESC = "普通管理员";
+    public static final String ADMIN_ROLE_OPERATION_DESC = "运营管理员";
+    /** 逻辑删除时改写账号名的后缀，拼在「原账号 + 后缀 + id」之间，用于释放原账号名 */
+    public static final String ADMIN_DELETED_USERNAME_SUFFIX = "_del_";
+
 }

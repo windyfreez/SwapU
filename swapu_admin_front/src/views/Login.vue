@@ -50,7 +50,7 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { login } from '../api/auth'
+import { login, refreshAdminMe } from '../api/auth'
 import { saveSession } from '../api/request'
 import { notify } from '../utils/notify'
 
@@ -73,6 +73,14 @@ async function submit() {
   try {
     const data = await login({ username: form.username, password: form.password })
     saveSession(data)
+
+    // 登录响应只带基础信息，权限点要从 /admin/me 取；失败不阻断登录，路由守卫会再补一次
+    try {
+      await refreshAdminMe()
+    } catch (meError) {
+      // 忽略：菜单会退化为仅有通用项，受限页面由守卫与后端兜底
+    }
+
     notify.success('登录成功')
 
     const redirect = route.query.redirect

@@ -5,13 +5,13 @@
         <h1 class="page-title">管理员管理</h1>
         <p class="page-desc">仅超级管理员可新增、修改、启停和删除管理员账号</p>
       </div>
-      <div v-if="isSuper" class="page-actions">
+      <div v-if="canManage" class="page-actions">
         <button class="btn" type="button" :disabled="loading" @click="load">刷新</button>
         <button class="btn btn-primary" type="button" @click="openCreate">新增管理员</button>
       </div>
     </div>
 
-    <div v-if="!isSuper" class="notice">当前账号不是超级管理员，无法管理管理员账号。</div>
+    <div v-if="!canManage" class="notice">当前账号没有管理员管理权限，无法查看或管理管理员账号。</div>
 
     <template v-else>
       <div class="panel">
@@ -32,6 +32,7 @@
               <option value="">全部角色</option>
               <option :value="1">超级管理员</option>
               <option :value="2">普通管理员</option>
+              <option :value="3">运营管理员</option>
             </select>
           </div>
           <div class="field">
@@ -159,6 +160,7 @@
           <label>角色</label>
           <select v-model="form.role" class="select">
             <option :value="2">普通管理员</option>
+            <option :value="3">运营管理员</option>
             <option :value="1">超级管理员</option>
           </select>
         </div>
@@ -195,11 +197,13 @@ import {
 import { getAdminById } from '../api/auth'
 import { getAdminInfo, updateAdminInfo } from '../api/request'
 import { ADMIN_ROLE, ADMIN_STATUS, enumOf } from '../utils/enums'
+import { PERMISSION, hasPermission } from '../utils/permission'
 import { notify } from '../utils/notify'
 
 const info = getAdminInfo()
 const currentId = info ? info.id : null
-const isSuper = computed(() => Boolean(info && info.role === 1))
+// 管理员管理=ADMIN_MANAGE，目前仅超级管理员拥有；用权限点判断而不是硬编码 role === 1
+const canManage = computed(() => hasPermission(PERMISSION.ADMIN_MANAGE))
 
 const filters = reactive({ username: '', role: '', status: '' })
 const query = reactive({ pageNum: 1, pageSize: 10 })
@@ -216,7 +220,7 @@ const formError = ref('')
 const saving = ref(false)
 
 async function load() {
-  if (!isSuper.value) return
+  if (!canManage.value) return
   loading.value = true
   error.value = ''
   try {
@@ -279,7 +283,7 @@ function openEdit(row) {
   form.password = ''
   form.name = row.name || ''
   form.avatar = row.avatar || ''
-  form.role = row.role === 1 ? 1 : 2
+  form.role = row.role || 2
   formError.value = ''
   modalOpen.value = true
 }
@@ -377,6 +381,6 @@ async function remove(row) {
 }
 
 onMounted(() => {
-  if (isSuper.value) load()
+  if (canManage.value) load()
 })
 </script>

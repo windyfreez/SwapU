@@ -2,6 +2,8 @@ package com.itsean.swapu_admin.controller.admin;
 
 import com.itsean.pojo.PageResult;
 import com.itsean.pojo.Result;
+import com.itsean.swapu_admin.annotation.RequirePermission;
+import com.itsean.swapu_admin.constant.AdminPermission;
 import com.itsean.swapu_admin.dto.AuditRecordPageQueryDTO;
 import com.itsean.swapu_admin.dto.CommentAuditPageQueryDTO;
 import com.itsean.swapu_admin.dto.CommentReviewDTO;
@@ -23,9 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 审核管理接口（管理端）
+ * <p>
+ * 整个模块只需要 AUDIT 权限：超级管理员、运营管理员、普通管理员都拥有该权限。
  */
 @RestController
 @RequestMapping("/admin/audit")
+@RequirePermission(AdminPermission.AUDIT)
 @Slf4j
 @Api(tags = "审核管理接口")
 public class AuditController {

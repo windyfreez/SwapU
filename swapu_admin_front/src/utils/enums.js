@@ -30,7 +30,8 @@ export const AUDIT_RESULT = {
 /** 管理员角色 */
 export const ADMIN_ROLE = {
   1: { label: '超级管理员', tag: 'info' },
-  2: { label: '普通管理员', tag: 'muted' }
+  2: { label: '普通管理员', tag: 'muted' },
+  3: { label: '运营管理员', tag: 'warning' }
 }
 
 /** 管理员状态 */
@@ -103,3 +104,24 @@ export function enumOptions(map) {
 export function conditionText(value) {
   return CONDITION_DESC[value] || '未知成色'
 }
+
+/**
+ * 管理员操作日志动作，key 是字符串，与后端 AdminLogAction 枚举名一致。
+ * 注意：key 非数值，不能用于 enumOptions（那会按 Number 排序）。
+ */
+export const ADMIN_LOG_ACTION = {
+  CREATE: { label: '新增管理员', tag: 'success' },
+  UPDATE: { label: '修改管理员', tag: 'info' },
+  STATUS: { label: '启停管理员', tag: 'warning' },
+  DELETE: { label: '删除管理员', tag: 'danger' },
+  RESET_PASSWORD: { label: '修改密码', tag: 'muted' }
+}
+
+/** 操作日志动作下拉选项 */
+export const ADMIN_LOG_ACTION_OPTIONS = [
+  { value: 'CREATE', label: '新增管理员' },
+  { value: 'UPDATE', label: '修改管理员' },
+  { value: 'STATUS', label: '启停管理员' },
+  { value: 'DELETE', label: '删除管理员' },
+  { value: 'RESET_PASSWORD', label: '修改密码' }
+]

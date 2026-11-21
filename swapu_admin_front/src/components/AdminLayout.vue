@@ -66,10 +66,12 @@
 </template>
 
 <script setup>
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { clearSession, getAdminInfo } from '../api/request'
+import { refreshAdminMe } from '../api/auth'
 import { ADMIN_ROLE, enumOf } from '../utils/enums'
+import { PERMISSION } from '../utils/permission'
 import { initialOf } from '../utils/format'
 
 const route = useRoute()
@@ -78,6 +80,10 @@ const router = useRouter()
 const sidebarOpen = ref(false)
 const info = ref(getAdminInfo())
 
+/**
+ * 菜单与路由守卫共用同一套权限点：item.permission 为空表示所有管理员可见。
+ * 权限点与后端 AdminPermission 一一对应，前端只做显示层控制。
+ */
 const navGroups = [
   {
     title: '概览',
@@ -86,17 +92,23 @@ const navGroups = [
   {
     title: '内容审核',
     items: [
-      { to: '/admin/audit/products', label: '商品审核' },
-      { to: '/admin/audit/comments', label: '评论审核' },
-      { to: '/admin/audit/records', label: '审核流水' }
+      { to: '/admin/audit/products', label: '商品审核', permission: PERMISSION.AUDIT },
+      { to: '/admin/audit/comments', label: '评论审核', permission: PERMISSION.AUDIT },
+      { to: '/admin/audit/records', label: '审核流水', permission: PERMISSION.AUDIT }
     ]
   },
   {
     title: '运营管理',
     items: [
-      { to: '/admin/categories', label: '分类管理' },
-      { to: '/admin/users', label: '用户管理' },
-      { to: '/admin/admins', label: '管理员管理', superOnly: true }
+      { to: '/admin/categories', label: '分类管理', permission: PERMISSION.CATEGORY_MANAGE },
+      { to: '/admin/users', label: '用户管理', permission: PERMISSION.USER_MANAGE }
+    ]
+  },
+  {
+    title: '系统管理',
+    items: [
+      { to: '/admin/admins', label: '管理员管理', permission: PERMISSION.ADMIN_MANAGE },
+      { to: '/admin/operation-log', label: '操作日志', permission: PERMISSION.ADMIN_MANAGE }
     ]
   },
   {
@@ -106,11 +118,13 @@ const navGroups = [
 ]
 
 const groups = computed(() => {
-  const isSuper = info.value && info.value.role === 1
+  // 依赖 info 而不是直接读 localStorage，权限刷新后菜单会自动重算
+  const me = info.value
+  const permissions = me && Array.isArray(me.permissions) ? me.permissions : []
   return navGroups
     .map((group) => ({
       ...group,
-      items: group.items.filter((item) => !item.superOnly || isSuper)
+      items: group.items.filter((item) => !item.permission || permissions.includes(item.permission))
     }))
     .filter((group) => group.items.length > 0)
 })
@@ -122,7 +136,13 @@ const displayName = computed(() => {
 
 const avatarChar = computed(() => initialOf(info.value && info.value.name, info.value && info.value.username))
 
-const roleLabel = computed(() => enumOf(ADMIN_ROLE, info.value && info.value.role).label)
+const roleLabel = computed(() => {
+  // /admin/me 会返回后端维护的角色名称，优先使用；旧会话回落到枚举表
+  if (info.value && info.value.roleLabel) {
+    return info.value.roleLabel
+  }
+  return enumOf(ADMIN_ROLE, info.value && info.value.role).label
+})
 
 watch(
   () => route.fullPath,
@@ -131,6 +151,20 @@ watch(
     info.value = getAdminInfo()
   }
 )
+
+/**
+ * 进入后台时刷新一次当前管理员信息，角色/权限被调整后菜单能及时反映
+ */
+onMounted(async () => {
+  try {
+    const me = await refreshAdminMe()
+    if (me) {
+      info.value = me
+    }
+  } catch (error) {
+    // 刷新失败沿用本地缓存；真正的鉴权始终在服务端
+  }
+})
 
 function logout() {
   if (!window.confirm('确定退出登录吗？')) return

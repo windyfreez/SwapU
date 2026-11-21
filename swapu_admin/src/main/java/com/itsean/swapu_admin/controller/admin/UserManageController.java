@@ -2,6 +2,8 @@ package com.itsean.swapu_admin.controller.admin;
 
 import com.itsean.pojo.PageResult;
 import com.itsean.pojo.Result;
+import com.itsean.swapu_admin.annotation.RequirePermission;
+import com.itsean.swapu_admin.constant.AdminPermission;
 import com.itsean.swapu_admin.dto.UserCreditScoreDTO;
 import com.itsean.swapu_admin.dto.UserPageQueryDTO;
 import com.itsean.swapu_admin.dto.UserStatusDTO;
@@ -22,9 +24,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 用户管理接口（管理端）
+ * <p>
+ * 需要 USER_MANAGE 权限：超级管理员与运营管理员拥有，普通管理员无权访问。
  */
 @RestController
 @RequestMapping("/admin/user")
+@RequirePermission(AdminPermission.USER_MANAGE)
 @Slf4j
 @Api(tags = "用户管理接口")
 public class UserManageController {

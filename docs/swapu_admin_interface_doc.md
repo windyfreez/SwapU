@@ -1,6 +1,7 @@
 # SwapU 管理端接口文档
 
 > **实现状态（2026-11）：** 本文档是最初的设计稿，其中「平台统计」「头像审核」等接口尚未实现，部分字段与路径也与当前代码不一致。前端开发请以实际代码核对后的 [swapu_admin_api_inventory.md](./swapu_admin_api_inventory.md) 为准。
+> **角色与权限：** 已从「超管/普通」两种角色扩展为三种（1 超管 / 2 普通 / 3 运营），接口按权限点鉴权、越权返回 `code=403`；完整矩阵与实施记录见 [swapu_admin_rbac.md](./swapu_admin_rbac.md)。
 
 ## 基础信息
 
@@ -28,7 +29,7 @@
 | 评论状态 `comment.status` | 0待审核 / 1已发布 / 2审核驳回 | 用户端仅展示 `status=1` |
 | 审核类型 `audit_record.type` | 1商品 / 2评论 / 3头像 | |
 | 审核结论 `audit_record.result` | 1通过 / 2驳回 | |
-| 管理员角色 `admin.role` | 1超级管理员 / 2普通管理员 | |
+| 管理员角色 `admin.role` | 1超级管理员 / 2普通管理员 / 3运营管理员 | |
 | 用户状态 `user.status` | 1正常 / 0禁用 | |
 | 分类状态 `category.status` | 1启用 / 0禁用 | |
 

@@ -10,6 +10,7 @@
         <result property="avatar" column="avatar"/>
         <result property="role" column="role"/>
         <result property="status" column="status"/>
+        <result property="deleted" column="deleted"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
     </resultMap>
@@ -43,6 +44,8 @@
     <select id="pageQuery" resultMap="AdminResultMap">
         select * from admin
         <where>
+            <!-- 逻辑删除：列表只展示未删除的管理员 -->
+            deleted = 0
             <if test="username != null and username != ''">
                 and username like concat('%', #{username}, '%')
             </if>

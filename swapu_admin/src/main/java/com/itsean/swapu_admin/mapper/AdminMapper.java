@@ -2,13 +2,14 @@ package com.itsean.swapu_admin.mapper;
 
 import com.itsean.swapu_admin.dto.AdminPageQueryDTO;
 import com.itsean.pojo.entity.Admin;
-import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -20,7 +21,7 @@ public interface AdminMapper {
      * @param username 管理员账号
      * @return 管理员信息，不存在时返回 null
      */
-    @Select("select * from admin where username = #{username}")
+    @Select("select * from admin where username = #{username} and deleted = 0")
     Admin findByUsername(String username);
 
     /**
@@ -29,7 +30,7 @@ public interface AdminMapper {
      * @param id 管理员ID
      * @return 管理员信息，不存在时返回 null
      */
-    @Select("select * from admin where id = #{id}")
+    @Select("select * from admin where id = #{id} and deleted = 0")
     Admin findById(Long id);
 
     /**
@@ -51,7 +52,7 @@ public interface AdminMapper {
      * @param status    状态
      * @return 符合条件的管理员数量
      */
-    @Select("select count(*) from admin where role = #{role} and status = #{status} and id != #{excludeId}")
+    @Select("select count(*) from admin where role = #{role} and status = #{status} and deleted = 0 and id != #{excludeId}")
     int countByRoleAndStatusExcludeId(@Param("excludeId") Long excludeId,
                                       @Param("role") Integer role,
                                       @Param("status") Integer status);
@@ -64,12 +65,20 @@ public interface AdminMapper {
     void update(Admin admin);
 
     /**
-     * 根据id删除管理员
+     * 逻辑删除管理员：置 deleted = 1，同时把账号名改写为「原账号 + _del_ + id」以释放原账号名
+     * <p>
+     * 语句自带 {@code deleted = 0} 条件，重复删除时影响行数为 0，可用于幂等判断。
      *
-     * @param id 管理员ID
+     * @param id         管理员ID
+     * @param username   改写后的账号名
+     * @param updateTime 更新时间
+     * @return 影响行数，1 表示本次删除成功
      */
-    @Delete("delete from admin where id = #{id}")
-    void deleteById(Long id);
+    @Update("update admin set deleted = 1, username = #{username}, update_time = #{updateTime} " +
+            "where id = #{id} and deleted = 0")
+    int logicDeleteById(@Param("id") Long id,
+                        @Param("username") String username,
+                        @Param("updateTime") LocalDateTime updateTime);
 
     /**
      * 分页查询管理员列表

@@ -28,7 +28,7 @@ public class AdminDTO implements Serializable {
     @ApiModelProperty("头像URL")
     private String avatar;
 
-    @ApiModelProperty("角色：1超级管理员 2普通管理员，默认2")
+    @ApiModelProperty("角色：1超级管理员 2普通管理员 3运营管理员，新增时默认2")
     private Integer role;
 
 }

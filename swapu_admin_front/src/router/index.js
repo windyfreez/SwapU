@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getAdminInfo, getToken } from '../api/request'
+import { refreshAdminMe } from '../api/auth'
+import { hasPermission, PERMISSION } from '../utils/permission'
 import AdminLayout from '../components/AdminLayout.vue'
 import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
@@ -9,8 +11,14 @@ import AuditRecords from '../views/AuditRecords.vue'
 import CategoryManage from '../views/CategoryManage.vue'
 import UserManage from '../views/UserManage.vue'
 import AdminManage from '../views/AdminManage.vue'
+import OperationLog from '../views/OperationLog.vue'
 import AdminProfile from '../views/AdminProfile.vue'
 
+/**
+ * 路由的 meta.permission 与后端权限点一一对应：
+ * 进入页面前先确认当前管理员拥有该权限，否则回落到工作台。
+ * 注意：前端的守卫只做体验层拦截，真正的鉴权在服务端。
+ */
 const routes = [
   { path: '/', redirect: '/admin/dashboard' },
   {
@@ -24,12 +32,41 @@ const routes = [
     redirect: '/admin/dashboard',
     children: [
       { path: 'dashboard', component: Dashboard, meta: { title: '工作台' } },
-      { path: 'audit/products', component: ProductAudit, meta: { title: '商品审核' } },
-      { path: 'audit/comments', component: CommentAudit, meta: { title: '评论审核' } },
-      { path: 'audit/records', component: AuditRecords, meta: { title: '审核流水' } },
-      { path: 'categories', component: CategoryManage, meta: { title: '分类管理' } },
-      { path: 'users', component: UserManage, meta: { title: '用户管理' } },
-      { path: 'admins', component: AdminManage, meta: { title: '管理员管理', requiresSuper: true } },
+      {
+        path: 'audit/products',
+        component: ProductAudit,
+        meta: { title: '商品审核', permission: PERMISSION.AUDIT }
+      },
+      {
+        path: 'audit/comments',
+        component: CommentAudit,
+        meta: { title: '评论审核', permission: PERMISSION.AUDIT }
+      },
+      {
+        path: 'audit/records',
+        component: AuditRecords,
+        meta: { title: '审核流水', permission: PERMISSION.AUDIT }
+      },
+      {
+        path: 'categories',
+        component: CategoryManage,
+        meta: { title: '分类管理', permission: PERMISSION.CATEGORY_MANAGE }
+      },
+      {
+        path: 'users',
+        component: UserManage,
+        meta: { title: '用户管理', permission: PERMISSION.USER_MANAGE }
+      },
+      {
+        path: 'admins',
+        component: AdminManage,
+        meta: { title: '管理员管理', permission: PERMISSION.ADMIN_MANAGE }
+      },
+      {
+        path: 'operation-log',
+        component: OperationLog,
+        meta: { title: '操作日志', permission: PERMISSION.ADMIN_MANAGE }
+      },
       { path: 'profile', component: AdminProfile, meta: { title: '个人设置' } }
     ]
   },
@@ -42,7 +79,7 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 })
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const token = getToken()
 
   // 未登录只能访问登录页
@@ -55,10 +92,21 @@ router.beforeEach((to) => {
     return '/admin/dashboard'
   }
 
-  // 管理员管理仅超级管理员可见，直接输入地址也拦住
-  if (to.meta.requiresSuper) {
-    const info = getAdminInfo()
-    if (!info || info.role !== 1) {
+  const required = to.meta.permission
+  if (required) {
+    let info = getAdminInfo()
+
+    // 旧会话（登录时还没有写入 permissions）先向后端刷新一次
+    if (!info || !Array.isArray(info.permissions)) {
+      try {
+        info = await refreshAdminMe()
+      } catch (error) {
+        // 取不到权限（会话失效/后端异常）时不让进入受限页面
+        return '/admin/dashboard'
+      }
+    }
+
+    if (!hasPermission(required)) {
       return '/admin/dashboard'
     }
   }

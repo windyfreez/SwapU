@@ -10,8 +10,9 @@ CREATE TABLE IF NOT EXISTS admin
     password    VARCHAR(100) NOT NULL COMMENT '登录密码（BCrypt密文）',
     name        VARCHAR(50) COMMENT '姓名',
     avatar      VARCHAR(255) COMMENT '头像地址',
-    role        TINYINT DEFAULT 2 COMMENT '角色：1超级管理员 2普通管理员',
+    role        TINYINT DEFAULT 2 COMMENT '角色：1超级管理员 2普通管理员 3运营管理员',
     status      TINYINT DEFAULT 1 COMMENT '账号状态：1启用 0禁用',
+    deleted     TINYINT NOT NULL DEFAULT 0 COMMENT '逻辑删除：0正常 1已删除',
     create_time DATETIME COMMENT '创建时间',
     update_time DATETIME COMMENT '更新时间',
     CONSTRAINT admin_username UNIQUE (username)

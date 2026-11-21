@@ -51,6 +51,7 @@ public class NumberConstant {
     public static final int AUDIT_REASON_MAX_LENGTH = 500;
     public static final Integer ADMIN_ROLE_SUPER = 1;//超级管理员
     public static final Integer ADMIN_ROLE_NORMAL = 2;//普通管理员
+    public static final Integer ADMIN_ROLE_OPERATION = 3;//运营管理员（审核 + 分类管理 + 用户管理）
     public static final Integer ADMIN_STATUS_ENABLED = 1;//启用
     public static final Integer ADMIN_STATUS_DISABLED = 0;//禁用
     public static final int ADMIN_USERNAME_MIN_LENGTH = 2;

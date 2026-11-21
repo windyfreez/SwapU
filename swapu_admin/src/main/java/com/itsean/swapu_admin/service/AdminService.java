@@ -6,6 +6,7 @@ import com.itsean.swapu_admin.dto.AdminLoginDTO;
 import com.itsean.swapu_admin.dto.AdminPageQueryDTO;
 import com.itsean.swapu_admin.dto.AdminPasswordDTO;
 import com.itsean.pojo.entity.Admin;
+import com.itsean.swapu_admin.vo.AdminMeVO;
 
 /**
  * 管理员模块业务接口
@@ -67,8 +68,18 @@ public interface AdminService {
 
     /**
      * 根据ID查询管理员详细信息
-     * @param id
-     * @return
+     * <p>
+     * 本人可查自己；查他人需要管理员管理权限。
+     *
+     * @param id 管理员ID
+     * @return 管理员信息
      */
     Admin getById(Long id);
+
+    /**
+     * 查询当前登录管理员的信息与权限，供前端做菜单/路由控制
+     *
+     * @return 当前管理员信息 + 权限点列表
+     */
+    AdminMeVO currentAdmin();
 }

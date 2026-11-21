@@ -1,6 +1,8 @@
 package com.itsean.swapu_admin.controller.admin;
 
 import com.itsean.pojo.Result;
+import com.itsean.swapu_admin.annotation.RequirePermission;
+import com.itsean.swapu_admin.constant.AdminPermission;
 import com.itsean.swapu_admin.dto.CategoryDTO;
 import com.itsean.swapu_admin.dto.CategoryStatusDTO;
 import com.itsean.swapu_admin.service.CategoryService;
@@ -24,6 +26,11 @@ import java.util.List;
 
 /**
  * 分类管理接口
+ * <p>
+ * 注意：只有「写操作」需要 CATEGORY_MANAGE 权限。
+ * {@code GET /admin/category/list} 故意不加权限注解——它是审核页的类目筛选字典
+ * （ProductAudit.vue 会调用），普通管理员也需要读取；所以「分类管理」对普通管理员是
+ * 「不能改」而不是「不能看」。
  */
 @RestController
 @RequestMapping("/admin/category")
@@ -52,6 +59,7 @@ public class CategoryController {
      * @return 新增分类的ID
      */
     @PostMapping
+    @RequirePermission(AdminPermission.CATEGORY_MANAGE)
     @ApiOperation("新增分类")
     public Result<CategoryAddVO> add(@RequestBody CategoryDTO categoryDTO) {
         log.info("新增分类：{}", categoryDTO.getName());
@@ -65,6 +73,7 @@ public class CategoryController {
      * @return 操作结果
      */
     @PutMapping
+    @RequirePermission(AdminPermission.CATEGORY_MANAGE)
     @ApiOperation("修改分类")
     public Result update(@RequestBody CategoryDTO categoryDTO) {
         log.info("修改分类：{}", categoryDTO.getId());
@@ -79,6 +88,7 @@ public class CategoryController {
      * @return 操作结果
      */
     @PutMapping("/{id}/status")
+    @RequirePermission(AdminPermission.CATEGORY_MANAGE)
     @ApiOperation("启用/禁用分类")
     public Result updateStatus(@ApiParam(value = "分类ID", example = "1") @PathVariable Long id, @RequestBody CategoryStatusDTO categoryStatusDTO) {
         log.info("启用/禁用分类：{}，状态：{}", id, categoryStatusDTO.getStatus());
@@ -92,6 +102,7 @@ public class CategoryController {
      * @return 操作结果
      */
     @DeleteMapping("/{id}")
+    @RequirePermission(AdminPermission.CATEGORY_MANAGE)
     @ApiOperation("删除分类")
     public Result deleteById(@ApiParam(value = "分类ID", example = "1") @PathVariable Long id) {
         log.info("删除分类：{}", id);

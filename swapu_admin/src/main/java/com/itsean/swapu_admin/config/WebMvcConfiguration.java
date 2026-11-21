@@ -1,6 +1,7 @@
 package com.itsean.swapu_admin.config;
 
 import com.itsean.common.properties.JwtProperties;
+import com.itsean.swapu_admin.interceptor.AdminPermissionInterceptor;
 import com.itsean.swapu_admin.interceptor.JwtTokenAdminInterceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Autowired
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
+    @Autowired
+    private AdminPermissionInterceptor adminPermissionInterceptor;
     @Autowired
     private JwtProperties jwtProperties;
 
@@ -99,8 +102,14 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
     protected void addInterceptors(InterceptorRegistry registry) {
         log.info("开始注册自定义拦截器...");
 
-        //管理端接口：使用 admin-secret-key 校验管理端令牌，登录接口放行
+        // 第一道：管理端接口使用 admin-secret-key 校验「你是谁」，登录接口放行
         registry.addInterceptor(jwtTokenAdminInterceptor)
+                .addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login");
+
+        // 第二道：「你能做什么」，只拦截标注了 @RequirePermission 的接口
+        // 注册顺序即执行顺序，必须排在令牌校验之后，否则取不到 BaseContext 中的 adminId
+        registry.addInterceptor(adminPermissionInterceptor)
                 .addPathPatterns("/admin/**")
                 .excludePathPatterns("/admin/login");
     }

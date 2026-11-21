@@ -71,6 +71,12 @@ public class MessageConstant {
     public static final String ADMIN_USERNAME_LENGTH_ERROR = "账号长度需为2-20个字符";
     public static final String ADMIN_PASSWORD_LENGTH_ERROR = "密码长度需为6-20位";
     public static final String ADMIN_STATUS_ERROR = "管理员状态值不合法";
+    /** 当前登录管理员所属角色不具备该操作所需权限 */
+    public static final String ADMIN_PERMISSION_DENIED = "当前角色无权执行该操作";
+    /** 角色取值不合法（只允许 1/2/3） */
+    public static final String ADMIN_ROLE_ERROR = "管理员角色取值不合法";
+    /** 不允许修改自己的角色 */
+    public static final String ADMIN_CANNOT_CHANGE_SELF_ROLE = "不能修改自己的角色，请让其他超级管理员操作";
     public static final String CATEGORY_NAME_ALREADY_EXIST = "分类名称已存在";
     public static final String CATEGORY_NOT_ALLOW_DISABLE = "该分类下存在在售商品，请先下架商品再禁用分类";
     public static final String CATEGORY_HAS_PRODUCT = "该分类下存在商品，无法删除";

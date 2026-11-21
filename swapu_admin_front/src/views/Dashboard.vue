@@ -31,7 +31,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div v-if="canUser" class="stat-card">
         <div class="stat-label">注册用户</div>
         <div class="stat-value">{{ stats.users }}</div>
         <div class="stat-foot">
@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <div class="stat-card">
+      <div v-if="canCategory" class="stat-card">
         <div class="stat-label">商品分类</div>
         <div class="stat-value">{{ stats.categories }}</div>
         <div class="stat-foot">启用 {{ stats.enabledCategories }} 个</div>
@@ -60,7 +60,7 @@
             <div class="quick-title">评论审核</div>
             <div class="quick-desc">处理用户评论，驳回时需填写原因</div>
           </router-link>
-          <router-link to="/admin/categories" class="quick-card">
+          <router-link v-if="canCategory" to="/admin/categories" class="quick-card">
             <div class="quick-title">分类管理</div>
             <div class="quick-desc">维护商品分类的名称、排序与启停状态</div>
           </router-link>
@@ -80,6 +80,11 @@ import { onMounted, reactive, ref } from 'vue'
 import { pageProductAudits, pageCommentAudits } from '../api/audit'
 import { pageUsers } from '../api/user'
 import { listCategories } from '../api/category'
+import { hasPermission, PERMISSION } from '../utils/permission'
+
+// 没有对应权限就不展示卡片、也不发请求，避免普通管理员一进工作台就吃到 403
+const canUser = hasPermission(PERMISSION.USER_MANAGE)
+const canCategory = hasPermission(PERMISSION.CATEGORY_MANAGE)
 
 const loading = ref(false)
 const error = ref('')
@@ -96,27 +101,50 @@ async function load() {
   loading.value = true
   error.value = ''
 
-  const [products, comments, users, categories] = await Promise.allSettled([
+  // 只请求当前角色有权访问的接口
+  const keys = ['products', 'comments']
+  const requests = [
     pageProductAudits({ status: 0, pageNum: 1, pageSize: 1 }),
-    pageCommentAudits({ status: 0, pageNum: 1, pageSize: 1 }),
-    pageUsers({ pageNum: 1, pageSize: 1 }),
-    listCategories()
-  ])
-
-  stats.pendingProducts = products.status === 'fulfilled' ? products.value.total : '—'
-  stats.pendingComments = comments.status === 'fulfilled' ? comments.value.total : '—'
-  stats.users = users.status === 'fulfilled' ? users.value.total : '—'
-
-  if (categories.status === 'fulfilled') {
-    const list = categories.value || []
-    stats.categories = list.length
-    stats.enabledCategories = list.filter((item) => item.status === 1).length
-  } else {
-    stats.categories = '—'
-    stats.enabledCategories = '—'
+    pageCommentAudits({ status: 0, pageNum: 1, pageSize: 1 })
+  ]
+  if (canUser) {
+    keys.push('users')
+    requests.push(pageUsers({ pageNum: 1, pageSize: 1 }))
+  }
+  if (canCategory) {
+    keys.push('categories')
+    requests.push(listCategories())
   }
 
-  const failed = [products, comments, users, categories]
+  const results = await Promise.allSettled(requests)
+  const byKey = {}
+  results.forEach((result, index) => {
+    byKey[keys[index]] = result
+  })
+
+  const products = byKey.products
+  const comments = byKey.comments
+  stats.pendingProducts = products && products.status === 'fulfilled' ? products.value.total : '—'
+  stats.pendingComments = comments && comments.status === 'fulfilled' ? comments.value.total : '—'
+
+  if (canUser) {
+    const users = byKey.users
+    stats.users = users && users.status === 'fulfilled' ? users.value.total : '—'
+  }
+
+  if (canCategory) {
+    const categories = byKey.categories
+    if (categories && categories.status === 'fulfilled') {
+      const list = categories.value || []
+      stats.categories = list.length
+      stats.enabledCategories = list.filter((item) => item.status === 1).length
+    } else {
+      stats.categories = '—'
+      stats.enabledCategories = '—'
+    }
+  }
+
+  const failed = results
     .filter((item) => item.status === 'rejected')
     .map((item) => item.reason && item.reason.message)
     .filter(Boolean)
