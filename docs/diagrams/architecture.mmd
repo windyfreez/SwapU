@@ -1,0 +1,41 @@
+flowchart TB
+    subgraph 客户端
+        U["用户端 SPA :5173"]
+        A["管理端 SPA :5174"]
+        NG["Nginx 反向代理"]
+    end
+
+    subgraph 应用层
+        US["SwapU_user :8080"]
+        AS["swapu_admin :8081"]
+        PJ["swapu_pojo 共享模型"]
+        CM["swapu_common 基础设施"]
+    end
+
+    subgraph 中间件
+        RD[("Redis 缓存与库存")]
+        MQ[("RabbitMQ 异步消息")]
+        OSS[("阿里云 OSS 图片")]
+        LLM["DeepSeek API"]
+    end
+
+    subgraph 数据层
+        DB[("MySQL 8.0 十三张表")]
+    end
+
+    U --> NG
+    A --> NG
+    NG --> US
+    NG --> AS
+    US --> PJ
+    AS --> PJ
+    US --> CM
+    AS --> CM
+    US --> RD
+    AS --> RD
+    US --> MQ
+    US --> OSS
+    US --> LLM
+    US --> DB
+    AS --> DB
+    MQ --> DB

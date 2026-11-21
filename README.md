@@ -147,200 +147,26 @@ SwapU 是一个面向校园场景的 C2C 二手交易平台，采用**前后端�
 
 ### 系统架构图
 
-```mermaid
-flowchart TB
-    subgraph client["客户端层"]
-        direction TB
-        U["用户端 SPA<br/>Vue 3 + Vite<br/>:5173"]
-        A["管理端 SPA<br/>Vue 3 + Vite + ECharts<br/>:5174"]
-        NG["Nginx<br/>静态资源托管 / 反向代理"]
-    end
+![系统架构图](docs/diagrams/architecture.svg)
 
-    subgraph app["应用层 · Spring Boot 2.7 / JDK 17"]
-        direction TB
-        US["SwapU_user :8080<br/>账号 · 商品 · 订单 · 聊天<br/>推荐 · AI 客服"]
-        AS["swapu_admin :8081<br/>管理员 · RBAC · 审核<br/>分类 · 用户 · 统计 · 日志"]
-        PJ["swapu_pojo<br/>entity · dto · vo · PageResult"]
-        CM["swapu_common<br/>常量 · 异常 · JWT · OSS · 上下文"]
-    end
+| 层次 | 组件 | 职责 |
+| :--- | :--- | :--- |
+| 客户端 | 用户端 SPA（:5173） | 商品浏览、下单支付、聊天、个人中心 |
+| 客户端 | 管理端 SPA（:5174） | 审核、分类、用户、管理员、操作日志、数据看板 |
+| 接入 | Nginx | 静态资源托管、反向代理、WebSocket 透传 |
+| 应用 | SwapU_user（:8080） | 账号、商品、订单、聊天、推荐、AI 客服 |
+| 应用 | swapu_admin（:8081） | RBAC、审核、分类、用户管理、操作日志、平台统计 |
+| 公共 | swapu_pojo / swapu_common | 共享模型与基础设施（常量、异常、JWT、OSS、上下文） |
+| 中间件 | Redis / RabbitMQ / OSS / DeepSeek | 缓存与库存预扣、异步削峰、图片存储、智能能力 |
+| 数据 | MySQL 8.0（13 张表） | 业务数据持久化 |
 
-    subgraph middleware["中间件与外部服务"]
-        direction TB
-        RD[("Redis<br/>热点缓存 · 库存预扣<br/>行为缓冲 · 限流")]
-        MQ[("RabbitMQ<br/>库存变更异步落库")]
-        OSS[("阿里云 OSS<br/>商品图片")]
-        LLM["DeepSeek API<br/>AI 客服 · 语义重排"]
-    end
-
-    subgraph data["数据层"]
-        DB[("MySQL 8.0<br/>campus · 13 张表")]
-    end
-
-    U --> NG
-    A --> NG
-    NG --> US
-    NG --> AS
-    US --> PJ
-    AS --> PJ
-    US --> CM
-    AS --> CM
-    US --> RD
-    AS --> RD
-    US --> MQ
-    US --> OSS
-    US --> LLM
-    US --> DB
-    AS --> DB
-    MQ --> DB
-```
+> 图源：[docs/diagrams/architecture.mmd](docs/diagrams/architecture.mmd)，可在 [mermaid.live](https://mermaid.live) 打开编辑后重新导出。
 
 ### 数据库ER图：
 
-```mermaid
-erDiagram
-    USER {
-        bigint id PK "主键"
-        varchar username "登录账号"
-        varchar nickname "昵称"
-        decimal balance "余额"
-        int credit_score "信用分"
-        tinyint status "1正常 0禁用"
-    }
+![数据库 ER 图](docs/diagrams/er-model.svg)
 
-    ADDRESS_BOOK {
-        bigint id PK "主键"
-        bigint user_id FK "所属用户"
-        varchar consignee "收货人"
-        varchar phone "手机号"
-        varchar detail "详细地址"
-        tinyint is_default "是否默认"
-    }
-
-    ADMIN {
-        bigint id PK "主键"
-        varchar username "登录账号"
-        varchar password "BCrypt 密文"
-        tinyint role "1超管 2普通 3运营"
-        tinyint status "1启用 0禁用"
-        tinyint deleted "逻辑删除"
-    }
-
-    ADMIN_OPERATION_LOG {
-        bigint id PK "主键"
-        bigint admin_id FK "操作人"
-        varchar admin_username "操作人快照"
-        varchar action "动作类型"
-        bigint target_id "对象ID"
-        varchar detail "变更摘要"
-        varchar ip "操作IP"
-        datetime create_time "操作时间"
-    }
-
-    CATEGORY {
-        int id PK "主键"
-        varchar name "分类名称"
-        int sort "排序值"
-        tinyint status "1启用 0禁用"
-    }
-
-    PRODUCT {
-        bigint id PK "主键"
-        bigint user_id FK "发布用户"
-        int category_id FK "所属分类"
-        varchar title "标题"
-        decimal price "售价"
-        decimal original_price "原价"
-        json images "图片列表"
-        tinyint status "0待审 1在售 2已售 3下架 4驳回"
-        int view_count "浏览量"
-        int quantity "库存"
-    }
-
-    ORDERS {
-        bigint order_id PK "主键"
-        varchar order_no "订单编号"
-        bigint product_id FK "商品"
-        bigint buyer_id FK "买家"
-        bigint seller_id FK "卖家"
-        bigint address_id FK "收货地址"
-        decimal total_amount "订单金额"
-        tinyint status "1待确认 2待支付 3待发货 4待收货 5已收货 6取消 7退货审核 8已退款 9取消审核"
-        tinyint pay_type "1支付宝 2微信 3余额"
-        datetime receive_time "收货时间"
-    }
-
-    FAVORITE {
-        bigint id PK "主键"
-        bigint user_id FK "用户"
-        bigint product_id FK "商品"
-    }
-
-    COMMENT {
-        bigint id PK "主键"
-        bigint product_id FK "商品"
-        bigint user_id FK "评论人"
-        tinyint status "0待审 1已发布 2驳回"
-        int like_count "点赞数"
-    }
-
-    AUDIT_RECORD {
-        bigint id PK "主键"
-        tinyint type "1商品 2评论 3头像"
-        bigint target_id "被审对象"
-        tinyint result "1通过 2驳回"
-        bigint reviewer_id FK "审核人"
-        datetime review_time "审核时间"
-    }
-
-    CHAT_MESSAGE {
-        bigint id PK "主键"
-        bigint from_user_id FK "发送方"
-        bigint to_user_id FK "接收方"
-        bigint product_id FK "关联商品"
-        tinyint message_type "消息类型"
-        tinyint is_read "是否已读"
-        datetime create_time "发送时间"
-    }
-
-    STOCK_CHANGE_LOG {
-        bigint id PK "主键"
-        varchar change_no "变更单号"
-        varchar order_no FK "关联订单"
-        bigint product_id FK "商品"
-        int quantity "变更数量"
-        tinyint status "0待落库 1已落库"
-    }
-
-    USER_BEHAVIOR_LOG {
-        bigint id PK "主键"
-        bigint user_id FK "用户"
-        bigint product_id FK "商品"
-        bigint category_id "分类"
-        tinyint behavior_type "1浏览 2收藏 3购买 4搜索"
-        datetime create_time "发生时间"
-    }
-
-    USER ||--o{ PRODUCT : "发布"
-    CATEGORY ||--o{ PRODUCT : "归属"
-    USER ||--o{ ORDERS : "买入"
-    USER ||--o{ ORDERS : "卖出"
-    PRODUCT ||--o{ ORDERS : "下单快照"
-    ADDRESS_BOOK ||--o{ ORDERS : "收货地址"
-    USER ||--o{ ADDRESS_BOOK : "拥有"
-    USER ||--o{ FAVORITE : "收藏"
-    PRODUCT ||--o{ FAVORITE : "被收藏"
-    USER ||--o{ COMMENT : "发表"
-    PRODUCT ||--o{ COMMENT : "被评论"
-    USER ||--o{ CHAT_MESSAGE : "发送"
-    USER ||--o{ CHAT_MESSAGE : "接收"
-    PRODUCT ||--o{ CHAT_MESSAGE : "咨询"
-    PRODUCT ||--o{ STOCK_CHANGE_LOG : "库存变更"
-    ORDERS ||--o{ STOCK_CHANGE_LOG : "触发"
-    USER ||--o{ USER_BEHAVIOR_LOG : "产生"
-    PRODUCT ||--o{ USER_BEHAVIOR_LOG : "关联"
-    ADMIN ||--o{ ADMIN_OPERATION_LOG : "操作"
-    ADMIN ||--o{ AUDIT_RECORD : "审核"
-```
+> 完整字段、索引与建表 SQL 见 [数据库设计](docs/swapu_database.md)；图源：[docs/diagrams/er-model.mmd](docs/diagrams/er-model.mmd)。
 
 ## 业务架构
 
@@ -379,61 +205,9 @@ erDiagram
 
 ### 商品交易流程图
 
-```mermaid
-sequenceDiagram
-    autonumber
-    participant B as 买家
-    participant F as 用户端 SPA
-    participant S as SwapU_user
-    participant R as Redis
-    participant Q as RabbitMQ
-    participant D as MySQL
-    participant W as WebSocket
-    participant SL as 卖家
+![商品交易流程图](docs/diagrams/trade-flow.svg)
 
-    B->>F: 浏览商品详情
-    F->>S: GET /product/detail/{id}
-    S->>R: 读取热点商品缓存
-    alt 缓存命中
-        R-->>S: 返回缓存数据
-    else 缓存未命中
-        S->>D: 查询商品
-        S->>R: 回填缓存
-    end
-    S-->>F: 商品详情
-    S->>R: 浏览量自增（异步批量回写）
-
-    B->>F: 提交订单
-    F->>S: POST /order/create
-    S->>R: Lua 原子预扣库存
-    alt 库存不足
-        R-->>S: 返回 0
-        S-->>F: 库存不足，下单失败
-    else 扣减成功
-        S->>D: 写订单 + 库存变更日志
-        S->>Q: 投递库存变更消息
-        Q->>D: 异步扣减库存（幂等）
-        S-->>F: 下单成功
-    end
-
-    B->>F: 余额支付
-    F->>S: POST /order/pay
-    S->>D: 条件更新状态为待发货
-    S->>W: 推送系统消息
-    W-->>SL: 提醒尽快发货
-
-    SL->>F: 确认发货
-    F->>S: POST /order/deliver
-    S->>D: 状态流转为待收货
-    S->>W: 推送系统消息
-    W-->>B: 提醒注意物流
-
-    B->>F: 确认收货
-    F->>S: POST /order/receive
-    S->>D: 状态流转为已收货
-    S->>W: 推送系统消息
-    W-->>SL: 交易完成通知
-```
+> 图源：[docs/diagrams/trade-flow.mmd](docs/diagrams/trade-flow.mmd)。
 
 ## 环境搭建
 

@@ -1,0 +1,51 @@
+sequenceDiagram
+    autonumber
+    participant B as 买家
+    participant F as 用户端
+    participant S as SwapU_user
+    participant R as Redis
+    participant Q as RabbitMQ
+    participant D as MySQL
+    participant W as WebSocket
+    participant SL as 卖家
+
+    B->>F: 浏览商品详情
+    F->>S: GET /product/detail
+    S->>R: 读取热点缓存
+    alt 缓存命中
+        R-->>S: 返回缓存
+    else 缓存未命中
+        S->>D: 查询商品
+        S->>R: 回填缓存
+    end
+    S-->>F: 商品详情
+
+    B->>F: 提交订单
+    F->>S: POST /order/create
+    S->>R: Lua 原子预扣库存
+    alt 库存不足
+        R-->>S: 返回 0
+        S-->>F: 下单失败
+    else 扣减成功
+        S->>D: 写订单与变更日志
+        S->>Q: 投递库存消息
+        Q->>D: 异步扣减库存
+        S-->>F: 下单成功
+    end
+
+    B->>F: 余额支付
+    F->>S: POST /order/pay
+    S->>D: 条件更新为待发货
+    S->>W: 推送系统消息
+    W-->>SL: 提醒发货
+
+    SL->>F: 确认发货
+    F->>S: POST /order/deliver
+    S->>D: 更新为待收货
+    S->>W: 推送系统消息
+    W-->>B: 提醒收货
+
+    B->>F: 确认收货
+    F->>S: POST /order/receive
+    S->>D: 更新为已收货
+    S-->>F: 交易完成

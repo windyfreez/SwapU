@@ -1,0 +1,93 @@
+erDiagram
+    USER {
+        bigint id PK
+        varchar username
+        decimal balance
+    }
+
+    ADDRESS_BOOK {
+        bigint id PK
+        bigint user_id FK
+        varchar detail
+    }
+
+    ADMIN {
+        bigint id PK
+        varchar username
+        tinyint role
+    }
+
+    ADMIN_OPERATION_LOG {
+        bigint id PK
+        bigint admin_id FK
+        varchar action
+    }
+
+    CATEGORY {
+        int id PK
+        varchar name
+        tinyint status
+    }
+
+    PRODUCT {
+        bigint id PK
+        bigint user_id FK
+        tinyint status
+    }
+
+    ORDERS {
+        bigint order_id PK
+        bigint buyer_id FK
+        tinyint status
+    }
+
+    FAVORITE {
+        bigint id PK
+        bigint user_id FK
+    }
+
+    COMMENT {
+        bigint id PK
+        bigint product_id FK
+    }
+
+    AUDIT_RECORD {
+        bigint id PK
+        bigint reviewer_id FK
+    }
+
+    CHAT_MESSAGE {
+        bigint id PK
+        bigint from_user_id FK
+    }
+
+    STOCK_CHANGE_LOG {
+        bigint id PK
+        bigint product_id FK
+    }
+
+    USER_BEHAVIOR_LOG {
+        bigint id PK
+        bigint user_id FK
+    }
+
+    USER ||--o{ PRODUCT : "发布"
+    CATEGORY ||--o{ PRODUCT : "归类"
+    USER ||--o{ ORDERS : "买入"
+    USER ||--o{ ORDERS : "卖出"
+    PRODUCT ||--o{ ORDERS : "快照"
+    ADDRESS_BOOK ||--o{ ORDERS : "送达"
+    USER ||--o{ ADDRESS_BOOK : "拥有"
+    USER ||--o{ FAVORITE : "收藏"
+    PRODUCT ||--o{ FAVORITE : "被收藏"
+    USER ||--o{ COMMENT : "发表"
+    PRODUCT ||--o{ COMMENT : "被评论"
+    USER ||--o{ CHAT_MESSAGE : "发送"
+    USER ||--o{ CHAT_MESSAGE : "接收"
+    PRODUCT ||--o{ CHAT_MESSAGE : "咨询"
+    PRODUCT ||--o{ STOCK_CHANGE_LOG : "变更"
+    ORDERS ||--o{ STOCK_CHANGE_LOG : "触发"
+    USER ||--o{ USER_BEHAVIOR_LOG : "产生"
+    PRODUCT ||--o{ USER_BEHAVIOR_LOG : "关联"
+    ADMIN ||--o{ ADMIN_OPERATION_LOG : "操作"
+    ADMIN ||--o{ AUDIT_RECORD : "审核"
