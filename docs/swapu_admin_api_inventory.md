@@ -12,14 +12,14 @@
 | 项 | 结论 |
 | --- | --- |
 | 服务端口 | `8081`（用户端是 `8080`，两个服务独立） |
-| Controller 数 | 5 个：管理员 / 审核 / 分类 / 用户管理 / 管理员操作日志 |
-| 接口总数 | **26 个**（管理员 9 + 审核 6 + 分类 5 + 用户 5 + 操作日志 1） |
+| Controller 数 | 6 个：管理员 / 审核 / 分类 / 用户管理 / 管理员操作日志 / 平台统计 |
+| 接口总数 | **30 个**（管理员 9 + 审核 6 + 分类 5 + 用户 5 + 操作日志 1 + 平台统计 4） |
 | 鉴权 | 两道拦截器：① JWT 验签（仅 `POST /admin/login` 放行）② 权限点校验（越权返回 `code=403`） |
 | 角色 | 1 超级管理员（全部权限）/ 3 运营管理员（审核 + 分类 + 用户）/ 2 普通管理员（仅审核） |
 | 响应 | `{ code, msg, data }`，成功 `code=200`；分页 `data = { total, records }` |
 | 未鉴权/过期 | **HTTP 401** + `{code:401,msg:"未登录或登录已过期"}` |
-| 已实现功能 | 管理员登录与账号管理、管理员操作日志、商品审核、评论审核、审核流水、分类 CRUD/启停、用户查询/启停/信用分/交易统计 |
-| 未实现功能 | **平台统计（工作台图表）0 个接口**、**头像审核 0 个接口**、订单/商品运营管理接口 |
+| 已实现功能 | 管理员登录与账号管理、管理员操作日志、商品审核、评论审核、审核流水、分类 CRUD/启停、用户查询/启停/信用分/交易统计、平台统计（总览/流量趋势/商品状态/分类销售） |
+| 未实现功能 | **头像审核 0 个接口**、订单/商品运营管理接口 |
 | 初始超管 | `root / 123456`（见 `swapu_admin/src/main/resources/sql/admin.sql`） |
 
 ### 前端必须注意的 6 个坑
@@ -127,6 +127,7 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | 用户状态 `user.status` | 1 正常，0 禁用 |
 | 分类状态 `category.status` | 1 启用，0 禁用 |
 | 订单状态（交易统计用） | 2 待支付，3 待发货，4 待收货，5 已收货，6 取消 |
+| 用户行为类型 `user_behavior_log.behavior_type` | 1 浏览，2 收藏，3 购买，4 搜索 |
 
 ### 1.5 分页约定
 
@@ -141,7 +142,7 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 
 ---
 
-## 2. 接口总表（26 个）
+## 2. 接口总表（30 个）
 
 | 编号 | 模块 | 方法 | 路径 | 用途 | 登录 | 权限点 | 对应页面 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -171,6 +172,10 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | USR-04 | 用户 | PUT | `/admin/user/{id}/credit-score` | 修改信用分 | 是 | `USER_MANAGE` | 用户管理 |
 | USR-05 | 用户 | GET | `/admin/user/{id}/trade-statistics` | 用户交易统计 | 是 | `USER_MANAGE` | 用户管理 |
 | LOG-01 | 操作日志 | GET | `/admin/operation-log/page` | 分页查询管理员操作日志 | 是 | `ADMIN_MANAGE` | 操作日志 |
+| STA-01 | 平台统计 | GET | `/admin/statistics/overview` | 平台总览指标 | 是 | `AUDIT` | 工作台 |
+| STA-02 | 平台统计 | GET | `/admin/statistics/traffic-trend` | 流量趋势（按天） | 是 | `AUDIT` | 工作台 |
+| STA-03 | 平台统计 | GET | `/admin/statistics/product-status` | 商品状态分布 | 是 | `AUDIT` | 工作台 |
+| STA-04 | 平台统计 | GET | `/admin/statistics/category-sales` | 分类成交额 Top N | 是 | `AUDIT` | 工作台 |
 
 ---
 
@@ -652,6 +657,61 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
   }
 }
 ```
+
+---
+
+## 6.2 平台统计（4 个）
+
+权限统一为 `AUDIT`（三种角色都有），因为工作台对所有人可见。
+
+### STA-01 平台总览
+
+- **GET** `/admin/statistics/overview`
+- 响应 `data`：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| onSaleCount | number | 在售商品数（`product.status = 1`） |
+| pendingAuditCount | number | 待审核商品数（`status = 0`） |
+| soldCount | number | 交易完成数（`orders.status = 5` 已收货） |
+| totalAmount | number | 累计成交额（已完成订单合计） |
+| totalViewCount | number | 平台商品总浏览量（`sum(product.view_count)`） |
+| totalUserCount | number | 注册用户总数 |
+| todayOrderCount | number | 今日新增订单数（按下单时间） |
+| todayAmount | number | 今日成交额（按完成时间） |
+
+```json
+{ "code": 200, "msg": "success", "data": {
+  "onSaleCount": 78, "pendingAuditCount": 0, "soldCount": 6, "totalAmount": 6441.00,
+  "totalViewCount": 1506, "totalUserCount": 11, "todayOrderCount": 0, "todayAmount": 0.00 } }
+```
+
+### STA-02 流量趋势（按天）
+
+- **GET** `/admin/statistics/traffic-trend`
+- Query：`startDate`、`endDate`（`yyyy-MM-dd`，**都可选**）
+  - 都不传 → 最近 7 天；只传一个 → 另一端自动补齐；
+  - 开始晚于结束、或跨度超过 **90 天** → `code=4500`。
+- 响应 `data[]`：`date`、`viewCount`、`orderCount`、`amount`
+- **缺失日期会被补成 0**（长度 = 区间天数），前端不需要自己补点。
+
+### STA-03 商品状态分布
+
+- **GET** `/admin/statistics/product-status`
+- 响应 `data[]`：`status`、`statusDesc`、`count`
+- 只返回 `count > 0` 的状态，按 status 升序；`statusDesc` 取自 `StringConstant`（审核中/售卖中/已售出/已下架/审核驳回）。
+
+### STA-04 分类成交额 Top N
+
+- **GET** `/admin/statistics/category-sales`
+- Query：`limit`（可选，缺省 10、上限 50）
+- 响应 `data[]`：`categoryId`、`categoryName`、`salesCount`（成交件数）、`salesAmount`（成交额）
+- 只统计已完成订单（`orders.status = 5`），按成交额倒序。
+
+> **数据口径（前端展示时建议标注）**
+> 1. **流量** = 登录用户的浏览行为条数（`user_behavior_log.behavior_type = 1`）。游客浏览不落行为日志，所以这是**下限**，不等于真实 PV。
+> 2. **成交额** 按 `orders.receive_time`（收货时间）归集，只算 `status = 5`；已退货退款（`status = 8`）不计入。
+> 3. **今日订单** 按 `create_time`，**今日成交额** 按 `receive_time`，两者可能不同步。
 
 ---
 

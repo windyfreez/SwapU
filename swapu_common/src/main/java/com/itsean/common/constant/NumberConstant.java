@@ -40,6 +40,12 @@ public class NumberConstant {
     public static final int STOCK_CHANGE_OP_RESTORE = 2;//回补
     public static final int CREDIT_SCORE_MIN = 0;//最低信用分
     public static final int PRODUCT_STATUS_AUDIT_REJECTED = 4;//审核驳回
+
+    // ===== 用户行为类型（user_behavior_log.behavior_type）=====
+    public static final int BEHAVIOR_TYPE_VIEW = 1;//浏览
+    public static final int BEHAVIOR_TYPE_FAVORITE = 2;//收藏
+    public static final int BEHAVIOR_TYPE_ORDER = 3;//购买
+    public static final int BEHAVIOR_TYPE_SEARCH = 4;//搜索
     public static final int COMMENT_STATUS_PENDING = 0;//待审核
     public static final int COMMENT_STATUS_PUBLISHED = 1;//已发布
     public static final int COMMENT_STATUS_REJECTED = 2;//审核驳回

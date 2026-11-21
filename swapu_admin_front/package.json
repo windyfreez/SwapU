@@ -9,6 +9,7 @@
     "preview": "vite preview --port 4174"
   },
   "dependencies": {
+    "echarts": "^6.1.0",
     "vue": "^3.2.38",
     "vue-router": "^4.6.4"
   },

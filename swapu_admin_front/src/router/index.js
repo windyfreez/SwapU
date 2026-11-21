@@ -4,7 +4,9 @@ import { refreshAdminMe } from '../api/auth'
 import { hasPermission, PERMISSION } from '../utils/permission'
 import AdminLayout from '../components/AdminLayout.vue'
 import Login from '../views/Login.vue'
-import Dashboard from '../views/Dashboard.vue'
+// 工作台是唯一依赖 ECharts 的页面，改为路由级懒加载，
+// 这样登录页与其它页面不必下载图表库（ECharts 约 190KB gzip）
+const Dashboard = () => import('../views/Dashboard.vue')
 import ProductAudit from '../views/ProductAudit.vue'
 import CommentAudit from '../views/CommentAudit.vue'
 import AuditRecords from '../views/AuditRecords.vue'

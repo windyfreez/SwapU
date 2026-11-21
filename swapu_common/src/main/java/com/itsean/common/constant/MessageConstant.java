@@ -77,6 +77,8 @@ public class MessageConstant {
     public static final String ADMIN_ROLE_ERROR = "管理员角色取值不合法";
     /** 不允许修改自己的角色 */
     public static final String ADMIN_CANNOT_CHANGE_SELF_ROLE = "不能修改自己的角色，请让其他超级管理员操作";
+    /** 平台统计的日期区间不合法 */
+    public static final String STATISTICS_DATE_RANGE_ERROR = "统计区间不合法：开始日期不能晚于结束日期，且跨度不能超过90天";
     public static final String CATEGORY_NAME_ALREADY_EXIST = "分类名称已存在";
     public static final String CATEGORY_NOT_ALLOW_DISABLE = "该分类下存在在售商品，请先下架商品再禁用分类";
     public static final String CATEGORY_HAS_PRODUCT = "该分类下存在商品，无法删除";

@@ -37,4 +37,7 @@ public class ErrorCodeConstant {
     public static final Integer USER_STATUS_ERROR = 4402;//用户状态值不合法
     public static final Integer USER_CREDIT_SCORE_ERROR = 4403;//信用分取值不合法
 
+    //平台统计错误码 4500-4503
+    public static final Integer STATISTICS_PARAM_ERROR = 4500;//统计参数不合法
+
 }

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.itsean.swapu_admin.mapper.StatisticsMapper">
+
+    <resultMap id="OverviewMap" type="com.itsean.swapu_admin.vo.StatisticsOverviewVO">
+        <result property="onSaleCount" column="on_sale_count"/>
+        <result property="pendingAuditCount" column="pending_audit_count"/>
+        <result property="soldCount" column="sold_count"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="totalViewCount" column="total_view_count"/>
+        <result property="totalUserCount" column="total_user_count"/>
+        <result property="todayOrderCount" column="today_order_count"/>
+        <result property="todayAmount" column="today_amount"/>
+    </resultMap>
+
+    <resultMap id="TrendPointMap" type="com.itsean.swapu_admin.vo.TrendPoint">
+        <result property="statDate" column="stat_date"/>
+        <result property="statValue" column="stat_value"/>
+    </resultMap>
+
+    <resultMap id="ProductStatusMap" type="com.itsean.swapu_admin.vo.ProductStatusStatVO">
+        <result property="status" column="status"/>
+        <result property="count" column="cnt"/>
+    </resultMap>
+
+    <resultMap id="CategorySalesMap" type="com.itsean.swapu_admin.vo.CategorySalesVO">
+        <result property="categoryId" column="category_id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="salesCount" column="sales_count"/>
+        <result property="salesAmount" column="sales_amount"/>
+    </resultMap>
+
+    <!-- 单次往返拿到全部总览指标；聚合列都做了 ifnull，避免空表时返回 null -->
+    <select id="overview" resultMap="OverviewMap">
+        select
+            (select count(*) from product where status = 1) as on_sale_count,
+            (select count(*) from product where status = 0) as pending_audit_count,
+            (select count(*) from orders where status = 5) as sold_count,
+            (select ifnull(sum(total_amount), 0) from orders where status = 5) as total_amount,
+            (select ifnull(sum(view_count), 0) from product) as total_view_count,
+            (select count(*) from `user`) as total_user_count,
+            (select count(*) from orders where create_time &gt;= curdate()) as today_order_count,
+            (select ifnull(sum(total_amount), 0) from orders
+              where status = 5 and receive_time is not null and receive_time &gt;= curdate()) as today_amount
+    </select>
+
+    <!-- 流量：登录用户的浏览行为条数（游客浏览不落行为日志，因此是下限） -->
+    <select id="viewTrend" resultMap="TrendPointMap">
+        select date(create_time) as stat_date, count(*) as stat_value
+        from user_behavior_log
+        where behavior_type = #{behaviorType}
+          and create_time &gt;= #{start}
+          and create_time &lt; date_add(#{end}, interval 1 day)
+        group by date(create_time)
+        order by stat_date
+    </select>
+
+    <!-- 下单数按创建时间归集 -->
+    <select id="orderTrend" resultMap="TrendPointMap">
+        select date(create_time) as stat_date, count(*) as stat_value
+        from orders
+        where create_time &gt;= #{start}
+          and create_time &lt; date_add(#{end}, interval 1 day)
+        group by date(create_time)
+        order by stat_date
+    </select>
+
+    <!-- 成交额按收货时间归集，只算已完成（status = 5）的订单 -->
+    <select id="amountTrend" resultMap="TrendPointMap">
+        select date(receive_time) as stat_date, ifnull(sum(total_amount), 0) as stat_value
+        from orders
+        where status = 5
+          and receive_time is not null
+          and receive_time &gt;= #{start}
+          and receive_time &lt; date_add(#{end}, interval 1 day)
+        group by date(receive_time)
+        order by stat_date
+    </select>
+
+    <select id="productStatusDistribution" resultMap="ProductStatusMap">
+        select status, count(*) as cnt
+        from product
+        group by status
+        order by status
+    </select>
+
+    <select id="categorySales" resultMap="CategorySalesMap">
+        select p.category_id                as category_id,
+               max(c.name)                  as category_name,
+               ifnull(sum(o.quantity), 0)   as sales_count,
+               ifnull(sum(o.total_amount), 0) as sales_amount
+        from orders o
+                 join product p on p.id = o.product_id
+                 left join category c on c.id = p.category_id
+        where o.status = 5
+        group by p.category_id
+        order by sales_amount desc
+        limit #{limit}
+    </select>
+
+</mapper>

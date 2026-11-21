@@ -78,6 +78,7 @@
 | 接口 | 权限 | 超管 | 运营 | 普通 |
 |---|---|:--:|:--:|:--:|
 | `GET /admin/audit/product/page` 等 6 个 | AUDIT | ✓ | ✓ | ✓ |
+| `GET /admin/statistics/overview` 等 4 个（工作台） | AUDIT | ✓ | ✓ | ✓ |
 | `GET /admin/user/page` 等 5 个 | USER_MANAGE | ✓ | ✓ | ✗ |
 | `POST/PUT/DELETE /admin/category`、`PUT /admin/category/{id}/status` | CATEGORY_MANAGE | ✓ | ✓ | ✗ |
 | `GET /admin/category/list` | **无（只读字典）** | ✓ | ✓ | ✓ |
