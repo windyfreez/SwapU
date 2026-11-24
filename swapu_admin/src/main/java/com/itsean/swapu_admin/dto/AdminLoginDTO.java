@@ -19,4 +19,10 @@ public class AdminLoginDTO implements Serializable {
     @ApiModelProperty("登录密码")
     private String password;
 
+    @ApiModelProperty("图形验证码标识，取自 /admin/captcha/image 的返回值")
+    private String captchaKey;
+
+    @ApiModelProperty("管理员输入的图形验证码")
+    private String captchaCode;
+
 }

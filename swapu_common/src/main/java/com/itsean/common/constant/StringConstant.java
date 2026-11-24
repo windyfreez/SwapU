@@ -63,4 +63,10 @@ public class StringConstant {
     /** 逻辑删除时改写账号名的后缀，拼在「原账号 + 后缀 + id」之间，用于释放原账号名 */
     public static final String ADMIN_DELETED_USERNAME_SUFFIX = "_del_";
 
+    // ===== 图形验证码 =====
+    /** 图形验证码在 Redis 中的键前缀，完整键为 captcha:{scene}:{captchaKey} */
+    public static final String CAPTCHA_REDIS_PREFIX = "captcha:";
+    /** 验证码生成频率限制的键前缀，按 IP + 自然分钟分桶 */
+    public static final String CAPTCHA_LIMIT_PREFIX = "captcha:limit:";
+
 }

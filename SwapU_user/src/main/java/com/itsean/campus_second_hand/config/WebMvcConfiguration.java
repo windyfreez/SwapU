@@ -102,6 +102,8 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
                 .addPathPatterns("/**")
                 //排除以下接口保证游客也可以访问分类、热门商品、全部商品、推荐商品和商品细节
                 .excludePathPatterns("/user/login", "/user/register")
+                  //图形验证码在登录/注册之前就要拿到，必须允许游客访问
+                  .excludePathPatterns("/captcha/**")
                 .excludePathPatterns("/category/list")
                 .excludePathPatterns("/product/detail/**")
                 .excludePathPatterns("/product/list")

@@ -110,6 +110,7 @@
 
 <script setup>
 import AccountLayout from '../components/AccountLayout.vue';
+import { setUserInfo } from '../utils/user';
 import { ref, reactive, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 const router = useRouter();
@@ -241,7 +242,7 @@ const loadUserInfo = async () => {
  const data = await response.json();
  if (data.code === 200) {
  Object.assign(form, data.data);
- localStorage.setItem('userInfo', JSON.stringify(data.data));
+ setUserInfo(data.data);
  }
  }
  }

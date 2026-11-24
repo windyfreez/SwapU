@@ -3,6 +3,8 @@ package com.itsean.swapu_admin.service.impl;
 import cn.hutool.crypto.digest.BCrypt;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.itsean.common.captcha.CaptchaScene;
+import com.itsean.common.captcha.CaptchaService;
 import com.itsean.pojo.PageResult;
 import com.itsean.swapu_admin.constant.AdminLogAction;
 import com.itsean.swapu_admin.constant.AdminPermission;
@@ -49,6 +51,11 @@ public class AdminServiceImpl implements AdminService {
     private AdminPermissionService adminPermissionService;
     @Autowired
     private AdminOperationLogService adminOperationLogService;
+    /**
+     * 图形验证码服务：登录提交时先校验，通过后才查库比对密码
+     */
+    @Autowired
+    private CaptchaService captchaService;
 
     /**
      * 管理员登录，校验账号密码与账号状态
@@ -58,6 +65,10 @@ public class AdminServiceImpl implements AdminService {
      */
     @Override
     public Admin login(AdminLoginDTO adminLoginDTO) {
+        //先校验图形验证码：不通过就不查库，避免自动化脚本直接撞库
+        captchaService.verify(CaptchaScene.ADMIN_LOGIN,
+                adminLoginDTO.getCaptchaKey(), adminLoginDTO.getCaptchaCode());
+
         String username = adminLoginDTO.getUsername();
         String password = adminLoginDTO.getPassword();
 

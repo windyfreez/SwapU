@@ -67,6 +67,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { clearUserInfo, readCachedUserInfo, refreshUserInfo, userInfo } from '../utils/user'
 import {
   LAYOUT_ORDER,
   LAYOUT_LABELS,
@@ -77,7 +78,7 @@ import {
 const router = useRouter()
 const keyword = ref('')
 const loggedIn = ref(false)
-const user = ref({})
+const user = userInfo
 const menuOpen = ref(false)
 const menuRef = ref(null)
 
@@ -109,16 +110,15 @@ const menuItems = [
 
 const loadUser = () => {
   loggedIn.value = !!localStorage.getItem('token')
-  const saved = localStorage.getItem('userInfo')
-  if (saved && saved !== 'undefined' && saved !== 'null') {
-    try {
-      user.value = JSON.parse(saved)
-    } catch (e) {
-      user.value = {}
-    }
-  } else {
-    user.value = {}
+  if (!loggedIn.value) {
+    clearUserInfo()
+    return
   }
+
+  // 先用本地缓存渲染，避免首屏空一帧
+  readCachedUserInfo()
+  // 登录响应只带 id/userName/token，没有头像；挂载时补一次完整资料
+  refreshUserInfo()
 }
 
 const handleSearch = () => {
@@ -131,8 +131,8 @@ const handleSearch = () => {
 const handleLogout = () => {
   if (!confirm('确定要退出登录吗？')) return
   localStorage.removeItem('token')
-  localStorage.removeItem('userInfo')
   localStorage.removeItem('userId')
+  clearUserInfo()
   loggedIn.value = false
   menuOpen.value = false
   router.push('/')

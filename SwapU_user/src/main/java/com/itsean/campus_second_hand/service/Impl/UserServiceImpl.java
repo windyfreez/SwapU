@@ -1,6 +1,8 @@
 package com.itsean.campus_second_hand.service.impl;
 
 import cn.hutool.crypto.digest.BCrypt;
+import com.itsean.common.captcha.CaptchaScene;
+import com.itsean.common.captcha.CaptchaService;
 import com.itsean.common.constant.MessageConstant;
 import com.itsean.common.constant.NumberConstant;
 import com.itsean.common.context.BaseContext;
@@ -32,6 +34,11 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private ProductMapper productMapper;
+    /**
+     * 图形验证码服务：登录与注册提交时先校验，通过后才继续后面的业务
+     */
+    @Autowired
+    private CaptchaService captchaService;
 
     /**
      * 新用户注册
@@ -40,6 +47,9 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserRegisterVO register(UserRegisterDTO userRegisterDTO) {
+        //先校验图形验证码，避免注册接口被批量刷号
+        captchaService.verify(CaptchaScene.USER_REGISTER,
+                userRegisterDTO.getCaptchaKey(), userRegisterDTO.getCaptchaCode());
 
         String phone = userRegisterDTO.getPhone();
         String email = userRegisterDTO.getEmail();
@@ -84,17 +94,17 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public User login(UserLoginDTO userLoginDTO) {
+        //先校验图形验证码：不通过就不查库，避免脚本直接撞库
+        captchaService.verify(CaptchaScene.USER_LOGIN,
+                userLoginDTO.getCaptchaKey(), userLoginDTO.getCaptchaCode());
+
         String username = userLoginDTO.getUsername();
         String password = DigestUtils.md5DigestAsHex(userLoginDTO.getPassword().getBytes());
         User user = userMapper.findByUsername(username);
 
-        //账户不存在
-        if(user == null){
-            throw new AccountRepeatException(MessageConstant.USER_NOT_EXIST);
-        }
-        //密码不正确
-        if(!user.getPassword().equals(password)){
-            throw new AccountRepeatException(MessageConstant.PASSWORD_ERROR);
+        //账号不存在与密码错误返回同一提示：既能少暴露信息，也能避免被用来枚举账号
+        if(user == null || !user.getPassword().equals(password)){
+            throw new AccountRepeatException(MessageConstant.LOGIN_CREDENTIALS_ERROR);
         }
         //账户已锁定
         if(user.getStatus().equals(NumberConstant.ACCOUNT_STATUS_LOCK)){

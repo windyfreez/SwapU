@@ -292,7 +292,7 @@ const sendMessage = async () => {
       inputMessage.value = ''
       fetchHistory()
     } else {
-      alert(data.message || '发送失败')
+      alert(data.msg || '发送失败')
     }
   } catch (error) {
     console.warn('发送失败，本地模拟发送:', error)

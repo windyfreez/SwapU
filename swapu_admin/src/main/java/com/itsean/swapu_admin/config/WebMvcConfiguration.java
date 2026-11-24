@@ -105,13 +105,17 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         // 第一道：管理端接口使用 admin-secret-key 校验「你是谁」，登录接口放行
         registry.addInterceptor(jwtTokenAdminInterceptor)
                 .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/login");
+                .excludePathPatterns("/admin/login")
+                  //验证码接口在登录页就要调用，令牌与权限两道关卡都必须放行
+                  .excludePathPatterns("/admin/captcha/**");
 
         // 第二道：「你能做什么」，只拦截标注了 @RequirePermission 的接口
         // 注册顺序即执行顺序，必须排在令牌校验之后，否则取不到 BaseContext 中的 adminId
         registry.addInterceptor(adminPermissionInterceptor)
                 .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/login");
+                .excludePathPatterns("/admin/login")
+                  //验证码接口在登录页就要调用，令牌与权限两道关卡都必须放行
+                  .excludePathPatterns("/admin/captcha/**");
     }
 
 }

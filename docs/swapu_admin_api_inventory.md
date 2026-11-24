@@ -12,9 +12,9 @@
 | 项 | 结论 |
 | --- | --- |
 | 服务端口 | `8081`（用户端是 `8080`，两个服务独立） |
-| Controller 数 | 6 个：管理员 / 审核 / 分类 / 用户管理 / 管理员操作日志 / 平台统计 |
-| 接口总数 | **30 个**（管理员 9 + 审核 6 + 分类 5 + 用户 5 + 操作日志 1 + 平台统计 4） |
-| 鉴权 | 两道拦截器：① JWT 验签（仅 `POST /admin/login` 放行）② 权限点校验（越权返回 `code=403`） |
+| Controller 数 | 7 个：管理员 / 审核 / 分类 / 用户管理 / 管理员操作日志 / 平台统计 / 图形验证码 |
+| 接口总数 | **31 个**（管理员 9 + 审核 6 + 分类 5 + 用户 5 + 操作日志 1 + 平台统计 4 + 图形验证码 1） |
+| 鉴权 | 两道拦截器：① JWT 验签（放行 `POST /admin/login` 与 `/admin/captcha/**`）② 权限点校验（越权返回 `code=403`） |
 | 角色 | 1 超级管理员（全部权限）/ 3 运营管理员（审核 + 分类 + 用户）/ 2 普通管理员（仅审核） |
 | 响应 | `{ code, msg, data }`，成功 `code=200`；分页 `data = { total, records }` |
 | 未鉴权/过期 | **HTTP 401** + `{code:401,msg:"未登录或登录已过期"}` |
@@ -142,10 +142,11 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 
 ---
 
-## 2. 接口总表（30 个）
+## 2. 接口总表（31 个）
 
 | 编号 | 模块 | 方法 | 路径 | 用途 | 登录 | 权限点 | 对应页面 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| CAP-01 | 图形验证码 | GET | `/admin/captcha/image` | 获取登录图形验证码 | 否 | 公开 | 管理端登录 |
 | ADM-01 | 管理员 | POST | `/admin/login` | 管理员登录 | 否 | 公开 | 管理端登录 |
 | ADM-02 | 管理员 | POST | `/admin` | 新增管理员 | 是 | `ADMIN_MANAGE` | 管理员管理 |
 | ADM-03 | 管理员 | GET | `/admin/page` | 分页查询管理员 | 是 | `ADMIN_MANAGE` | 管理员管理 |
@@ -181,6 +182,20 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 
 ## 3. 管理员模块（9 个）
 
+### CAP-01 获取登录图形验证码
+
+- **GET** `/admin/captcha/image`，无需登录（令牌与权限两个拦截器都已放行该路径）
+- 响应 `data`：
+
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| captchaKey | string | 本次验证码标识，登录时原样回传 |
+| captchaImage | string | base64 图片，形如 `data:image/png;base64,...` |
+| expireSeconds | number | 有效期（秒），默认 120 |
+
+- 说明：验证码**一次性**，校验后立即从 Redis 删除（无论对错）；同一 IP 每分钟最多生成 30 次，超限返回 `code=401`。
+- 前端：登录页挂载时拉取一张，登录失败后必须重新拉取再提交。
+
 ### ADM-01 管理员登录
 
 - **POST** `/admin/login`，无需登录
@@ -190,9 +205,11 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | --- | --- | --- | --- |
 | username | string | 是 | 管理员账号 |
 | password | string | 是 | 明文密码，后端 BCrypt 校验 |
+| captchaKey | string | 是 | CAP-01 返回的标识 |
+| captchaCode | string | 是 | 管理员输入的验证码，忽略大小写 |
 
 ```json
-{ "username": "root", "password": "123456" }
+{ "username": "superadmin", "password": "123456", "captchaKey": "9f2c1d7a...", "captchaCode": "A7K2" }
 ```
 
 - 响应 `data`：
@@ -207,7 +224,7 @@ localStorage.setItem('adminInfo', JSON.stringify(data.adminInfo))
 | adminInfo.avatar | string/null | 头像 URL |
 | adminInfo.role | number | 1 超管，2 普通，3 运营 |
 
-- 错误：`4101` 账号或密码错误（账号为空也返回它）、`4102` 账号已被禁用。
+- 错误：`4101` 账号或密码错误（账号为空也返回它）、`4102` 账号已被禁用；验证码不通过返回 `code=401` 与具体原因（未填写/已过期/不正确）。
 - 前端：登录成功后保存 `adminToken`、`adminInfo`，**再调 `GET /admin/me` 拉取 `permissions`**，菜单与路由守卫按权限点判断（不要硬编码 `role === 1`）。
 
 ### ADM-02 新增管理员（`ADMIN_MANAGE`）

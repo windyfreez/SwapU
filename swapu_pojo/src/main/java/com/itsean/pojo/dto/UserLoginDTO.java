@@ -16,4 +16,10 @@ public class UserLoginDTO implements Serializable {
     @ApiModelProperty("密码")
     private String password;
 
+    @ApiModelProperty("图形验证码标识，取自 /captcha/image 的返回值")
+    private String captchaKey;
+
+    @ApiModelProperty("用户输入的图形验证码")
+    private String captchaCode;
+
 }

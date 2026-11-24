@@ -12,6 +12,10 @@ public class MessageConstant {
     public static final String PASSWORD_ERROR = "密码错误，请重试";
     public static final String USER_NOT_EXIST = "账户不存在";
     public static final String USER_LOCK = "账户已被锁定";
+    /**
+     * 用户登录失败统一提示：不区分"账号不存在"与"密码错误"，避免被用来枚举账号
+     */
+    public static final String LOGIN_CREDENTIALS_ERROR = "用户名或密码错误";
     public static final String OLD_NEW_PASSWORD_SAME = "新密码和旧密码相同";
     public static final String CONFIRM_NEW_PASSWORD_NOT_SAME = "确认密码和新密码不相同";
     public static final String OLD_PASSWORD_ERROR = "输入的旧密码不正确";
@@ -116,6 +120,20 @@ public class MessageConstant {
     public static final String QUANTITY_INVALID = "购买数量必须大于0";
     /** 余额支付未输入支付密码 */
     public static final String PAY_PASSWORD_REQUIRED = "余额支付需要输入支付密码";
+
+    // ===== 图形验证码 =====
+    /** 未填写验证码 */
+    public static final String CAPTCHA_REQUIRED = "请输入图形验证码";
+    /** 验证码过期或不存在 */
+    public static final String CAPTCHA_EXPIRED = "验证码已过期，请点击图片刷新";
+    /** 验证码不匹配 */
+    public static final String CAPTCHA_INCORRECT = "验证码错误，请重新输入";
+    /** Redis 异常导致的验证码不可用 */
+    public static final String CAPTCHA_SERVICE_UNAVAILABLE = "验证码服务暂时不可用，请稍后再试";
+    /** 单位时间内请求验证码过多 */
+    public static final String CAPTCHA_REQUEST_TOO_FREQUENT = "验证码请求过于频繁，请稍后再试";
+    /** 传入的场景值不在支持范围内 */
+    public static final String CAPTCHA_SCENE_INVALID = "不支持的验证码场景";
 
     // ===== 以下合并自 g-swapu_admin-MessageConstant.java =====
 

@@ -125,6 +125,7 @@
 import { ref, reactive, onMounted, watch, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AccountLayout from '../components/AccountLayout.vue'
+import { setUserInfo } from '../utils/user'
 
 const router = useRouter()
 const isLoggedIn = ref(false)
@@ -341,7 +342,7 @@ const loadUserInfo = async () => {
 
     if (data.code === 200) {
       Object.assign(userInfo, data.data)
-      localStorage.setItem('userInfo', JSON.stringify(data.data))
+      setUserInfo(data.data)
       isLoggedIn.value = true
     } else {
       localStorage.removeItem('token')

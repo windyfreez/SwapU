@@ -92,6 +92,17 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label class="form-label">验证码 <span class="required">*</span></label>
+        <CaptchaField
+          ref="captchaRef"
+          v-model:code="form.captchaCode"
+          v-model:captchaKey="form.captchaKey"
+          scene="user-register"
+          :disabled="isLoading"
+        />
+      </div>
+
       <label class="agree-checkbox">
         <input type="checkbox" v-model="agree" />
         <span>我已阅读并同意</span>
@@ -116,10 +127,12 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import AuthShell from '../components/AuthShell.vue'
+import CaptchaField from '../components/CaptchaField.vue'
 
 const router = useRouter()
 const isLoading = ref(false)
 const agree = ref(false)
+const captchaRef = ref(null)
 
 const form = reactive({
   studentId: '',
@@ -129,7 +142,9 @@ const form = reactive({
   confirmPassword: '',
   phone: '',
   email: '',
-  college: ''
+  college: '',
+  captchaKey: '',
+  captchaCode: ''
 })
 
 const handleRegister = async () => {
@@ -157,6 +172,10 @@ const handleRegister = async () => {
     alert('请选择学院')
     return
   }
+  if (!form.captchaCode) {
+    alert('请输入图形验证码')
+    return
+  }
   if (!agree.value) {
     alert('请同意用户协议和隐私政策')
     return
@@ -177,7 +196,9 @@ const handleRegister = async () => {
         password: form.password,
         phone: form.phone,
         email: form.email,
-        college: form.college
+        college: form.college,
+        captchaKey: form.captchaKey,
+        captchaCode: form.captchaCode
       })
     })
 
@@ -202,11 +223,15 @@ const handleRegister = async () => {
       alert('注册成功，请登录')
       router.push('/login')
     } else {
-      alert(data.message || '注册失败')
+      // 后端统一返回体字段是 msg
+      alert(data.msg || '注册失败')
+      // 验证码一次性，失败后必须换一张
+      if (captchaRef.value) captchaRef.value.refresh()
     }
   } catch (error) {
     console.error('注册失败:', error)
     alert('注册失败，请稍后重试')
+    if (captchaRef.value) captchaRef.value.refresh()
   } finally {
     isLoading.value = false
   }

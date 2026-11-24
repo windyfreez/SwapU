@@ -23,6 +23,49 @@
 
 ## 用户模块
 
+### 1.0 获取图形验证码
+
+#### 接口描述
+登录与注册页在提交前先获取一张图形验证码；返回的 captchaKey 必须与用户输入的字符一起回传。
+
+#### 请求信息
+- **URL**: `/captcha/image`
+- **方法**: `GET`
+- **需要登录**: 否
+
+#### 请求参数（Query）
+| 参数名 | 类型 | 必填 | 说明 | 示例 |
+|--------|------|------|------|------|
+| scene | String | 否 | 使用场景：user-login（默认）/ user-register | "user-login" |
+
+#### 响应参数
+| 参数名 | 类型 | 说明 |
+|--------|------|------|
+| code | Integer | 状态码：200 成功 |
+| message | String | 响应信息 |
+| data.captchaKey | String | 本次验证码标识，登录/注册时原样回传 |
+| data.captchaImage | String | base64 图片，形如 data:image/png;base64,... |
+| data.expireSeconds | Integer | 有效期（秒），默认 120 |
+
+#### 响应示例
+```json
+{
+  "code": 200,
+  "message": "success",
+  "data": {
+    "captchaKey": "9f2c1d7a4b6e4c0d8a5f3e2b1c0d9e8f",
+    "captchaImage": "data:image/png;base64,iVBORw0KGgo...",
+    "expireSeconds": 120
+  }
+}
+```
+
+#### 说明
+- 验证码**一次性**：校验后立即从 Redis 删除，无论输入是否正确；失败后前端需要重新获取。
+- 同一 IP 每分钟最多生成 30 次（可通过 swapu.captcha.ip-limit-per-minute 调整），超限返回 code=401 与"验证码请求过于频繁"。
+
+---
+
 ### 1.1 用户注册
 
 #### 接口描述
@@ -37,21 +80,27 @@
 | 参数名 | 类型 | 必填 | 说明 | 示例 |
 |--------|------|------|------|------|
 | studentId | String | 是 | 学号 | "20210001" |
-| username | String | 是 | 用户名（2-20个字符） | "张三" |
+| username | String | 是 | 用户名（2-20个字符） | "zhangsan" |
+| nickname | String | 否 | 昵称 | "张三" |
 | password | String | 是 | 密码（6-20位） | "123456" |
 | phone | String | 是 | 手机号 | "13800138000" |
 | email | String | 否 | 邮箱 | "zhangsan@university.com" |
 | college | String | 是 | 学院 | "计算机学院" |
+| captchaKey | String | 是 | 取验证码时返回的标识（scene=user-register） | "9f2c1d7a..." |
+| captchaCode | String | 是 | 用户输入的图形验证码，忽略大小写 | "A7K2" |
 
 #### 请求示例
 ```json
 {
   "studentId": "20210001",
-  "username": "张三",
+  "username": "zhangsan",
+  "nickname": "张三",
   "password": "123456",
   "phone": "13800138000",
   "email": "zhangsan@university.com",
   "college": "计算机学院",
+  "captchaKey": "9f2c1d7a4b6e4c0d8a5f3e2b1c0d9e8f",
+  "captchaCode": "A7K2"
 }
 ```
 
@@ -73,7 +122,7 @@
   "data": {
     "userId": 1,
     "studentId": "20210001",
-    "username": "张三"
+    "username": "zhangsan"
   }
 }
 ```
@@ -81,16 +130,16 @@
 #### 错误码说明
 | 错误码 | 说明 |
 |--------|------|
+| 401 | 验证码未填写 / 已过期 / 不正确，msg 给出具体原因 |
 | 1001 | 学号已注册 |
 | 1002 | 手机号已注册 |
-| 1003 | 验证码错误或已过期 |
 
 ---
 
 ### 1.2 用户登录
 
 #### 接口描述
-用户登录获取token
+用户登录获取 token
 
 #### 请求信息
 - **URL**: `/user/login`
@@ -100,14 +149,18 @@
 #### 请求参数
 | 参数名 | 类型 | 必填 | 说明 | 示例 |
 |--------|------|------|------|------|
-| studentId | String | 是 | 学号 | "20210001" |
+| username | String | 是 | 用户名 | "zhangsan" |
 | password | String | 是 | 密码 | "123456" |
+| captchaKey | String | 是 | 取验证码时返回的标识（scene=user-login） | "9f2c1d7a..." |
+| captchaCode | String | 是 | 用户输入的图形验证码，忽略大小写 | "A7K2" |
 
 #### 请求示例
 ```json
 {
-  "studentId": "20210001",
-  "password": "123456"
+  "username": "zhangsan",
+  "password": "123456",
+  "captchaKey": "9f2c1d7a4b6e4c0d8a5f3e2b1c0d9e8f",
+  "captchaCode": "A7K2"
 }
 ```
 
@@ -136,7 +189,7 @@
     "expireTime": 604800000,
     "userInfo": {
       "id": 1,
-      "username": "张三",
+      "username": "zhangsan",
       "studentId": "20210001",
       "avatar": null,
       "creditScore": 100
@@ -148,9 +201,9 @@
 #### 错误码说明
 | 错误码 | 说明 |
 |--------|------|
-| 1004 | 学号不存在 |
-| 1005 | 密码错误 |
-| 1006 | 账号已被禁用 |
+| 401 | 验证码未填写 / 已过期 / 不正确，msg 给出具体原因 |
+| 401 | 用户名或密码错误（账号不存在与密码错误合并为同一提示，避免被用来枚举账号） |
+| 401 | 账户已被锁定 |
 
 ---
 

@@ -37,6 +37,11 @@ export default defineConfig({
         target: 'http://localhost:8080',
         changeOrigin: true
       },
+      // 图形验证码：登录/注册页在未登录状态下调用，必须转发到后端
+      '/captcha': {
+        target: 'http://localhost:8080',
+        changeOrigin: true
+      },
       '/favorite': {
         target: 'http://localhost:8080',
         changeOrigin: true
