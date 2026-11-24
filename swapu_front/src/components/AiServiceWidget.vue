@@ -43,10 +43,14 @@
               class="ai-msg"
               :class="message.role === 'user' ? 'is-me' : 'is-bot'"
             >
-              <div class="ai-bubble">{{ message.content }}</div>
+              <div class="ai-bubble">{{ message.content }}<span
+                v-if="message.streaming"
+                class="ai-caret"
+              ></span></div>
             </div>
 
-            <div v-if="loading" class="ai-msg is-bot">
+            <!-- 还没收到第一个字时显示打字动画，收到后由上面的空气泡接管 -->
+            <div v-if="loading && !streaming" class="ai-msg is-bot">
               <div class="ai-bubble ai-typing">
                 <span></span><span></span><span></span>
               </div>
@@ -107,6 +111,8 @@ const panelOpen = ref(false)
 const token = ref('')
 const input = ref('')
 const loading = ref(false)
+// 是否已经收到第一个增量：为 true 时用空气泡展示，打字动画让位
+const streaming = ref(false)
 const errorMsg = ref('')
 const messages = ref([])
 const bodyRef = ref(null)
@@ -155,6 +161,33 @@ const ask = (question) => {
   send()
 }
 
+/**
+ * 解析一帧 SSE 文本，返回 { event, data }
+ * 规范允许一个事件带多行 data，这里统一用换行拼接
+ */
+const parseSseBlock = (raw) => {
+  let event = 'message'
+  const dataLines = []
+  for (const line of raw.split('\n')) {
+    if (line.startsWith('event:')) {
+      event = line.slice(6).trim()
+    } else if (line.startsWith('data:')) {
+      // "data:" 后可能跟一个空格，按规范要去掉
+      dataLines.push(line.slice(5).replace(/^ /, ''))
+    }
+  }
+  if (!dataLines.length) return null
+  return { event, data: dataLines.join('\n') }
+}
+
+const parseJsonSafe = (text) => {
+  try {
+    return JSON.parse(text)
+  } catch (e) {
+    return null
+  }
+}
+
 const send = async () => {
   const prompt = input.value.trim()
   if (!prompt || loading.value) return
@@ -163,6 +196,7 @@ const send = async () => {
   input.value = ''
   errorMsg.value = ''
   loading.value = true
+  streaming.value = false
   scrollToBottom()
 
   // 历史只带本次提问之前的最近若干条
@@ -172,42 +206,113 @@ const send = async () => {
     .map((message) => ({ role: message.role, content: message.content }))
 
   let failReason = 'AI 客服暂时联系不上，请稍后再试'
+  let bubble = null
+
   try {
-    const response = await fetch('/user/ai/chat', {
+    const response = await fetch('/user/ai/chat/stream', {
       method: 'POST',
       headers: {
         'token': localStorage.getItem('token') || '',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'text/event-stream'
       },
       body: JSON.stringify({ prompt, history })
     })
 
-    // 未登录时拦截器返回 401，业务异常返回 200 + code=401，两种都要解析 body
-    let data = null
+    const contentType = response.headers.get('content-type') || ''
+    // 校验失败、触发限流、未登录等在建流之前就返回，此时是普通 JSON
+    if (!contentType.includes('text/event-stream')) {
+      let data = null
+      try {
+        data = await response.json()
+      } catch (e) {
+        data = null
+      }
+      if (response.status === 401) {
+        token.value = ''
+        failReason = '登录状态已过期，请重新登录后再咨询'
+      } else if (data && data.msg) {
+        failReason = data.msg
+      }
+      throw new Error(failReason)
+    }
+
+    if (!response.body) {
+      throw new Error(failReason)
+    }
+
+    // 先插入空气泡，首字到达后往里追加内容
+    messages.value.push({ role: 'assistant', content: '', streaming: true })
+    bubble = messages.value[messages.value.length - 1]
+    streaming.value = true
+    scrollToBottom()
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder('utf-8')
+    let buffer = ''
+    let finished = false
+
+    while (!finished) {
+      const { value, done } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+
+      // SSE 以空行分隔事件块，一次可能读到多个块
+      let boundary = buffer.indexOf('\n\n')
+      while (boundary >= 0) {
+        const raw = buffer.slice(0, boundary)
+        buffer = buffer.slice(boundary + 2)
+        boundary = buffer.indexOf('\n\n')
+
+        const block = parseSseBlock(raw)
+        if (!block) continue
+
+        if (block.event === 'delta') {
+          const payload = parseJsonSafe(block.data)
+          if (payload && payload.content) {
+            bubble.content += payload.content
+            scrollToBottom()
+          }
+        } else if (block.event === 'done') {
+          finished = true
+          break
+        } else if (block.event === 'error') {
+          const payload = parseJsonSafe(block.data)
+          failReason = (payload && payload.msg) || failReason
+          throw new Error(failReason)
+        }
+      }
+    }
+
+    // 拿到 done 后主动断开，避免连接一直挂着
     try {
-      data = await response.json()
+      await reader.cancel()
     } catch (e) {
-      data = null
+      // 流已自然结束时 cancel 会抛，忽略即可
     }
 
-    if (response.ok && data && data.code === 200 && data.data && data.data.content) {
-      messages.value.push({ role: 'assistant', content: data.data.content })
-      return
+    if (!bubble.content) {
+      throw new Error('AI 客服没有给出回答，换个说法再问一次试试')
     }
 
-    if (response.status === 401) {
-      token.value = ''
-      failReason = '登录状态已过期，请重新登录后再咨询'
-    } else if (data && data.msg) {
-      failReason = data.msg
-    }
+    bubble.streaming = false
+    return
   } catch (e) {
+    // 失败原因已经写进 failReason，这里只留一条调试日志
     console.warn('AI 客服请求失败:', e)
   } finally {
     loading.value = false
+    streaming.value = false
+    if (bubble) {
+      bubble.streaming = false
+    }
   }
 
-  // 失败时把这条提问撤回，让用户可以直接改一改重发
+  // 失败时撤掉机器人的空气泡与这条提问，回填输入框方便直接改一改重发
+  if (bubble) {
+    messages.value.pop()
+  }
   messages.value.pop()
   restorePrompt(prompt)
   errorMsg.value = failReason
@@ -354,6 +459,23 @@ const send = async () => {
 
 .ai-typing span:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+/* 流式输出时的光标 */
+.ai-caret {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: currentColor;
+  animation: ai-caret-blink 1s steps(2, start) infinite;
+}
+
+@keyframes ai-caret-blink {
+  to {
+    visibility: hidden;
+  }
 }
 
 @keyframes ai-blink {
