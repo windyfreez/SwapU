@@ -18,6 +18,7 @@ import com.itsean.campus_second_hand.vo.AiChatVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -102,6 +103,11 @@ public class AIServiceImpl implements AIService {
      * 容器超时相对上游读超时的富余量（毫秒）
      */
     private static final long STREAM_TIMEOUT_EXTRA_MILLIS = 5000L;
+
+    /**
+     * 显式指定 UTF-8：字符串若走默认字符集（ISO-8859-1）写出，中文会被替换成 '?'
+     */
+    private static final MediaType TEXT_PLAIN_UTF8 = new MediaType("text", "plain", StandardCharsets.UTF_8);
 
     @Autowired
     private DeepSeekProperties deepSeekProperties;
@@ -543,7 +549,7 @@ public class AIServiceImpl implements AIService {
      * @throws IOException 连接已断开时抛出
      */
     private void sendEvent(SseEmitter emitter, String event, String data) throws IOException {
-        emitter.send(SseEmitter.event().name(event).data(data));
+        emitter.send(SseEmitter.event().name(event).data(data, TEXT_PLAIN_UTF8));
     }
 
     /**

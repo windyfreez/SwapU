@@ -160,3 +160,4 @@ aspect                 # AOP 切面（行为埋点）
 | `Result.error` 返回 code=401 用于业务失败 | `Result.java` | 语义上业务失败建议独立错误码（如 4xx 业务码），`401` 留给未登录 |
 | ThreadLocal 未清理 | `JwtTokenUserInterceptor` | 补 `afterCompletion` |
 | 密码 MD5 明文 | `DigestUtils.md5DigestAsHex` | 建议加盐或 BCrypt |
+| 消息转换器字符集 | 两个 `WebMvcConfiguration` 继承 `WebMvcConfigurationSupport`，会绕过 Spring Boot 对转换器的定制；字符串默认按 ISO-8859-1 写出，SSE 帧里的中文会变成 `?` | 已在 `extendMessageConverters` 里补 UTF-8 的 `StringHttpMessageConverter`；新增返回 String 的接口时注意 |

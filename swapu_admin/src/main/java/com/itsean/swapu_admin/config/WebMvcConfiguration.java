@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -20,6 +22,7 @@ import springfox.documentation.service.RequestParameter;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,6 +90,14 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      * 设置静态资源映射
      * @param registry 资源处理器注册表
      */
+    @Override
+    protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        //本类继承 WebMvcConfigurationSupport，会绕过 Spring Boot 对消息转换器的定制，
+        //默认的 StringHttpMessageConverter 用 ISO-8859-1 编码，会把中文写成 '?'
+        converters.add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        super.extendMessageConverters(converters);
+    }
+
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("开始设置静态资源映射...");

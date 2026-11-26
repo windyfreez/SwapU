@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.StringHttpMessageConverter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -24,6 +26,8 @@ import springfox.documentation.spring.web.plugins.Docket;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * 配置类，注册web层相关组件
@@ -84,6 +88,14 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
      * 设置静态资源映射
      * @param registry
      */
+    protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        //本类继承 WebMvcConfigurationSupport，会绕过 Spring Boot 对消息转换器的定制，
+        //默认的 StringHttpMessageConverter 用 ISO-8859-1 编码，会把 SSE 帧里的中文写成 '?'
+        converters.add(0, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        super.extendMessageConverters(converters);
+    }
+
+    @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         log.info("开始设置静态资源映射...");
         registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
